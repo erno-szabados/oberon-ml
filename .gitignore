@@ -1,0 +1,8 @@
+*.sym
+*.c
+*.h
+*.o
+.tmp*
+PerceptronTest
+MathTest
+
