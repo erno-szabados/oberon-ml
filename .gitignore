@@ -3,6 +3,9 @@
 *.h
 *.o
 .tmp*
+.obnc
+.vscode
 PerceptronTest
 MathTest
+
 

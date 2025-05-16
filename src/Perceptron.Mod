@@ -1,24 +1,33 @@
 MODULE Perceptron;
 IMPORT Math;
 
-  TYPE 
-    Perceptron* = RECORD
-      weights*: POINTER TO ARRAY OF REAL;
-      bias*: REAL;
-      learningRate*: REAL;
-    END;
+CONST
+  MaxWeights* = 100; 
+
+TYPE
+Perceptron* = RECORD
+  weights*: ARRAY MaxWeights OF REAL;
+  bias*: REAL;
+  learningRate*: REAL;
+  numWeights*: INTEGER
+END;
+
 
   PROCEDURE Init*(VAR p: Perceptron; numInputs: INTEGER; lr: REAL);
-  VAR i : INTEGER;
+  VAR i, result: INTEGER;
   BEGIN
-    NEW(p.weights, numInputs); (* Allocate memory for weights *)
-    i := 0;
-    WHILE i < numInputs DO
-      p.weights[i] := 0.0; (* Initialize weights to 0 or random values *)
-      INC(i);
-    END;
-    p.bias := 0.0;
-    p.learningRate := lr;
+    IF numInputs > MaxWeights THEN
+      result := -1;
+    ELSE
+      p.numWeights := numInputs;
+      i := 0;
+      WHILE i < numInputs DO
+        p.weights[i] := 0.0; (* Initialize weights to 0 or random values *)
+        INC(i);
+      END;
+      p.bias := 0.0;
+      p.learningRate := lr;
+    END
   END Init;
 
   PROCEDURE Activate*(x: REAL): REAL;
@@ -33,13 +42,13 @@ IMPORT Math;
       i: INTEGER;
   BEGIN
     sum := 0.0;
-    i := 0; (* Initialize the counter *)
-    WHILE i < LEN(inputs) DO (* Loop while the counter is less than the length *)
+    i := 0;
+    WHILE i < LEN(inputs) DO 
       sum := sum + p.weights[i] * inputs[i];
-      INC(i); (* Increment the counter *)
+      INC(i);
     END;
     sum := sum + p.bias;
-    RETURN Activate(sum);
+    RETURN Activate(sum)
   END Forward;
 
   PROCEDURE Train*(VAR p: Perceptron; inputs: ARRAY OF REAL; target: REAL);

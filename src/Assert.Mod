@@ -9,7 +9,7 @@ BEGIN
     Out.String(" | Expected: "); Out.Real(expected, 10); 
     Out.String(", Actual: "); Out.Real(actual, 10); 
     Out.Ln;
-    HALT(0);
+    ASSERT(FALSE);
   ELSE
     Out.String("PASS: "); Out.String(message); Out.Ln;
   END;

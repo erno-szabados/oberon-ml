@@ -11,7 +11,7 @@ BEGIN
 
   (* Check weights are initialized to 0 *)
   i := 0;
-  WHILE  i < LEN(p.weights^) DO
+  WHILE  i < p.numWeights DO
     IF p.weights[i] # 0.0 THEN
       initializedCorrectly := FALSE;
     END;
