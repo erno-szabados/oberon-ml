@@ -1,29 +1,26 @@
 MODULE QuickSelect;
 
+CONST 
+    MaxDims = 32;  (* Maximum dimensions for points *)
+
 (* Finds the k-th smallest element in an array along a given axis. 
    Used for median finding in KD-Tree construction. *)
 
 PROCEDURE Swap(VAR data: ARRAY OF ARRAY OF REAL; i, j: INTEGER);
 VAR
-    tmp: ARRAY 32 OF REAL; (* Adjust size as needed *)
+    tmp: ARRAY MaxDims OF REAL;
     d, n: INTEGER;
 BEGIN
     n := LEN(data[0]);
-    ASSERT(n <= 32);  (* Ensure tmp is large enough *)
-    d := 0;
-    WHILE d < n DO
+    ASSERT(n <= MaxDims);
+    FOR d := 0 TO n-1 DO
         tmp[d] := data[i][d];
-        INC(d);
     END;
-    d := 0;
-    WHILE d < n DO
+    FOR d := 0 TO n-1 DO
         data[i][d] := data[j][d];
-        INC(d);
     END;
-    d := 0;
-    WHILE d < n DO
+    FOR d := 0 TO n-1 DO
         data[j][d] := tmp[d];
-        INC(d);
     END;
 END Swap;
 
