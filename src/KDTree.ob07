@@ -1,0 +1,32 @@
+MODULE KDTree;
+IMPORT QuickSelect;
+
+CONST
+    MaxDims* = 20;
+    MaxNodes* = 1000;
+
+TYPE
+    Point* = ARRAY MaxDims OF REAL;
+
+    KDNode* = POINTER TO RECORD
+        point: Point;
+        left, right: KDNode;
+        axis: INTEGER
+    END;
+
+    KDTree* = RECORD
+        root: KDNode;
+        k: INTEGER; (* number of dimensions *)
+        size: INTEGER
+    END;
+
+PROCEDURE Build*(VAR tree: KDTree; VAR data: ARRAY OF Point; depth: INTEGER): KDNode;
+(* Recursively builds the KD-Tree from the data. *)
+BEGIN
+    (* Implementation to be added *)
+    RETURN NIL
+END Build;
+
+(* Additional procedures for search, insert, etc. can be added here *)
+
+END KDTree.
