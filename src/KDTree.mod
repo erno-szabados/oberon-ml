@@ -10,18 +10,18 @@ TYPE
 
     KDNode* = POINTER TO RECORD
         point*: Point;
-        left, right: KDNode;
+        left*, right*: KDNode;
         axis*: INTEGER
     END;
 
     KDTree* = RECORD
-        root: KDNode;
-        k: INTEGER; (* number of dimensions *)
+        root*: KDNode;
+        k*: INTEGER; (* number of dimensions *)
         size: INTEGER
     END;
 
 
-PROCEDURE CopyPoint(VAR src, dst: Point; k: INTEGER);
+PROCEDURE CopyPoint*(VAR src, dst: Point; k: INTEGER);
 (* Helper to copy a point *)
 VAR i: INTEGER;
 BEGIN
@@ -76,7 +76,7 @@ BEGIN
     tree.size := 0
 END Init;
 
-PROCEDURE Build*(VAR tree: KDTree; VAR data: ARRAY OF Point; depth: INTEGER): KDNode;
+PROCEDURE Build*(VAR tree: KDTree; VAR data: ARRAY OF Point; depth: INTEGER);
 (* Public procedure to build the tree *)
 VAR
     n: INTEGER;
@@ -88,7 +88,6 @@ BEGIN
     ELSE
         tree.root := BuildRecursive(data, 0, n - 1, depth, tree.k, tree.size);
     END;
-    RETURN tree.root
 END Build;
 
 
