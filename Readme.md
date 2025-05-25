@@ -10,9 +10,9 @@ This project implements classic ML algorithms in [Oberon-07](https://en.wikipedi
 
 ## Structure
 
-- [`src/Perceptron.Mod`](src/Perceptron.Mod): Single-layer Perceptron implementation.
-- [`src/LinearRegressor.Mod`](src/LinearRegressor.Mod): Linear Regressor implementation using Ordinary Least Squares.
-- [`src/KNN.Mod`](src/KNN.Mod): K-Nearest Neighbor implementation with QuickSelect.
+- [`src/Perceptron.mod`](src/Perceptron.mod): Single-layer Perceptron implementation.
+- [`src/LinearRegressor.mod`](src/LinearRegressor.mod): Linear Regressor implementation using Ordinary Least Squares.
+- [`src/KNN.mod`](src/KNN.mod): K-Nearest Neighbor implementation with QuickSelect.
 - [lib](src/lib) - the runtime source code from the akron compiler source, needed if you use the akron compiler, licensed under BSD-2
 
 ## Building
