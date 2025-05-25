@@ -111,7 +111,7 @@ VAR
     epoch, i: INTEGER;
     result: BOOLEAN;
 BEGIN
-    IF LEN(data[0]) # p.numWeights THEN
+    IF (LEN(data) = 0) OR (LEN(data[0]) # p.numWeights) THEN
         Out.String("Input size does not match perceptron weights."); Out.Ln;
         result := FALSE;
     ELSE
