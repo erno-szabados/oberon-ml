@@ -1,0 +1,34 @@
+COMPILER=akron64
+TARGET=linux64exe
+FLAGS=-stk 2
+
+all: regressor perceptron knn
+
+regressor: TestRegressor.ob07 LinearRegressor.ob07
+	${COMPILER} TestRegressor.ob07 ${TARGET} -out bin/TestRegressor ${FLAGS}
+
+perceptron: TestPerceptron.ob07 Perceptron.ob07
+	${COMPILER} TestPerceptron.ob07 ${TARGET} -out bin/TestPerceptron ${FLAGS}
+
+knn: TestKnn.ob07 KDTree.ob07 QuickSelect.ob07
+	${COMPILER} TestKnn.ob07 ${TARGET} -out bin/TestKnn ${FLAGS}
+
+clean:
+	rm -f bin/TestRegressor bin/TestPerceptron bin/TestKnn
+	rm -f *.o
+	rm -f *.lst
+	rm -f *.map
+	rm -f *.sym
+	rm -f *.dmp
+	rm -f *.dbg
+	rm -f *.sct
+	rm -f *.symtab
+	rm -f *.strtab
+	rm -f *.rel
+	rm -rf obj
+	rm -f *.ob07
+
+%.ob07: %.mod
+	ln -sf $< $@
+
+.PHONY: regressor perceptron knn clean 

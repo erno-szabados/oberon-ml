@@ -1,13 +1,16 @@
+COMPILER=obnc
+FLAGS= 
+
 all: regressor perceptron knn
 
 regressor:
-	akron64 TestRegressor.ob07 linux64exe -out bin/TestRegressor -stk 2
+	${COMPILER} TestRegressor.mod ${FLAGS} -o bin/TestRegressor
 
 perceptron:
-	akron64 TestPerceptron.ob07 linux64exe -out bin/TestPerceptron -stk 2
+	${COMPILER} TestPerceptron.mod ${FLAGS} -o bin/TestPerceptron
 
 knn:
-	akron64 TestKnn.ob07 linux64exe -out bin/TestKnn -stk
+	${COMPILER} TestKnn.mod ${FLAGS} -o bin/TestKnn
 
 clean:
 	rm -f bin/TestRegressor bin/TestPerceptron bin/TestKnn
