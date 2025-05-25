@@ -4,7 +4,7 @@ MODS=$(wildcard $(SRC)/*.Mod)
 OBJS=$(MODS:.Mod=.o)
 
 # List of test executables
-TESTS=PerceptronTest MathTest
+TESTS=PerceptronTest MathTest RegressorTest
 
 .PHONY: all clean tests
 
@@ -18,4 +18,5 @@ tests: $(TESTS)
 
 clean:
 	rm -rf .obnc 
-	rm -f PerceptronTest MathTest
+	rm -f PerceptronTest MathTest RegressorTest
+	
