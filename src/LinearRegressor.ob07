@@ -54,7 +54,6 @@ BEGIN
 
         reg.slope := (FLT(numSamples) * sumXY - sumX * sumY) / (FLT(numSamples) * sumX2 - sumX * sumX);
         reg.intercept := (sumY - reg.slope * sumX) / FLT(numSamples);
-        reg.isTrained := TRUE;
         result := TRUE;
     END;
     reg.isTrained := result;
@@ -79,15 +78,29 @@ END Predict;
 PROCEDURE GetSlope*(reg: Regressor): REAL;
 (* Get the slope of the trained regressor. *)
 (* If the regressor is not trained, it returns 0.0. *)
+VAR 
+    result: REAL;
 BEGIN
-    RETURN reg.slope
+    IF (reg.isTrained = FALSE) THEN
+        result := 0.0;
+    ELSE 
+        result := reg.slope; 
+    END;
+    RETURN result
 END GetSlope;
 
 PROCEDURE GetIntercept*(reg: Regressor): REAL;
 (* Get the intercept of the trained regressor. *)
 (* If the regressor is not trained, it returns 0.0. *)
+VAR 
+    result: REAL;
 BEGIN
-    RETURN reg.intercept
+    IF (reg.isTrained = FALSE) THEN
+        result := 0.0;
+    ELSE 
+        result := reg.intercept; 
+    END;
+    RETURN result
 END GetIntercept;
 
 END LinearRegressor.
