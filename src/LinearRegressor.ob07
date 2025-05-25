@@ -52,9 +52,15 @@ BEGIN
             sumX2 := sumX2 + (xData[i] * xData[i]);
         END;
 
-        reg.slope := (FLT(numSamples) * sumXY - sumX * sumY) / (FLT(numSamples) * sumX2 - sumX * sumX);
-        reg.intercept := (sumY - reg.slope * sumX) / FLT(numSamples);
-        result := TRUE;
+        IF (FLT(numSamples) * sumX2 - sumX * sumX) = 0.0 THEN
+            Out.String("Error: Cannot compute slope (division by zero).");
+            Out.Ln;
+            result := FALSE;
+        ELSE
+            reg.slope := (FLT(numSamples) * sumXY - sumX * sumY) / (FLT(numSamples) * sumX2 - sumX * sumX);
+            reg.intercept := (sumY - reg.slope * sumX) / FLT(numSamples);
+            result := TRUE;
+        END;
     END;
     reg.isTrained := result;
    

@@ -1,3 +1,5 @@
+all: regressor perceptron
+
 regressor:
 	akron64 TestRegressor.ob07 linux64exe -out bin/TestRegressor -stk 2
 
