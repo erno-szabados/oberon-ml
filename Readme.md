@@ -11,7 +11,7 @@ This project implements classic ML algorithms in [Oberon-07](https://en.wikipedi
 
 - [`src/Perceptron.Mod`](src/Perceptron.Mod): Perceptron neural network implementation
 - [`src/LinearRegressor.Mod`](src/LinearRegressor.Mod): Linear Regressor implementation using Ordinary Least Squares
-- [lib](lib) - the runtime source code from the akron compiler source, licensed under BSD-2
+- [lib](src/lib) - the runtime source code from the akron compiler source, licensed under BSD-2
 
 ## Building
 
