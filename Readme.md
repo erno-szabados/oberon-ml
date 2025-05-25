@@ -5,6 +5,7 @@ This project provides mathematical functions and a simple perceptron implementat
 ## Requirements
 
 - [OBNC](https://miasap.se/obnc/) (Oberon-07 compiler)
+- [Akron](https://github.com/AntKrotov/oberon-07-compiler) (Oberon-07 Compiler) - for the o7-akron branch
 - `make` (for building and running tests)
 
 ## Structure
