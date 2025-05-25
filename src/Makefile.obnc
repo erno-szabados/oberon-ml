@@ -1,0 +1,29 @@
+COMPILER=obnc
+FLAGS= 
+
+all: regressor perceptron knn
+
+regressor:
+	${COMPILER} TestRegressor.mod ${FLAGS} -o bin/TestRegressor
+
+perceptron:
+	${COMPILER} TestPerceptron.mod ${FLAGS} -o bin/TestPerceptron
+
+knn:
+	${COMPILER} TestKnn.mod ${FLAGS} -o bin/TestKnn
+
+clean:
+	rm -f bin/TestRegressor bin/TestPerceptron bin/TestKnn
+	rm -f *.o
+	rm -f *.lst
+	rm -f *.map
+	rm -f *.sym
+	rm -f *.dmp
+	rm -f *.dbg
+	rm -f *.sct
+	rm -f *.symtab
+	rm -f *.strtab
+	rm -f *.rel
+	rm -rf obj
+	
+.PHONY: regressor perceptron knn clean 

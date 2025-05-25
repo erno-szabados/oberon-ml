@@ -33,7 +33,7 @@ VAR
     result: BOOLEAN;
 BEGIN
     IF  (numSamples <= 0) OR 
-        (numSamples >= MaxSamples) OR 
+        (numSamples > MaxSamples) OR 
         (LEN(xData) < numSamples) OR 
         (LEN(yData) < numSamples) THEN
         Out.String("Error: Invalid input data for training.");
@@ -52,10 +52,15 @@ BEGIN
             sumX2 := sumX2 + (xData[i] * xData[i]);
         END;
 
-        reg.slope := (FLT(numSamples) * sumXY - sumX * sumY) / (FLT(numSamples) * sumX2 - sumX * sumX);
-        reg.intercept := (sumY - reg.slope * sumX) / FLT(numSamples);
-        reg.isTrained := TRUE;
-        result := TRUE;
+        IF (FLT(numSamples) * sumX2 - sumX * sumX) = 0.0 THEN
+            Out.String("Error: Cannot compute slope (division by zero).");
+            Out.Ln;
+            result := FALSE;
+        ELSE
+            reg.slope := (FLT(numSamples) * sumXY - sumX * sumY) / (FLT(numSamples) * sumX2 - sumX * sumX);
+            reg.intercept := (sumY - reg.slope * sumX) / FLT(numSamples);
+            result := TRUE;
+        END;
     END;
     reg.isTrained := result;
    
@@ -69,6 +74,7 @@ VAR
     result: REAL;
 BEGIN
     IF (reg.isTrained = FALSE) THEN
+        Out.String("Error: Regressor not trained. Returning 0.0."); Out.Ln;
         result := 0.0;
     ELSE 
         result := (reg.slope * xInput) + reg.intercept; 
@@ -79,15 +85,29 @@ END Predict;
 PROCEDURE GetSlope*(reg: Regressor): REAL;
 (* Get the slope of the trained regressor. *)
 (* If the regressor is not trained, it returns 0.0. *)
+VAR 
+    result: REAL;
 BEGIN
-    RETURN reg.slope
+    IF (reg.isTrained = FALSE) THEN
+        result := 0.0;
+    ELSE 
+        result := reg.slope; 
+    END;
+    RETURN result
 END GetSlope;
 
 PROCEDURE GetIntercept*(reg: Regressor): REAL;
 (* Get the intercept of the trained regressor. *)
 (* If the regressor is not trained, it returns 0.0. *)
+VAR 
+    result: REAL;
 BEGIN
-    RETURN reg.intercept
+    IF (reg.isTrained = FALSE) THEN
+        result := 0.0;
+    ELSE 
+        result := reg.intercept; 
+    END;
+    RETURN result
 END GetIntercept;
 
 END LinearRegressor.
