@@ -6,20 +6,22 @@ MODULE QuickSelect;
 PROCEDURE Swap(VAR data: ARRAY OF ARRAY OF REAL; i, j: INTEGER);
 VAR
     tmp: ARRAY 32 OF REAL; (* Adjust size as needed *)
-    d: INTEGER;
+    d, n: INTEGER;
 BEGIN
+    n := LEN(data[0]);
+    ASSERT(n <= 32);  (* Ensure tmp is large enough *)
     d := 0;
-    WHILE d < LEN(data[0]) DO
+    WHILE d < n DO
         tmp[d] := data[i][d];
         INC(d);
     END;
     d := 0;
-    WHILE d < LEN(data[0]) DO
+    WHILE d < n DO
         data[i][d] := data[j][d];
         INC(d);
     END;
     d := 0;
-    WHILE d < LEN(data[0]) DO
+    WHILE d < n DO
         data[j][d] := tmp[d];
         INC(d);
     END;
