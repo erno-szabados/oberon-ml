@@ -1,0 +1,106 @@
+MODULE Perceptron;
+IMPORT Math;
+
+CONST
+    MaxWeights* = 100; 
+    ActivationThreshold* = 0.0;
+
+TYPE
+    Perceptron* = RECORD
+        weights*: ARRAY MaxWeights OF REAL;
+        bias*: REAL;
+        learningRate*: REAL;
+        numWeights*: INTEGER;
+        isTrained*: BOOLEAN
+    END;
+
+PROCEDURE Init*(VAR p: Perceptron; numInputs: INTEGER; lr: REAL) : BOOLEAN;
+VAR 
+    i: INTEGER;
+    result: BOOLEAN;
+BEGIN
+    IF numInputs > MaxWeights THEN
+        result := FALSE;
+    ELSE
+        p.numWeights := numInputs;
+        i := 0;
+        WHILE i < numInputs DO
+            p.weights[i] := 0.0;
+            INC(i);
+        END;
+        p.bias := 0.0;
+        p.learningRate := lr;
+        p.isTrained := FALSE;
+        result := TRUE;
+    END;
+    RETURN result
+END Init;
+
+PROCEDURE Activate*(x: REAL): REAL;
+VAR 
+    result: REAL;
+BEGIN
+    IF x >= ActivationThreshold THEN
+        result := 1.0;  (* Activation *)
+    ELSE
+        result := 0.0;  (* No activation *)
+    END;
+    RETURN result
+END Activate;
+
+PROCEDURE Predict*(p: Perceptron; inputs: ARRAY OF REAL): REAL;
+    VAR
+        sum: REAL;
+        i: INTEGER;
+BEGIN
+    sum := 0.0;
+    i := 0;
+    WHILE i < LEN(inputs) DO 
+        sum := sum + p.weights[i] * inputs[i];
+        INC(i);
+    END;
+    sum := sum + p.bias;
+    RETURN Activate(sum)
+END Predict;
+
+PROCEDURE Train(VAR p: Perceptron; inputs: ARRAY OF REAL; target: REAL);
+(* 
+    NOTE: This training rule assumes a step activation function.
+    For other activations (e.g., sigmoid, tanh), the update rule and possibly the API must be adapted.
+*)
+    VAR 
+        output, error: REAL;
+        i: INTEGER;
+BEGIN
+    output := Predict(p, inputs);
+    error := target - output;
+    
+    (* Update weights and bias *)
+    i := 0;
+    WHILE i < LEN(inputs) DO
+        p.weights[i] := p.weights[i] + p.learningRate * error * inputs[i];
+        INC(i);
+    END;
+    p.bias := p.bias + p.learningRate * error;
+    p.isTrained := TRUE;
+END Train;
+
+PROCEDURE Fit*(VAR p: Perceptron; 
+               data: ARRAY OF ARRAY OF REAL; 
+               targets: ARRAY OF REAL; 
+               epochs: INTEGER);
+VAR
+    epoch, i: INTEGER;
+BEGIN
+    epoch := 0;
+    WHILE epoch < epochs DO
+        i := 0;
+        WHILE i < LEN(data) DO
+            Train(p, data[i], targets[i]);
+            INC(i);
+        END;
+        INC(epoch);
+    END;
+END Fit;
+
+END Perceptron.

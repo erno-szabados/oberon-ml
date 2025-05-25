@@ -1,4 +1,4 @@
-MODULE RegressorTest;
+MODULE TestRegressor;
 
 IMPORT Out, LinearRegressor;
 
@@ -54,4 +54,4 @@ BEGIN
         Out.String("Regressor module test failed.");
         Out.Ln;
     END
-END RegressorTest.
+END TestRegressor.
