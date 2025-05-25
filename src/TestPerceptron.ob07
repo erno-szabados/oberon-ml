@@ -27,7 +27,7 @@ BEGIN
     data[3][0] := 1.0; data[3][1] := 1.0; targets[3] := 1.0;
 
     IF Perceptron.Init(p, numInputs, 0.1) THEN
-        Perceptron.Fit(p, data, targets, epochs);
+        result := Perceptron.Fit(p, data, targets, epochs);
 
         allCorrect := TRUE;
         FOR i := 0 TO 3 DO

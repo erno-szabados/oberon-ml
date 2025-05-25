@@ -1,5 +1,5 @@
 MODULE Perceptron;
-IMPORT Math;
+IMPORT Math, Out;
 
 (* This module implements a simple perceptron model. *)
 (* The perceptron uses a step activation function. *)
@@ -10,11 +10,11 @@ CONST
 
 TYPE
     Perceptron* = RECORD
-        weights*: ARRAY MaxWeights OF REAL;
-        bias*: REAL;
-        learningRate*: REAL;
-        numWeights*: INTEGER;
-        isTrained*: BOOLEAN
+        weights: ARRAY MaxWeights OF REAL;
+        bias: REAL;
+        learningRate: REAL;
+        numWeights: INTEGER;
+        isTrained: BOOLEAN
     END;
 
 PROCEDURE Init*(VAR p: Perceptron; numInputs: INTEGER; lr: REAL) : BOOLEAN;
@@ -55,26 +55,36 @@ END Activate;
 
 PROCEDURE Predict*(p: Perceptron; inputs: ARRAY OF REAL): REAL;
 (* Predict the output for given inputs using the perceptron. *)
-    VAR
-        sum: REAL;
-        i: INTEGER;
+VAR
+    sum: REAL;
+    i: INTEGER;
+    result: REAL;
 BEGIN
-    sum := 0.0;
-    i := 0;
-    WHILE i < LEN(inputs) DO 
-        sum := sum + p.weights[i] * inputs[i];
-        INC(i);
+    IF p.isTrained # TRUE THEN
+        Out.String("Perceptron is not trained."); Out.Ln;
+        result := 0.0; (* Return a default value if not trained *)
+    ELSIF LEN(inputs) # p.numWeights THEN
+        Out.String("Input size does not match perceptron weights."); Out.Ln;
+        result := 0.0; (* Return a default value if input size is incorrect *)
+    ELSE
+        sum := 0.0;
+        i := 0;
+        WHILE i < LEN(inputs) DO 
+            sum := sum + p.weights[i] * inputs[i];
+            INC(i);
+        END;
+        sum := sum + p.bias;
+        result := Activate(sum);
     END;
-    sum := sum + p.bias;
-    RETURN Activate(sum)
+    RETURN result
 END Predict;
 
 PROCEDURE Train(VAR p: Perceptron; inputs: ARRAY OF REAL; target: REAL);
 (* NOTE: This training rule assumes a step activation function. *)
 (* For other activations (e.g., sigmoid, tanh), the update rule must be adapted.*)
-    VAR 
-        output, error: REAL;
-        i: INTEGER;
+VAR 
+    output, error: REAL;
+    i: INTEGER;
 BEGIN
     output := Predict(p, inputs);
     error := target - output;
@@ -92,23 +102,32 @@ END Train;
 PROCEDURE Fit*(VAR p: Perceptron; 
                data: ARRAY OF ARRAY OF REAL; 
                targets: ARRAY OF REAL; 
-               epochs: INTEGER);
+               epochs: INTEGER) : BOOLEAN;
 (* Train the perceptron with the provided data and targets for a specified number of epochs.*)
 (* data: 2D array where each sub-array is an input vector.*)
 (* targets: 1D array of target outputs corresponding to each input vector.*)
 (* epochs: Number of times to iterate over the entire dataset.*)
 VAR
     epoch, i: INTEGER;
+    result: BOOLEAN;
 BEGIN
-    epoch := 0;
-    WHILE epoch < epochs DO
-        i := 0;
-        WHILE i < LEN(data) DO
-            Train(p, data[i], targets[i]);
-            INC(i);
+    IF LEN(data[0]) # p.numWeights THEN
+        Out.String("Input size does not match perceptron weights."); Out.Ln;
+        result := FALSE;
+    ELSE
+        result := TRUE;
+        epoch := 0;
+        WHILE epoch < epochs DO
+            i := 0;
+            WHILE i < LEN(data) DO
+                Train(p, data[i], targets[i]);
+                INC(i);
+            END;
+            INC(epoch);
         END;
-        INC(epoch);
     END;
+
+    RETURN result
 END Fit;
 
 END Perceptron.
