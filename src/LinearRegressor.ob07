@@ -33,7 +33,7 @@ VAR
     result: BOOLEAN;
 BEGIN
     IF  (numSamples <= 0) OR 
-        (numSamples >= MaxSamples) OR 
+        (numSamples > MaxSamples) OR 
         (LEN(xData) < numSamples) OR 
         (LEN(yData) < numSamples) THEN
         Out.String("Error: Invalid input data for training.");
@@ -74,6 +74,7 @@ VAR
     result: REAL;
 BEGIN
     IF (reg.isTrained = FALSE) THEN
+        Out.String("Error: Regressor not trained. Returning 0.0."); Out.Ln;
         result := 0.0;
     ELSE 
         result := (reg.slope * xInput) + reg.intercept; 
