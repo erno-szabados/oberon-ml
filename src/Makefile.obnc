@@ -1,19 +1,21 @@
 COMPILER=obnc
 FLAGS= 
+SRC=src
+BIN=bin
 
 all: regressor perceptron knn
 
 regressor:
-	${COMPILER} TestRegressor.mod ${FLAGS} -o bin/TestRegressor
+	${COMPILER} ${SRC}/TestRegressor.mod ${FLAGS} -o ${BIN}/TestRegressor
 
 perceptron:
-	${COMPILER} TestPerceptron.mod ${FLAGS} -o bin/TestPerceptron
+	${COMPILER} ${SRC}/TestPerceptron.mod ${FLAGS} -o ${BIN}/TestPerceptron
 
 knn:
-	${COMPILER} TestKnn.mod ${FLAGS} -o bin/TestKnn
+	${COMPILER} ${SRC}/TestKnn.mod ${FLAGS} -o ${BIN}/TestKnn
 
 clean:
-	rm -f bin/TestRegressor bin/TestPerceptron bin/TestKnn
+	rm -f ${BIN}/TestRegressor ${BIN}/TestPerceptron ${BIN}/TestKnn
 	rm -f *.o
 	rm -f *.lst
 	rm -f *.map
