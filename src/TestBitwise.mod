@@ -83,9 +83,65 @@ BEGIN
     WriteResult("TestNot", pass);
 END TestNot;
 
+PROCEDURE TestShiftLeft;
+(* Test the Bitwise shift left operations *)
+VAR pass: BOOLEAN;
+    result: INTEGER;
+BEGIN
+    result := Bitwise.ShiftLeft(0FFFFH, 1);
+    (* Out.Hex(result); *)
+    (* Out.Ln; *)
+    
+    (* Check if the result is as expected *)
+    (* 0FFH shifted left by 1 should be 0FEH *)
+    pass := (result = 01FFFEH);
+    WriteResult("TestShiftLeft", pass)
+END TestShiftLeft;
+
+PROCEDURE TestShiftRight;
+(* Test the Bitwise shift right operations *)
+VAR pass: BOOLEAN;
+    result: INTEGER;
+BEGIN
+    result := Bitwise.ShiftRight(0FFFFH, 1);
+    
+    (* Check if the result is as expected *)
+    (* 0FFH shifted right by 1 should be 07FH *)
+    pass := (result = 07FFFH);
+    WriteResult("TestShiftRight", pass)
+END TestShiftRight;
+
+PROCEDURE TestRotateLeft;
+(* Test the Bitwise rotate left operations *)
+VAR pass: BOOLEAN;
+    result: INTEGER;
+BEGIN
+    result := Bitwise.RotateLeft(0FFFFH, 1);
+    
+    (* Check if the result is as expected *)
+    pass := (result = 01FFFEH);
+    WriteResult("TestRotateLeft", pass)
+END TestRotateLeft;
+
+PROCEDURE TestRotateRight;
+(* Test the Bitwise rotate right operations *)
+VAR pass: BOOLEAN;
+    result: INTEGER;
+BEGIN
+    result := Bitwise.RotateRight(0FFFFH, 1);
+
+    (* Check if the result is as expected *)
+    pass := (result = 080007FFFH);
+    WriteResult("TestRotateLeft", pass)
+END TestRotateRight;
+
 BEGIN
     TestAnd;
     TestOr;
     TestXor;
     TestNot;
+    TestShiftLeft;
+    TestShiftRight;
+    TestRotateLeft;
+    TestRotateRight
 END TestBitwise.

@@ -1,6 +1,6 @@
 MODULE Bitwise;
 
-(* Bitwise operations on INTEGER type. *)
+(* Bitwise operations on INTEGER (32-bit) type. *)
 
 IMPORT SYSTEM;
 
@@ -62,5 +62,29 @@ BEGIN
     (* Convert back to INTEGER *)
     RETURN SYSTEM.VAL(INTEGER, setA)
 END Not;
+
+PROCEDURE ShiftLeft*(a: INTEGER; n: INTEGER): INTEGER;
+(* Perform shift left operation on an integer. *)
+BEGIN
+    RETURN LSL(a, n)
+END ShiftLeft;
+
+PROCEDURE ShiftRight*(a: INTEGER; n: INTEGER): INTEGER;
+(* Perform signed shift right operation on an integer. *)
+BEGIN
+    RETURN ASR(a, n)
+END ShiftRight;
+
+PROCEDURE RotateLeft*(a: INTEGER; n: INTEGER): INTEGER;
+(* Perform rotate left operation on an integer. *)
+BEGIN
+    RETURN ROR(a, 32 - n)
+END RotateLeft;
+
+PROCEDURE RotateRight*(a: INTEGER; n: INTEGER): INTEGER;
+(* Perform rotate right operation on an integer. *)
+BEGIN
+    RETURN ROR(a, n)
+END RotateRight;
 
 END Bitwise.
