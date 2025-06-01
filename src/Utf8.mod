@@ -19,26 +19,22 @@ PROCEDURE CharLen*(firstByte: CHAR): INTEGER;
 (* Returns the number of bytes in a UTF-8 character starting with firstByte *)
 (* Returns 0 for an invalid byte sequence. *)
 VAR
-  result, aInt : INTEGER;
+  result : INTEGER;
+  b : BYTE;
 BEGIN
-  aInt := SYSTEM.VAL(INTEGER, firstByte);
-  IF Bitwise.And(aInt, Mask1B) = 0 THEN
-    result := 1;
-  ELSIF Bitwise.And(aInt, Mask2B) = 0C0H THEN
-    result := 2;
-  ELSIF Bitwise.And(aInt, Mask3B) = 0E0H THEN
-    result := 3;
-  ELSIF Bitwise.And(aInt, Mask4B) = 0F0H THEN
-    result := 4;
-  ELSE
-    result := 0;
-  END;
+  b := SYSTEM.VAL(BYTE, firstByte);
+  IF Bitwise.And8(b, Mask1B) = 0 THEN result := 1;
+  ELSIF Bitwise.And8(b, Mask2B) = 0C0H THEN result := 2;
+  ELSIF Bitwise.And8(b, Mask3B) = 0E0H THEN result := 3;
+  ELSIF Bitwise.And8(b, Mask4B) = 0F0H THEN result := 4;
+  ELSE result := 0; END;
   RETURN result
 END CharLen;
 
 PROCEDURE IsInvalidContinuationByte(c : CHAR) : BOOLEAN;
+(* Test if the passed character is a valid continuation byte. *)
 BEGIN
-  RETURN (Bitwise.And(SYSTEM.VAL(INTEGER, c), 0C0H) # 080H)
+  RETURN (Bitwise.And8(SYSTEM.VAL(BYTE, c), 0C0H) # 080H)
 END IsInvalidContinuationByte;
 
 PROCEDURE IsValid2ByteSequence(buf: ARRAY OF CHAR; i: INTEGER): BOOLEAN;
@@ -108,22 +104,18 @@ BEGIN
     ELSE
       (* Validate the sequence based on its expected length *)
       CASE expectedCharLen OF
-        1: 
-          INC(i, 1);
-      | 2:
-        IF IsValid2ByteSequence(buf, i) THEN
+        1: INC(i, 1);
+      | 2: IF IsValid2ByteSequence(buf, i) THEN
           INC(i, 2);
         ELSE
           result := FALSE;
         END;
-      | 3: 
-        IF IsValid3ByteSequence(buf, i) THEN
+      | 3: IF IsValid3ByteSequence(buf, i) THEN
           INC(i, 3);
         ELSE
           result := FALSE;
         END;
-      | 4:
-        IF IsValid4ByteSequence(buf, i) THEN
+      | 4: IF IsValid4ByteSequence(buf, i) THEN
           INC(i, 4);
         ELSE
           result := FALSE;
