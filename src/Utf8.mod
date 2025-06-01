@@ -1,41 +1,61 @@
 MODULE Utf8;
 
-IMPORT Bitwise, Out;
+IMPORT SYSTEM, Bitwise, Out;
 
 (* This module implements UTF-8 encoding and utility procedures. *)
+
+CONST 
+  Bom0 = CHR(0EFH);
+  Bom1 = CHR(0BBH);
+  Bom2 = CHR(0BFH);
+
+  Mask1B = 080H; (* 0b10000000*)
+  Mask2B = 0E0H; (* 0b11100000*)
+  Mask3B = 0F0H; (* 0b11110000*)
+  Mask4B = 0F8H; (* 0b11111000*)
 
 PROCEDURE CharLen*(firstByte: CHAR): INTEGER;
 (* Determine the length of a UTF-8 character based on the first byte *)
 (* Returns the number of bytes in a UTF-8 character starting with firstByte *)
 (* Returns 0 for an invalid byte sequence. *)
 VAR
+  result, aInt : INTEGER;
 BEGIN
-
-  (* b := VAL(BITSET, firstByte);
-  IF (b * Mask1B) = {} THEN
-    RETURN 1;
-  ELSIF (b * Mask2B) = BITSET{7,6} THEN
-    RETURN 2;
-  ELSIF (b * Mask3B) = BITSET{7,6,5} THEN
-    RETURN 3;
-  ELSIF (b * Mask4B) = BITSET{7,6,5,4} THEN
-    RETURN 4;
+  aInt := SYSTEM.VAL(INTEGER, firstByte);
+  IF Bitwise.And(aInt, Mask1B) = 0 THEN
+    result := 1;
+  ELSIF Bitwise.And(aInt, Mask2B) = 0C0H THEN
+    result := 2;
+  ELSIF Bitwise.And(aInt, Mask3B) = 0E0H THEN
+    result := 3;
+  ELSIF Bitwise.And(aInt, Mask4B) = 0F0H THEN
+    result := 4;
   ELSE
-    RETURN 0;
-  END; *)
-  RETURN 0
+    result := 0;
+  END;
+  RETURN result
 END CharLen;
 
-PROCEDURE IsValid*(buf: ARRAY OF CHAR; len: INTEGER): BOOLEAN;
+PROCEDURE IsValid*(buffer: ARRAY OF CHAR; len: INTEGER): BOOLEAN;
 (* Returns TRUE if buf[0..len-1] is valid UTF-8 *)
 BEGIN
-    RETURN FALSE (*TODO*)
+  RETURN FALSE (*TODO*)
 END IsValid;
 
 PROCEDURE HasBOM*(buffer: ARRAY OF CHAR; len: INTEGER): BOOLEAN;
 (* Returns TRUE if buffer starts with a UTF-8 BOM (EF BB BF), otherwise returns FALSE. *)
+VAR 
+  result: BOOLEAN;
 BEGIN
-    RETURN FALSE (*TODO*)
+  result := FALSE;
+  IF len >= 3 THEN
+      IF (buffer[0] = Bom0) & 
+         (buffer[1] = Bom1) & 
+         (buffer[2] = Bom2) THEN
+      result := TRUE;
+    END
+  END
+  RETURN result
 END HasBOM;
 
 PROCEDURE Encode*(codePoint: INTEGER; VAR buffer: ARRAY OF CHAR; index: INTEGER; VAR bytesWritten: INTEGER): BOOLEAN;

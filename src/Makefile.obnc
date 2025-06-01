@@ -21,9 +21,8 @@ utf8:
 	${COMPILER} ${SRC}/TestUtf8.mod ${FLAGS} -o ${BIN}/TestUtf8
 
 
-
 clean:
-	rm -f ${BIN}/TestRegressor ${BIN}/TestPerceptron ${BIN}/TestKnn ${BIN}/TestUtf8 ${BIN}/TestBitwise
+	rm -f ${BIN}/TestRegressor ${BIN}/TestPerceptron ${BIN}/TestKnn ${BIN}/TestUtf8
 	rm -f *.o
 	rm -f *.lst
 	rm -f *.map
@@ -36,4 +35,4 @@ clean:
 	rm -f *.rel
 	rm -rf obj
 	
-.PHONY: regressor perceptron knn clean bitwise utf8
+.PHONY: regressor perceptron knn clean bitwise utf8 
