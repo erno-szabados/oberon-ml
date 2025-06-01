@@ -36,31 +36,123 @@ BEGIN
   RETURN result
 END CharLen;
 
-PROCEDURE IsValid*(buffer: ARRAY OF CHAR; len: INTEGER): BOOLEAN;
-(* Returns TRUE if buf[0..len-1] is valid UTF-8 *)
+PROCEDURE IsInvalidContinuationByte(c : CHAR) : BOOLEAN;
 BEGIN
-  RETURN FALSE (*TODO*)
+  RETURN (Bitwise.And(SYSTEM.VAL(INTEGER, c), 0C0H) # 080H)
+END IsInvalidContinuationByte;
+
+PROCEDURE IsValid2ByteSequence(buf: ARRAY OF CHAR; i: INTEGER): BOOLEAN;
+VAR 
+  result: BOOLEAN;
+BEGIN
+  result := TRUE;
+  IF IsInvalidContinuationByte(buf[i + 1]) THEN
+    result := FALSE;
+  ELSIF (buf[i] = CHR(0C0H)) OR (buf[i] = CHR(0C1H)) THEN
+    result := FALSE;
+  END;
+  RETURN result
+END IsValid2ByteSequence;
+
+PROCEDURE IsValid3ByteSequence(buf: ARRAY OF CHAR; i: INTEGER): BOOLEAN;
+VAR 
+  result: BOOLEAN;
+BEGIN
+  result := TRUE;
+  IF IsInvalidContinuationByte(buf[i + 1]) OR
+     IsInvalidContinuationByte(buf[i + 2]) THEN
+    result := FALSE;
+  ELSIF ((buf[i] = CHR(0E0H)) & (buf[i + 1] < CHR(0A0H))) THEN
+    result := FALSE;
+  ELSIF ((buf[i] = CHR(0C1H)) & (buf[i + 1] >= CHR(0A0H))) THEN
+    result := FALSE;
+  END;
+  RETURN result
+END IsValid3ByteSequence;
+
+PROCEDURE IsValid4ByteSequence(buf: ARRAY OF CHAR; i: INTEGER): BOOLEAN;
+VAR 
+  result: BOOLEAN;
+BEGIN
+  result := TRUE;
+  IF IsInvalidContinuationByte(buf[i + 1]) OR 
+     IsInvalidContinuationByte(buf[i + 2]) OR
+     IsInvalidContinuationByte(buf[i + 3]) THEN
+    result := FALSE;
+  ELSIF ((buf[i] = CHR(0F0H)) & (buf[i + 1] < CHR(090H))) THEN
+    result := FALSE;
+  ELSIF ((buf[i] > CHR(0F4H)) OR ((buf[i] = CHR(0F4H)) & (buf[i + 1] > CHR(08FH)))) THEN
+    result := FALSE;
+  END;
+  RETURN result
+END IsValid4ByteSequence;
+
+PROCEDURE IsValid*(buf: ARRAY OF CHAR; len: INTEGER): BOOLEAN;
+(* Returns TRUE if buf[0..len-1] is valid UTF-8 *)
+VAR 
+  c : CHAR;
+  i, expectedCharLen : INTEGER;
+  result: BOOLEAN;
+BEGIN
+  result := TRUE;
+  i := 0;
+  WHILE (i < len) & (result) DO
+    c := buf[i];
+    expectedCharLen := CharLen(c);
+    IF expectedCharLen = 0 THEN
+      (*  Invalid first byte *)
+      result := FALSE;
+      (* Check if buffer has enough bytes for the potential sequence *)
+    ELSIF (i + expectedCharLen) > len THEN 
+      result := FALSE;
+    ELSE
+      (* Validate the sequence based on its expected length *)
+      CASE expectedCharLen OF
+        1: 
+          INC(i, 1);
+      | 2:
+        IF IsValid2ByteSequence(buf, i) THEN
+          INC(i, 2);
+        ELSE
+          result := FALSE;
+        END;
+      | 3: 
+        IF IsValid3ByteSequence(buf, i) THEN
+          INC(i, 3);
+        ELSE
+          result := FALSE;
+        END;
+      | 4:
+        IF IsValid4ByteSequence(buf, i) THEN
+          INC(i, 4);
+        ELSE
+          result := FALSE;
+        END;
+      END;
+    END;
+  END;
+  RETURN result
 END IsValid;
 
-PROCEDURE HasBOM*(buffer: ARRAY OF CHAR; len: INTEGER): BOOLEAN;
-(* Returns TRUE if buffer starts with a UTF-8 BOM (EF BB BF), otherwise returns FALSE. *)
+PROCEDURE HasBOM*(buf: ARRAY OF CHAR; len: INTEGER): BOOLEAN;
+(* Returns TRUE if buf starts with a UTF-8 BOM (EF BB BF), otherwise returns FALSE. *)
 VAR 
   result: BOOLEAN;
 BEGIN
   result := FALSE;
   IF len >= 3 THEN
-      IF (buffer[0] = Bom0) & 
-         (buffer[1] = Bom1) & 
-         (buffer[2] = Bom2) THEN
+      IF (buf[0] = Bom0) & 
+         (buf[1] = Bom1) & 
+         (buf[2] = Bom2) THEN
       result := TRUE;
     END
   END
   RETURN result
 END HasBOM;
 
-PROCEDURE Encode*(codePoint: INTEGER; VAR buffer: ARRAY OF CHAR; index: INTEGER; VAR bytesWritten: INTEGER): BOOLEAN;
-(* Converts a Unicode code point to UTF-8 and writes it to buffer at buffer[index].
-   Returns TRUE if successful, FALSE if the code point is invalid or buffer is too small. *)
+PROCEDURE Encode*(codePoint: INTEGER; VAR buf: ARRAY OF CHAR; index: INTEGER; VAR bytesWritten: INTEGER): BOOLEAN;
+(* Converts a Unicode code point to UTF-8 and writes it to buf at buf[index].
+   Returns TRUE if successful, FALSE if the code point is invalid or buf is too small. *)
 BEGIN
     RETURN FALSE (*TODO*)
 END Encode;
