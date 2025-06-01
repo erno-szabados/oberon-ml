@@ -1,8 +1,8 @@
 MODULE Utf8;
 
-IMPORT SYSTEM, Bitwise, Out;
-
 (* This module implements UTF-8 encoding and utility procedures. *)
+
+IMPORT SYSTEM, Bitwise;
 
 CONST 
   Bom0 = CHR(0EFH);
@@ -60,7 +60,7 @@ BEGIN
     result := FALSE;
   ELSIF ((buf[i] = CHR(0E0H)) & (buf[i + 1] < CHR(0A0H))) THEN
     result := FALSE;
-  ELSIF ((buf[i] = CHR(0C1H)) & (buf[i + 1] >= CHR(0A0H))) THEN
+  ELSIF ((buf[i] = CHR(0EDH)) & (buf[i + 1] >= CHR(0A0H))) THEN
     result := FALSE;
   END;
   RETURN result
@@ -98,7 +98,7 @@ BEGIN
     IF expectedCharLen = 0 THEN
       (*  Invalid first byte *)
       result := FALSE;
-      (* Check if buffer has enough bytes for the potential sequence *)
+      (* Check if buf has enough bytes for the potential sequence *)
     ELSIF (i + expectedCharLen) > len THEN 
       result := FALSE;
     ELSE
@@ -137,16 +137,76 @@ BEGIN
          (buf[1] = Bom1) & 
          (buf[2] = Bom2) THEN
       result := TRUE;
-    END
-  END
+    END;
+  END;
   RETURN result
 END HasBOM;
 
 PROCEDURE Encode*(codePoint: INTEGER; VAR buf: ARRAY OF CHAR; index: INTEGER; VAR bytesWritten: INTEGER): BOOLEAN;
 (* Converts a Unicode code point to UTF-8 and writes it to buf at buf[index].
    Returns TRUE if successful, FALSE if the code point is invalid or buf is too small. *)
+VAR
+  i: ARRAY 4 OF INTEGER;
+  result: BOOLEAN;
 BEGIN
-    RETURN FALSE (*TODO*)
+  result := TRUE;
+  IF codePoint <= 07FH THEN
+    (* 1-byte ASCII *)
+    IF LEN(buf) < index THEN 
+      bytesWritten := 0;
+      result := FALSE;
+    ELSE
+      buf[index] := CHR(codePoint);
+      bytesWritten := 1;
+    END;
+  ELSIF codePoint <= 07FFH THEN
+    (* 2-byte sequence *)
+    IF LEN(buf) < index + 1 THEN 
+      bytesWritten := 0;
+      result := FALSE;
+    ELSE
+      i[0] := Bitwise.And(Bitwise.ShiftRight(codePoint, 6), 01FH);
+      i[1] := Bitwise.And(codePoint, 03FH);
+      buf[index] := CHR(Bitwise.Or8(SYSTEM.VAL(BYTE, i[0]), 0C0H));
+      buf[index + 1] := CHR(Bitwise.Or8(SYSTEM.VAL(BYTE, i[1]), 080H));
+      bytesWritten := 2;
+    END;
+  ELSIF codePoint <= 0FFFFH THEN
+    (* 3-byte sequence *)
+    IF LEN(buf) < index + 2 THEN 
+      bytesWritten := 0; 
+      result := FALSE;
+    ELSE
+      i[0] := Bitwise.And(Bitwise.ShiftRight(codePoint, 12), 0FH);
+      i[1] := Bitwise.And(Bitwise.ShiftRight(codePoint, 6), 03FH);
+      i[2] := Bitwise.And(codePoint, 03FH);
+      buf[index] := CHR(Bitwise.Or8(SYSTEM.VAL(BYTE, i[0]), 0E0H));
+      buf[index + 1] := CHR(Bitwise.Or8(SYSTEM.VAL(BYTE, i[1]), 080H));
+      buf[index + 2] := CHR(Bitwise.Or8(SYSTEM.VAL(BYTE, i[2]), 080H));     
+      bytesWritten := 3;
+    END;
+
+  ELSIF codePoint <= 10FFFFH THEN
+    IF LEN(buf) < index + 3 THEN 
+      bytesWritten := 0; 
+      result := FALSE; 
+    ELSE
+      i[0] := Bitwise.And(Bitwise.ShiftRight(codePoint, 18), 07H);
+      i[1] := Bitwise.And(Bitwise.ShiftRight(codePoint, 12), 03FH);
+      i[2] := Bitwise.And(Bitwise.ShiftRight(codePoint, 6), 03FH);
+      i[3] := Bitwise.And(codePoint, 03FH);
+      buf[index] := CHR(Bitwise.Or8(SYSTEM.VAL(BYTE, i[0]), 0F0H));
+      buf[index + 1] := CHR(Bitwise.Or8(SYSTEM.VAL(BYTE, i[1]), 080H));
+      buf[index + 2] := CHR(Bitwise.Or8(SYSTEM.VAL(BYTE, i[2]), 080H));     
+      buf[index + 3] := CHR(Bitwise.Or8(SYSTEM.VAL(BYTE, i[3]), 080H));  
+      bytesWritten := 4;
+    END;
+  ELSE
+    bytesWritten := 0;
+    result := FALSE;
+  END;
+
+  RETURN result
 END Encode;
 
 PROCEDURE NextChar*(VAR byteArray: ARRAY OF CHAR; VAR index: INTEGER; VAR codePoint: INTEGER): BOOLEAN;

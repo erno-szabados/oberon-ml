@@ -94,7 +94,7 @@ VAR
   buf : ARRAY 7 OF CHAR;
 BEGIN
    (* Valid 1-byte ASCII *)
-  buf[0] := CHR(65); buf[1] := CHR(0);
+  buf[0] := CHR(65);
   CheckIsValid("IsValid: ASCII", buf, 1, TRUE);
 
   (* Valid 2-byte UTF-8: U+00A2 (¢) = C2 A2 *)
@@ -134,8 +134,60 @@ BEGIN
 
 END TestIsValid;
 
+PROCEDURE CheckEncode(testName: ARRAY OF CHAR; codePoint: INTEGER; expected: ARRAY OF CHAR; expectedLen: INTEGER; expectedResult: BOOLEAN);
+VAR
+  buf: ARRAY 7 OF CHAR;
+  bytesWritten: INTEGER;
+  pass, result: BOOLEAN;
+  i: INTEGER;
+BEGIN
+  result := Utf8.Encode(codePoint, buf, 0, bytesWritten);
+  pass := (result = expectedResult) & (bytesWritten = expectedLen);
+  IF pass & expectedResult THEN
+    FOR i := 0 TO expectedLen - 1 DO
+      (* Out.Hex(SYSTEM.VAL(INTEGER, buf[i])); Out.String(" ?"); Out.Hex(SYSTEM.VAL(INTEGER, expected[i])); Out.Ln; *)
+      IF buf[i] # expected[i] THEN pass := FALSE; END;
+    END;
+  END;
+  WriteResult(testName, pass);
+END CheckEncode;
+
+PROCEDURE TestEncode;
+VAR
+  smallBuf : ARRAY 2 OF CHAR;
+  buf: ARRAY 4 OF CHAR;
+  bytesWritten: INTEGER;
+  result: BOOLEAN;
+BEGIN
+  (* 1-byte ASCII: U+0041 'A' *)
+  buf[0] := CHR(65); buf[1] := CHR(0); buf[2] := CHR(0); buf[3] := CHR(0);
+  CheckEncode("Encode: ASCII A", 65, buf, 1, TRUE);
+
+  (* 2-byte: U+00A2 (¢) = C2 A2 *)
+  buf[0] := CHR(0C2H); buf[1] := CHR(0A2H);
+  CheckEncode("Encode: U+00A2", 162, buf, 2, TRUE);
+
+  (* 3-byte: U+20AC (€) = E2 82 AC *)
+  
+  buf[0] := CHR(0E2H); buf[1] := CHR(082H); buf[2] := CHR(0ACH);
+  CheckEncode("Encode: U+20AC", 8364, buf, 3, TRUE);
+
+  (* 4-byte: U+1F600 (😀) = F0 9F 98 80 *)
+  buf[0] := CHR(0F0H) ; buf[1] :=  CHR(09FH) ; buf[2] :=  CHR(098H) ; buf[3] :=  CHR(080H);
+  CheckEncode("Encode: U+1F600", 128512, buf, 4, TRUE);
+
+  (* Invalid: code point > U+10FFFF *)
+  CheckEncode("Encode: Invalid > U+10FFFF", 1114112, "", 0, FALSE);
+
+  (* Invalid: buffer too small for 4-byte sequence *)
+  result := Utf8.Encode(128512, smallBuf, 0, bytesWritten);
+  WriteResult("Encode: Buffer too small", (result = FALSE) & (bytesWritten = 0));
+ 
+END TestEncode;
+
 BEGIN
     TestCharLen;
     TestHasBOM;
     TestIsValid;
+    TestEncode;
 END TestUtf8.
