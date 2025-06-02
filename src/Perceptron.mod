@@ -62,10 +62,8 @@ VAR
 BEGIN
     result := TRUE;
     IF ~p.isTrained THEN
-        Out.String("Perceptron is not trained."); Out.Ln;
         result := FALSE; (* Return a default value if not trained *)
     ELSIF LEN(inputs) # p.numWeights THEN
-        Out.String("Input size does not match perceptron weights."); Out.Ln;
         result := FALSE; (* Return a default value if input size is incorrect *)
     ELSE
         sum := 0.0;
@@ -88,6 +86,7 @@ VAR
     i: INTEGER;
     result : BOOLEAN;
 BEGIN
+    p.isTrained := TRUE;
     result := Predict(p, inputs, output);
     error := target - output;
     
@@ -98,7 +97,7 @@ BEGIN
         INC(i);
     END;
     p.bias := p.bias + p.learningRate * error;
-    p.isTrained := TRUE;
+
 END Train;
 
 (** Train the perceptron with the provided data and targets for a specified number of epochs.*)
