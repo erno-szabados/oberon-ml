@@ -20,7 +20,7 @@ This project implements
 - `make` (for building and running tests)
 
 ## Documentation
- - [HTML](doc/api//html/index.html) - generated with obncdoc
+ - [HTML](https://erno-szabados.github.io/oberon-ml/) - generated with obncdoc
 
 ## Structure
 
