@@ -30,15 +30,15 @@ This project implements
 
 ## Building
 
-To build and run all tests:
+To build, issue the commands from the project root:
 
 ```sh
-cd src
-
-make -f Makefile.obnc
+make -f src/Makefile.obnc
 OR
-make -f Makefile.akron
+make -f src/Makefile.akron
+```
+The test binaries are generated in the `bin/` folder.
 
 The makefile symlinks the .mod files to .ob07 for the akron compiler, as it accepts this extension only. 
 (NOTE: The akron makefile is not up-to-date, but it should not be too difficult to adapt the changes).
-```
+
