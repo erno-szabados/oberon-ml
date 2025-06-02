@@ -209,14 +209,70 @@ BEGIN
   RETURN result
 END Encode;
 
-PROCEDURE NextChar*(VAR byteArray: ARRAY OF CHAR; VAR index: INTEGER; VAR codePoint: INTEGER): BOOLEAN;
+PROCEDURE Decode(buf: ARRAY OF CHAR; index: INTEGER; VAR codePoint: INTEGER): BOOLEAN;
+(* Given a starting index of a UTF-8 sequence, validate it and decode the code point *)
+VAR
+  len: INTEGER;
+  cp, part1, part2, part3, part4: INTEGER;
+  result: BOOLEAN;
+BEGIN
+  result := TRUE;
+  len := CharLen(buf[index]);
+
+  IF (len = 0) OR (index + len > LEN(buf)) THEN
+    result := FALSE;
+  ELSE
+    CASE len OF
+      1:
+        cp := Bitwise.And8(SYSTEM.VAL(BYTE, buf[index]), 07FH);
+      | 2:
+        IF ~IsValid2ByteSequence(buf, index) THEN
+          result := FALSE;
+        ELSE
+          part1 := Bitwise.ShiftLeft(Bitwise.And8(SYSTEM.VAL(BYTE, buf[index]), 01FH), 6);
+          part2 := Bitwise.And8(SYSTEM.VAL(BYTE, buf[index+1]), 03FH);
+          cp := Bitwise.Or(part1, part2);
+        END;
+      | 3:
+        IF ~IsValid3ByteSequence(buf, index) THEN
+          result := FALSE;
+        ELSE
+          part1 := Bitwise.ShiftLeft(Bitwise.And8(SYSTEM.VAL(BYTE, buf[index]), 0FH), 12);
+          part2 := Bitwise.ShiftLeft(Bitwise.And8(SYSTEM.VAL(BYTE, buf[index+1]), 03FH), 6);
+          part3 := Bitwise.And8(SYSTEM.VAL(BYTE, buf[index+2]), 03FH);
+          cp := Bitwise.Or(Bitwise.Or(part1, part2), part3);
+        END;
+      | 4:
+        IF ~IsValid4ByteSequence(buf, index) THEN
+          result := FALSE;
+        ELSE
+          part1 := Bitwise.ShiftLeft(Bitwise.And8(SYSTEM.VAL(BYTE, buf[index]), 07H), 18);
+          part2 := Bitwise.ShiftLeft(Bitwise.And8(SYSTEM.VAL(BYTE, buf[index+1]), 03FH), 12);
+          part3 := Bitwise.ShiftLeft(Bitwise.And8(SYSTEM.VAL(BYTE, buf[index+2]), 03FH), 6);
+          part4 := Bitwise.And8(SYSTEM.VAL(BYTE, buf[index+3]), 03FH);
+          cp := Bitwise.Or(Bitwise.Or(Bitwise.Or(part1, part2), part3), part4);
+        END;
+    END;
+    (* Handle invalid case length *)
+    IF (len < 1) OR (len > 4) THEN
+      result := FALSE;
+    END;
+  END;
+
+  IF result THEN
+    codePoint := cp;
+  END;
+  RETURN result
+END Decode;
+
+PROCEDURE NextChar*(VAR buf: ARRAY OF CHAR; VAR index: INTEGER; VAR codePoint: INTEGER): BOOLEAN;
 (* Reads the next UTF-8 character (code point) from a byte array, advances the index, and returns the code point.  *)
 (* Returns FALSE if the end of the array is reached or an invalid sequence is encountered. *)
 BEGIN
     RETURN FALSE (*TODO*)
 END NextChar;
 
-PROCEDURE PrevChar*(VAR byteArray: ARRAY OF CHAR; VAR index: INTEGER; VAR codePoint: INTEGER): BOOLEAN;
+PROCEDURE PrevChar*(VAR buf: ARRAY OF CHAR; VAR index: INTEGER; VAR codePoint: INTEGER): BOOLEAN;
 (* Similar to NextChar but reads the previous code point by moving backward from the current index. *)
 (* Returns FALSE if the start of the array is reached or an invalid sequence is encountered. *)
 BEGIN

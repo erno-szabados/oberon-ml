@@ -145,7 +145,6 @@ BEGIN
   pass := (result = expectedResult) & (bytesWritten = expectedLen);
   IF pass & expectedResult THEN
     FOR i := 0 TO expectedLen - 1 DO
-      (* Out.Hex(SYSTEM.VAL(INTEGER, buf[i])); Out.String(" ?"); Out.Hex(SYSTEM.VAL(INTEGER, expected[i])); Out.Ln; *)
       IF buf[i] # expected[i] THEN pass := FALSE; END;
     END;
   END;
@@ -168,7 +167,6 @@ BEGIN
   CheckEncode("Encode: U+00A2", 162, buf, 2, TRUE);
 
   (* 3-byte: U+20AC (€) = E2 82 AC *)
-  
   buf[0] := CHR(0E2H); buf[1] := CHR(082H); buf[2] := CHR(0ACH);
   CheckEncode("Encode: U+20AC", 8364, buf, 3, TRUE);
 
