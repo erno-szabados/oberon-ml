@@ -209,7 +209,7 @@ BEGIN
   RETURN result
 END Encode;
 
-PROCEDURE Decode(buf: ARRAY OF CHAR; index: INTEGER; VAR codePoint: INTEGER): BOOLEAN;
+PROCEDURE Decode*(buf: ARRAY OF CHAR; index: INTEGER; VAR codePoint: INTEGER): BOOLEAN;
 (*  Converts a byte array to an Unicode code point, starting the decode from buf[index]. *)
 (*  Returns TRUE on success, false if the byte sequence is invalid, or if the buffer 
     is too short to contain the potential data. *)
