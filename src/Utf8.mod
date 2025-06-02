@@ -279,11 +279,57 @@ BEGIN
   RETURN result
 END NextChar;
 
+
 PROCEDURE PrevChar*(VAR buf: ARRAY OF CHAR; VAR index: INTEGER; VAR codePoint: INTEGER): BOOLEAN;
-(* Similar to NextChar but reads the previous code point by moving backward from the current index. *)
+(* Reads the previous UTF-8 character (code point) from a byte array, retracts the index, and returns the code point.  *)
 (* Returns FALSE if the start of the array is reached or an invalid sequence is encountered. *)
+VAR
+  start, i, len: INTEGER;
+  result: BOOLEAN;
 BEGIN
-    RETURN FALSE (*TODO*)
+  result := FALSE;
+
+  (* Check for invalid index or empty array *)
+  IF (index = 0) OR (LEN(buf) < 0) THEN
+    result := FALSE;
+  ELSE
+    start := index;
+
+    (* Move back to the first byte of the previous code point *)
+    i := start;
+    IF i = 0 THEN
+      result := FALSE;
+    ELSE
+      DEC(i);
+
+      (* At most 3 continuation bytes before a leading byte *)
+      WHILE (i > 0) & (~IsInvalidContinuationByte(buf[i])) DO
+        DEC(i);
+      END;
+
+      (* Check if we found a valid start byte *)
+      len := CharLen(buf[i]);
+      IF len = 0 THEN
+        result := FALSE;
+      ELSE
+        (* Check for incomplete or invalid sequence *)
+        IF (i + len > LEN(buf) + 1) OR (i + len # start) THEN
+          result := FALSE;
+        ELSE
+          (* Decode the code point *)
+          IF ~ Decode(buf, i, codePoint) THEN
+            result := FALSE;
+          ELSE
+            index := i;
+            result := TRUE;
+          END;
+        END;
+      END;
+    END;
+  END;
+
+  RETURN result
 END PrevChar;
+
 
 END Utf8.
