@@ -60,7 +60,7 @@ VAR
     i: INTEGER;
     result: REAL;
 BEGIN
-    IF p.isTrained # TRUE THEN
+    IF ~p.isTrained THEN
         Out.String("Perceptron is not trained."); Out.Ln;
         result := 0.0; (* Return a default value if not trained *)
     ELSIF LEN(inputs) # p.numWeights THEN
