@@ -24,8 +24,8 @@ This project implements
 
 ## Structure
 
-- [`src`](src/): Oberon sources for modules and the test suites.
-- [doc](doc/): OBNC API and API documentation for the implemented modules.
+- [src](src/): Oberon sources for modules and the test suites.
+- [docs](docs/): OBNC API and API documentation for the implemented modules.
 - [lib](src/lib) - the runtime source code from the akron compiler source, needed if you use the akron compiler, licensed under BSD-2
 
 ## Building
