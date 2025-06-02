@@ -210,57 +210,52 @@ BEGIN
 END Encode;
 
 PROCEDURE Decode(buf: ARRAY OF CHAR; index: INTEGER; VAR codePoint: INTEGER): BOOLEAN;
-(* Given a starting index of a UTF-8 sequence, validate it and decode the code point *)
+(*  Converts a byte array to an Unicode code point, starting the decode from buf[index]. *)
+(*  Returns TRUE on success, false if the byte sequence is invalid, or if the buffer 
+    is too short to contain the potential data. *)
 VAR
+  i: ARRAY 4 OF INTEGER;
   len: INTEGER;
-  cp, part1, part2, part3, part4: INTEGER;
   result: BOOLEAN;
 BEGIN
   result := TRUE;
   len := CharLen(buf[index]);
 
+  (* Basic Validation *)
   IF (len = 0) OR (index + len > LEN(buf)) THEN
     result := FALSE;
   ELSE
     CASE len OF
-      1:
-        cp := Bitwise.And8(SYSTEM.VAL(BYTE, buf[index]), 07FH);
-      | 2:
+      1: (* 1-byte ASCII, no additional validation needed *)
+        codePoint := Bitwise.And8(SYSTEM.VAL(BYTE, buf[index]), 07FH);
+    | 2: (* 2-byte sequence *)
         IF ~IsValid2ByteSequence(buf, index) THEN
           result := FALSE;
         ELSE
-          part1 := Bitwise.ShiftLeft(Bitwise.And8(SYSTEM.VAL(BYTE, buf[index]), 01FH), 6);
-          part2 := Bitwise.And8(SYSTEM.VAL(BYTE, buf[index+1]), 03FH);
-          cp := Bitwise.Or(part1, part2);
+          i[0] := Bitwise.ShiftLeft(Bitwise.And8(SYSTEM.VAL(BYTE, buf[index]), 01FH), 6);
+          i[1] := Bitwise.And8(SYSTEM.VAL(BYTE, buf[index+1]), 03FH);
+          codePoint := Bitwise.Or(i[0], i[1]);
         END;
-      | 3:
+    | 3: (* 3-byte sequence *)
         IF ~IsValid3ByteSequence(buf, index) THEN
           result := FALSE;
         ELSE
-          part1 := Bitwise.ShiftLeft(Bitwise.And8(SYSTEM.VAL(BYTE, buf[index]), 0FH), 12);
-          part2 := Bitwise.ShiftLeft(Bitwise.And8(SYSTEM.VAL(BYTE, buf[index+1]), 03FH), 6);
-          part3 := Bitwise.And8(SYSTEM.VAL(BYTE, buf[index+2]), 03FH);
-          cp := Bitwise.Or(Bitwise.Or(part1, part2), part3);
+          i[0] := Bitwise.ShiftLeft(Bitwise.And8(SYSTEM.VAL(BYTE, buf[index]), 0FH), 12);
+          i[1] := Bitwise.ShiftLeft(Bitwise.And8(SYSTEM.VAL(BYTE, buf[index+1]), 03FH), 6);
+          i[2] := Bitwise.And8(SYSTEM.VAL(BYTE, buf[index+2]), 03FH);
+          codePoint := Bitwise.Or(Bitwise.Or(i[0], i[1]), i[2]);
         END;
-      | 4:
+    | 4: (* 4-byte sequence *)
         IF ~IsValid4ByteSequence(buf, index) THEN
           result := FALSE;
         ELSE
-          part1 := Bitwise.ShiftLeft(Bitwise.And8(SYSTEM.VAL(BYTE, buf[index]), 07H), 18);
-          part2 := Bitwise.ShiftLeft(Bitwise.And8(SYSTEM.VAL(BYTE, buf[index+1]), 03FH), 12);
-          part3 := Bitwise.ShiftLeft(Bitwise.And8(SYSTEM.VAL(BYTE, buf[index+2]), 03FH), 6);
-          part4 := Bitwise.And8(SYSTEM.VAL(BYTE, buf[index+3]), 03FH);
-          cp := Bitwise.Or(Bitwise.Or(Bitwise.Or(part1, part2), part3), part4);
+          i[0] := Bitwise.ShiftLeft(Bitwise.And8(SYSTEM.VAL(BYTE, buf[index]), 07H), 18);
+          i[1] := Bitwise.ShiftLeft(Bitwise.And8(SYSTEM.VAL(BYTE, buf[index+1]), 03FH), 12);
+          i[2] := Bitwise.ShiftLeft(Bitwise.And8(SYSTEM.VAL(BYTE, buf[index+2]), 03FH), 6);
+          i[3] := Bitwise.And8(SYSTEM.VAL(BYTE, buf[index+3]), 03FH);
+          codePoint := Bitwise.Or(Bitwise.Or(Bitwise.Or(i[0], i[1]), i[2]), i[3]);
         END;
     END;
-    (* Handle invalid case length *)
-    IF (len < 1) OR (len > 4) THEN
-      result := FALSE;
-    END;
-  END;
-
-  IF result THEN
-    codePoint := cp;
   END;
   RETURN result
 END Decode;
