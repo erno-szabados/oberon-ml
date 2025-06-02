@@ -79,8 +79,8 @@ BEGIN
     RETURN result
 END Predict;
 
-(** NOTE: This training rule assumes a step activation function. *)
-(** For other activations (e.g., sigmoid, tanh), the update rule must be adapted.*)
+(* NOTE: This training rule assumes a step activation function. *)
+(* For other activations (e.g., sigmoid, tanh), the update rule must be adapted.*)
 PROCEDURE Train(VAR p: Perceptron; inputs: ARRAY OF REAL; target: REAL);
 VAR 
     output, error: REAL;
