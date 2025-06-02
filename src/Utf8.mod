@@ -279,57 +279,39 @@ BEGIN
   RETURN result
 END NextChar;
 
-
 PROCEDURE PrevChar*(VAR buf: ARRAY OF CHAR; VAR index: INTEGER; VAR codePoint: INTEGER): BOOLEAN;
 (* Reads the previous UTF-8 character (code point) from a byte array, retracts the index, and returns the code point.  *)
 (* Returns FALSE if the start of the array is reached or an invalid sequence is encountered. *)
+
 VAR
   start, i, len: INTEGER;
   result: BOOLEAN;
 BEGIN
   result := FALSE;
 
-  (* Check for invalid index or empty array *)
-  IF (index = 0) OR (LEN(buf) < 0) THEN
-    result := FALSE;
-  ELSE
+  IF (index > 0) THEN
     start := index;
+    i := start - 1;
 
     (* Move back to the first byte of the previous code point *)
-    i := start;
-    IF i = 0 THEN
-      result := FALSE;
-    ELSE
+    WHILE (i > 0) & (~IsInvalidContinuationByte(buf[i])) DO
       DEC(i);
+    END;
 
-      (* At most 3 continuation bytes before a leading byte *)
-      WHILE (i > 0) & (~IsInvalidContinuationByte(buf[i])) DO
-        DEC(i);
-      END;
-
-      (* Check if we found a valid start byte *)
-      len := CharLen(buf[i]);
-      IF len = 0 THEN
-        result := FALSE;
-      ELSE
-        (* Check for incomplete or invalid sequence *)
-        IF (i + len > LEN(buf) + 1) OR (i + len # start) THEN
-          result := FALSE;
-        ELSE
-          (* Decode the code point *)
-          IF ~ Decode(buf, i, codePoint) THEN
-            result := FALSE;
-          ELSE
-            index := i;
-            result := TRUE;
-          END;
-        END;
-      END;
+    len := CharLen(buf[i]);
+    IF len = 0 THEN
+      (* Invalid start byte *)
+    ELSIF (i + len > LEN(buf)) OR (i + len # start) THEN
+      (* Incomplete or invalid sequence *)
+    ELSIF ~Decode(buf, i, codePoint) THEN
+      (* Decode failed *)
+    ELSE
+      index := i;
+      result := TRUE;
     END;
   END;
 
   RETURN result
 END PrevChar;
-
 
 END Utf8.
