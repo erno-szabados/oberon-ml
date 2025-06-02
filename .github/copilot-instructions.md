@@ -1,0 +1,34 @@
+# Copilot Instructions for the Oberon-ML Project
+
+- **Project Goal:** Machine learning and related utility functions in Oberon-07. 
+- **Language:** Oberon-07
+- **Constraints:** 
+  - Only fixed-size arrays are allowed by the language. 
+  - Open array parameters are allowed as procedure parameters only.
+  - Return is only allowed as the last statement in a procedure. Use a `result` variable for returning values.
+  - For bitwise operations, use our own implementation from `Bitwise.mod`.
+  - Use VAR in procedure parameters for mutable variables.
+  - SYSTEM.VAL() does not allow procedure parameters, use a local variable to convert types.
+  - Language specification is available in `doc/TheProgrammingLanguageOberon.md`
+  **Best Practices**
+  - Functions and procedures should be clear, concise, and well-structured.
+  - Use modules to encapsulate functionality.
+  - Use helper functions to avoid code duplication.
+  - Use meaningful names for modules, procedures, and variables.
+  - Use PascalCase for module names, constants and procedures and camelCase for variables.
+  - Export only what is necessary; keep the interface clean.
+- **Dependencies:** 
+- Oberon-07 standard libraries are documented in `doc/obnc/*.def.txt`. 
+- Do not use the lib folder, that is just for the acron compiler dependencies.
+
+## Building
+
+- The project uses **GNU Make** for building.
+- New modules and tests **must be added to the Makefile**.
+- Tests can be executed with the `make -f src/Makefile.obnc all` target.
+
+## Testing
+
+- Place unit tests in the `test/` directory, using idiomatic Oberon-07 test patterns.
+- Reference style and approach: see `test/TestUTF8.mod`.
+- Tests should be granular enough to help identify problems, but avoid excess verbosity.
