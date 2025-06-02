@@ -105,4 +105,60 @@ BEGIN
   IF destIdx < LEN(dest) THEN dest[destIdx] := 0X END;
 END Extract;
 
+(* Returns the codepoint position of the first occurrence of pattern in s at or after startPos, or -1 if not found *)
+PROCEDURE Pos*(pattern, s: ARRAY OF CHAR; startPos: INTEGER): INTEGER;
+VAR
+  sIdx, cpPos, matchStart, tempSIdx, tempPatIdx: INTEGER;
+  match, searching: BOOLEAN;
+BEGIN
+  sIdx := 0; cpPos := 0; matchStart := -1;
+  (* Skip to startPos-th codepoint *)
+  WHILE (sIdx < LEN(s)) & (cpPos < startPos) & (s[sIdx] # 0X) DO
+    Utf8.SkipChar(s, sIdx);
+    cpPos := cpPos + 1;
+  END;
+  searching := TRUE;
+  WHILE (sIdx < LEN(s)) & (s[sIdx] # 0X) & searching DO
+    (* Try to match pattern at current codepoint position *)
+    tempSIdx := sIdx; tempPatIdx := 0; match := TRUE;
+    WHILE (pattern[tempPatIdx] # 0X) & match DO
+      IF (tempSIdx >= LEN(s)) OR (s[tempSIdx] = 0X) THEN
+        match := FALSE
+      ELSE
+        IF s[tempSIdx] # pattern[tempPatIdx] THEN
+          match := FALSE
+        END;
+        tempSIdx := tempSIdx + 1;
+        tempPatIdx := tempPatIdx + 1;
+      END;
+    END;
+    IF match THEN
+      matchStart := cpPos;
+      searching := FALSE;
+    ELSE
+      Utf8.SkipChar(s, sIdx);
+      cpPos := cpPos + 1;
+    END;
+  END;
+  RETURN matchStart
+END Pos;
+
+(* Replaces the substring at codepoint position pos in dest with source. *)
+PROCEDURE Replace*(source: ARRAY OF CHAR; pos: INTEGER; VAR dest: ARRAY OF CHAR);
+VAR
+  temp: ARRAY 256 OF CHAR;
+  srcLen, destLen: INTEGER;
+BEGIN
+  destLen := Length(dest);
+  IF (pos < 0) OR (pos > destLen) THEN
+    (* Do nothing, invalid position *)
+  ELSE
+    srcLen := Length(source);
+    (* Delete srcLen codepoints at pos *)
+    Delete(dest, pos, srcLen, temp);
+    (* Insert source at pos *)
+    Insert(temp, pos, source, dest);
+  END;
+END Replace;
+
 END Utf8Strings.
