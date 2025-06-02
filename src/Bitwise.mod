@@ -1,11 +1,11 @@
 MODULE Bitwise;
 
-(* Bitwise operations on INTEGER (32-bit) type. *)
+(** This module implements bitwise operations for the INTEGER and BYTE types. *)
 
 IMPORT SYSTEM;
 
 PROCEDURE And8*(a, b: BYTE): BYTE;
-(* Perform bitwise AND operation on two bytes. *)
+(** Perform bitwise AND operation on two bytes. *)
 VAR 
     set: SET;
 BEGIN
@@ -17,7 +17,7 @@ BEGIN
 END And8;
 
 PROCEDURE And*(a, b: INTEGER): INTEGER;
-(* Perform bitwise AND operation on two integers. *)
+(** Perform bitwise AND operation on two integers. *)
 VAR 
     set: SET;
 BEGIN
@@ -29,7 +29,7 @@ BEGIN
 END And;
 
 PROCEDURE Or8*(a, b: BYTE): BYTE;
-(* Perform bitwise OR operation on two bytes. *)
+(** Perform bitwise OR operation on two bytes. *)
 VAR 
     set: SET;
 BEGIN
@@ -41,7 +41,7 @@ BEGIN
 END Or8;
 
 PROCEDURE Or*(a, b: INTEGER): INTEGER;
-(* Perform bitwise OR operation on two integers. *)
+(** Perform bitwise OR operation on two integers. *)
 VAR 
     set: SET;
 BEGIN
@@ -53,7 +53,7 @@ BEGIN
 END Or;
 
 PROCEDURE Xor8*(a, b: BYTE): BYTE;
-(* Perform bitwise XOR operation on two bytes. *)
+(** Perform bitwise XOR operation on two bytes. *)
 VAR 
     set: SET;
 BEGIN   
@@ -65,7 +65,7 @@ BEGIN
 END Xor8;
 
 PROCEDURE Xor*(a, b: INTEGER): INTEGER;
-(* Perform bitwise XOR operation on two integers. *)
+(** Perform bitwise XOR operation on two integers. *)
 VAR 
     set: SET;
 BEGIN   
@@ -77,7 +77,7 @@ BEGIN
 END Xor;
 
 PROCEDURE Not8*(a: BYTE): BYTE;
-(* Perform bitwise NOT operation on a byte. *)
+(** Perform bitwise NOT operation on a byte. *)
 VAR 
     set: SET;
 BEGIN
@@ -88,8 +88,8 @@ BEGIN
     RETURN SYSTEM.VAL(BYTE, set)
 END Not8;
 
+(** Perform bitwise NOT operation on an integer. *)
 PROCEDURE Not*(a: INTEGER): INTEGER;
-(* Perform bitwise NOT operation on an integer. *)
 VAR 
     set: SET;
 BEGIN
@@ -102,50 +102,50 @@ END Not;
 
 
 PROCEDURE ShiftLeft8*(a: BYTE; n: BYTE): BYTE;
-(* Perform shift left operation on a byte. *)
+(** Perform shift left operation on a byte. *)
 BEGIN
     RETURN LSL(a, n)
 END ShiftLeft8;
 
 PROCEDURE ShiftRight8*(a: BYTE; n: BYTE): BYTE;
-(* Perform signed shift right operation on a byte. *)
+(** Perform signed shift right operation on a byte. *)
 BEGIN
     RETURN ASR(a, n)
 END ShiftRight8;
 
 PROCEDURE RotateLeft8*(a: BYTE; n: BYTE): BYTE;
-(* Perform rotate left operation on a byte. *)
+(** Perform rotate left operation on a byte. *)
 BEGIN
     RETURN ROR(a, 32 - n)
 END RotateLeft8;
 
 PROCEDURE RotateRight8*(a: BYTE; n: BYTE): BYTE;
-(* Perform rotate right operation on a byte. *)
+(** Perform rotate right operation on a byte. *)
 BEGIN
     RETURN ROR(a, n)
 END RotateRight8;
 
 
 PROCEDURE ShiftLeft*(a: INTEGER; n: INTEGER): INTEGER;
-(* Perform shift left operation on an integer. *)
+(** Perform shift left operation on an integer. *)
 BEGIN
     RETURN LSL(a, n)
 END ShiftLeft;
 
 PROCEDURE ShiftRight*(a: INTEGER; n: INTEGER): INTEGER;
-(* Perform signed shift right operation on an integer. *)
+(** Perform signed shift right operation on an integer. *)
 BEGIN
     RETURN ASR(a, n)
 END ShiftRight;
 
 PROCEDURE RotateLeft*(a: INTEGER; n: INTEGER): INTEGER;
-(* Perform rotate left operation on an integer. *)
+(** Perform rotate left operation on an integer. *)
 BEGIN
     RETURN ROR(a, 32 - n)
 END RotateLeft;
 
 PROCEDURE RotateRight*(a: INTEGER; n: INTEGER): INTEGER;
-(* Perform rotate right operation on an integer. *)
+(** Perform rotate right operation on an integer. *)
 BEGIN
     RETURN ROR(a, n)
 END RotateRight;

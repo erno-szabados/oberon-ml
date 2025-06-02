@@ -1,0 +1,56 @@
+<!DOCTYPE html PUBLIC '-//W3C//DTD XHTML 1.0 Strict//EN' 'http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd'>
+<html xmlns='http://www.w3.org/1999/xhtml' xml:lang='en' lang='en'>
+	<head>
+		<meta name='viewport' content='width=device-width, initial-scale=1.0' />
+		<meta http-equiv='Content-Type' content='text/html; charset=utf-8' />
+		<title>DEFINITION Utf8</title>
+		<link rel='stylesheet' type='text/css' href='style.css' />
+	</head>
+	<body>
+		<p><a href='index.html'>Index</a></p>
+
+		<pre>
+DEFINITION <em>Utf8</em>;
+
+<span class='comment'>(* This module implements UTF-8 encoding and utility procedures.
+    For direct string manipulation, use the Utf8String module.
+ *)</span>
+
+<span class='comment'>(* Determine the length of a UTF-8 character based on the first byte 
+ Returns the number of bytes in a UTF-8 character starting with firstByte 
+ Returns 0 for an invalid byte sequence. *)</span>
+PROCEDURE <em>CharLen</em>(firstByte: CHAR): INTEGER;
+
+<span class='comment'>(* Returns TRUE if buf[0..len-1] is valid UTF-8 *)</span>
+PROCEDURE <em>IsValid</em>(buf: ARRAY OF CHAR; len: INTEGER): BOOLEAN;
+
+<span class='comment'>(* Returns TRUE if buf starts with a UTF-8 BOM (EF BB BF), otherwise returns FALSE. *)</span>
+PROCEDURE <em>HasBOM</em>(buf: ARRAY OF CHAR; len: INTEGER): BOOLEAN;
+
+<span class='comment'>(* Converts a Unicode code point to UTF-8 and writes it to buf at buf[index].
+    Returns TRUE if successful, FALSE if the code point is invalid or buf is too small. *)</span>
+PROCEDURE <em>Encode</em>(codePoint: INTEGER; VAR buf: ARRAY OF CHAR; index: INTEGER; VAR bytesWritten: INTEGER): BOOLEAN;
+
+<span class='comment'>(* Converts a byte array to an Unicode code point, starting the decode from buf[index]. 
+    Returns TRUE on success, false if the byte sequence is invalid, or if the buffer 
+    is too short to contain the potential data. *)</span>
+PROCEDURE <em>Decode</em>(buf: ARRAY OF CHAR; index: INTEGER; VAR codePoint: INTEGER): BOOLEAN;
+
+<span class='comment'>(* Reads the next UTF-8 character (code point) from a byte array, advances the index, and returns the code point. 
+    Returns FALSE if the end of the array is reached or an invalid sequence is encountered. *)</span>
+PROCEDURE <em>NextChar</em>(buf: ARRAY OF CHAR; VAR index: INTEGER; VAR codePoint: INTEGER): BOOLEAN;
+
+<span class='comment'>(* Reads the previous UTF-8 character (code point) from a byte array, retracts the index, and returns the code point. 
+    Returns FALSE if the start of the array is reached or an invalid sequence is encountered. *)</span>
+PROCEDURE <em>PrevChar</em>(buf: ARRAY OF CHAR; VAR index: INTEGER; VAR codePoint: INTEGER): BOOLEAN;
+
+<span class='comment'>(* Copy a code point from src[srcIdx] to dst[destIdx]. *)</span>
+PROCEDURE <em>CopyChar</em>(src: ARRAY OF CHAR; VAR srcIdx: INTEGER; VAR dest: ARRAY OF CHAR; VAR destIdx: INTEGER);
+
+<span class='comment'>(* Moves idx beyond the next codepoint in src. *)</span>
+PROCEDURE <em>SkipChar</em>(src: ARRAY OF CHAR; VAR idx: INTEGER);
+
+END Utf8.
+</pre>
+	</body>
+</html>

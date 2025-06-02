@@ -1,0 +1,9 @@
+DEFINITION TestKnn;
+
+PROCEDURE TestQuickSelect(): BOOLEAN;
+
+PROCEDURE TestKDTree(): BOOLEAN;
+
+PROCEDURE TestKNN(): BOOLEAN;
+
+END TestKnn.

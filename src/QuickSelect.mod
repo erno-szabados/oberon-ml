@@ -1,11 +1,14 @@
 MODULE QuickSelect;
 
+(** This module implements an algorithm to find the k-th smallest element in a 
+    fixed-size 2D array of REALs along a specified axis, which is commonly used for 
+    median selection in multidimensional data structures like KD-Trees.*)
+
 CONST 
-    MaxDims = 32;  (* Maximum dimensions for points *)
+    (* Maximum dimensions for points *)
+    MaxDims = 20;  
 
-(* Finds the k-th smallest element in an array along a given axis. 
-   Used for median finding in KD-Tree construction. *)
-
+(* Swaps two rows (points) in the data array. *) 
 PROCEDURE Swap(VAR data: ARRAY OF ARRAY OF REAL; i, j: INTEGER);
 VAR
     tmp: ARRAY MaxDims OF REAL;
@@ -24,6 +27,8 @@ BEGIN
     END;
 END Swap;
 
+(* Partitions the data array around a pivot so that elements less than the pivot 
+   (on the given axis) are on the left, and returns the new pivot index. *) 
 PROCEDURE Partition(VAR data: ARRAY OF ARRAY OF REAL; left, right, pivotIndex, axis: INTEGER): INTEGER;
 VAR
     pivotValue: REAL;
@@ -44,6 +49,7 @@ BEGIN
     RETURN storeIndex
 END Partition;
 
+(** Recursively finds the index of the k-th smallest element in the data array along the specified axis. *)
 PROCEDURE Select*(VAR data: ARRAY OF ARRAY OF REAL; left, right, k, axis: INTEGER): INTEGER;
 VAR
     pivotIndex, pivotNewIndex, result: INTEGER;

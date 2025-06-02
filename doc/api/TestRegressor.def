@@ -1,0 +1,5 @@
+DEFINITION TestRegressor;
+
+PROCEDURE Test(): BOOLEAN;
+
+END TestRegressor.

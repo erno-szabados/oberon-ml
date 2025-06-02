@@ -1,0 +1,45 @@
+<!DOCTYPE html PUBLIC '-//W3C//DTD XHTML 1.0 Strict//EN' 'http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd'>
+<html xmlns='http://www.w3.org/1999/xhtml' xml:lang='en' lang='en'>
+	<head>
+		<meta name='viewport' content='width=device-width, initial-scale=1.0' />
+		<meta http-equiv='Content-Type' content='text/html; charset=utf-8' />
+		<title>DEFINITION Perceptron</title>
+		<link rel='stylesheet' type='text/css' href='style.css' />
+	</head>
+	<body>
+		<p><a href='index.html'>Index</a></p>
+
+		<pre>
+DEFINITION <em>Perceptron</em>;
+CONST
+    MaxWeights = 100; 
+    ActivationThreshold = 0.0;
+
+TYPE
+    Perceptron = RECORD END;
+
+<span class='comment'>(* Initializes a perceptron with numInputs inputs and learning rate lr.  *)</span>    
+PROCEDURE <em>Init</em>(VAR p: Perceptron; numInputs: INTEGER; lr: REAL) : BOOLEAN;
+
+<span class='comment'>(* Activation function for the perceptron, using the Heaviside step function. *)</span>
+PROCEDURE <em>Activate</em>(x: REAL): REAL;
+
+<span class='comment'>(* Predict the output for given inputs using the perceptron. *)</span>
+PROCEDURE <em>Predict</em>(p: Perceptron; inputs: ARRAY OF REAL): REAL;
+
+<span class='comment'>(* NOTE: This training rule assumes a step activation function. *)</span>
+<span class='comment'>(* For other activations (e.g., sigmoid, tanh), the update rule must be adapted.*)</span>
+
+<span class='comment'>(* Train the perceptron with the provided data and targets for a specified number of epochs.*)</span>
+<span class='comment'>(* data: 2D array where each sub-array is an input vector.*)</span>
+<span class='comment'>(* targets: 1D array of target outputs corresponding to each input vector.*)</span>
+<span class='comment'>(* epochs: Number of times to iterate over the entire dataset.*)</span>
+PROCEDURE <em>Fit</em>(VAR p: Perceptron; 
+               data: ARRAY OF ARRAY OF REAL; 
+               targets: ARRAY OF REAL; 
+               epochs: INTEGER) : BOOLEAN;
+
+END Perceptron.
+</pre>
+	</body>
+</html>

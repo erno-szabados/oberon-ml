@@ -1,28 +1,35 @@
 MODULE KDTree;
+
+(** This module implements a space-partitioning K-dimensional tree. *)
+
 IMPORT QuickSelect;
 
 CONST
+    (** Maximum dimensions of the space. *)
     MaxDims* = 20;
+    (** Maximum nodes in the tree.  *)
     MaxNodes* = 1000;
 
 TYPE
+    (** Represents a point in the K-dimensional space. *)
     Point* = ARRAY MaxDims OF REAL;
 
+    (** Represents a tree node. *)
     KDNode* = POINTER TO RECORD
         point*: Point;
         left*, right*: KDNode;
         axis*: INTEGER
     END;
 
+    (** Represents the K-dimensional tree. *)
     KDTree* = RECORD
         root*: KDNode;
         k*: INTEGER; (* number of dimensions *)
         size: INTEGER
     END;
 
-
+(** Copy a k-dimensional point src to dst *)
 PROCEDURE CopyPoint*(VAR src, dst: Point; k: INTEGER);
-(* Helper to copy a point *)
 VAR i: INTEGER;
 BEGIN
     i := 0;
@@ -32,14 +39,13 @@ BEGIN
     END;
 END CopyPoint;
 
-
-PROCEDURE BuildRecursive(VAR data: ARRAY OF Point; left, right, depth, k: INTEGER; VAR size: INTEGER): KDNode;
 (* Build the KD-Tree recursively. 
    data: array of points (size n)
    left, right: bounds of the current segment
    depth: current depth in the tree
    k: number of dimensions
 *)
+PROCEDURE BuildRecursive(VAR data: ARRAY OF Point; left, right, depth, k: INTEGER; VAR size: INTEGER): KDNode;
 VAR
     axis, medianIdx, n: INTEGER;
     node, result: KDNode;
@@ -67,17 +73,16 @@ BEGIN
     RETURN result
 END BuildRecursive;
 
-
+(** Initialize the KDTree *)
 PROCEDURE Init*(VAR tree: KDTree; k: INTEGER);
-(* Initialize the KDTree *)
 BEGIN
     tree.root := NIL;
     tree.k := k;
     tree.size := 0
 END Init;
 
+(** Build the KD tree of specified depth, using the provided data points. *)
 PROCEDURE Build*(VAR tree: KDTree; VAR data: ARRAY OF Point; depth: INTEGER);
-(* Public procedure to build the tree *)
 VAR
     n: INTEGER;
 BEGIN
@@ -89,6 +94,5 @@ BEGIN
         tree.root := BuildRecursive(data, 0, n - 1, depth, tree.k, tree.size);
     END;
 END Build;
-
 
 END KDTree.

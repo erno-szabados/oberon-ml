@@ -1,0 +1,23 @@
+DEFINITION KNN;
+
+(* This module implements the K-Nearest Neighbor algorithm.  *)
+
+IMPORT KDTree;
+
+CONST
+    (* Maximum number of neighbors to search for. *)
+    MaxK = 20;  
+
+TYPE
+    (* Represents the Neighbors with their distances.  *)
+    Neighbor = RECORD
+        point: KDTree.Point;
+        dist: REAL
+    END;
+
+    NeighborList = ARRAY MaxK OF Neighbor;
+
+(* Find the k nearest neighbors of the queried point in the tree. *)
+PROCEDURE FindKNN(tree: KDTree.KDTree; VAR query: KDTree.Point; k: INTEGER; VAR neighbors: NeighborList; VAR count: INTEGER);
+
+END KNN.

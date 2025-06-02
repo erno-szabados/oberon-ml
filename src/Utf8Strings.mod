@@ -1,8 +1,14 @@
 MODULE Utf8Strings;
 
+(** 
+This module implements set of procedures for manipulating UTF-8 encoded strings. 
+It mostly follows the Oakwood Strings module interface, but omits the Cap
+function as capitalization rules are locale-dependent for UTF-8 strings. 
+*)
+
 IMPORT Utf8;
 
-(* Returns the number of Unicode codepoints in s *)
+(** Returns the number of Unicode codepoints in s *)
 PROCEDURE Length*(s: ARRAY OF CHAR): INTEGER;
 VAR 
   len, idx, dummy: INTEGER; 
@@ -19,7 +25,7 @@ BEGIN
   RETURN len
 END Length;
 
-(* Copies src into dest. Truncates if dest is too small. *)
+(** Copies src into dest. Truncates if dest is too small. *)
 PROCEDURE Copy*(src: ARRAY OF CHAR; VAR dest: ARRAY OF CHAR);
 VAR i: INTEGER;
 BEGIN
@@ -31,7 +37,7 @@ BEGIN
   IF i < LEN(dest) THEN dest[i] := 0X END;
 END Copy;
 
-(* Inserts substr into src at codepoint position pos, writes result to dest. *)
+(** Inserts substr into src at codepoint position pos, writes result to dest. *)
 PROCEDURE Insert*(src: ARRAY OF CHAR; pos: INTEGER; substr: ARRAY OF CHAR; VAR dest: ARRAY OF CHAR);
 VAR
   srcIdx, destIdx, cp, substrIdx: INTEGER;
@@ -54,7 +60,7 @@ BEGIN
   IF destIdx < LEN(dest) THEN dest[destIdx] := 0X END;
 END Insert;
 
-(* Appends substr to src, writes result to dest *)
+(** Appends substr to src, writes result to dest *)
 PROCEDURE Append*(src, substr: ARRAY OF CHAR; VAR dest: ARRAY OF CHAR);
 VAR len: INTEGER;
 BEGIN
@@ -62,7 +68,7 @@ BEGIN
   Insert(src, len, substr, dest);
 END Append;
 
-(* Deletes count codepoints from src at codepoint position pos, writes result to dest *)
+(** Deletes count codepoints from src at codepoint position pos, writes result to dest *)
 PROCEDURE Delete*(src: ARRAY OF CHAR; pos, count: INTEGER; VAR dest: ARRAY OF CHAR);
 VAR
   srcIdx, destIdx, cp, skip: INTEGER;
@@ -86,7 +92,7 @@ BEGIN
   IF destIdx < LEN(dest) THEN dest[destIdx] := 0X END;
 END Delete;
 
-(* Extracts count codepoints from src at codepoint position pos, writes result to dest *)
+(** Extracts count codepoints from src at codepoint position pos, writes result to dest *)
 PROCEDURE Extract*(src: ARRAY OF CHAR; pos, count: INTEGER; VAR dest: ARRAY OF CHAR);
 VAR
   srcIdx, destIdx, cp, copied: INTEGER;
@@ -105,7 +111,7 @@ BEGIN
   IF destIdx < LEN(dest) THEN dest[destIdx] := 0X END;
 END Extract;
 
-(* Returns the codepoint position of the first occurrence of pattern in s at or after startPos, or -1 if not found *)
+(** Returns the codepoint position of the first occurrence of pattern in s at or after startPos, or -1 if not found *)
 PROCEDURE Pos*(pattern, s: ARRAY OF CHAR; startPos: INTEGER): INTEGER;
 VAR
   sIdx, cpPos, matchStart, tempSIdx, tempPatIdx: INTEGER;
@@ -143,7 +149,7 @@ BEGIN
   RETURN matchStart
 END Pos;
 
-(* Replaces the substring at codepoint position pos in dest with source. *)
+(** Replaces the substring at codepoint position pos in dest with source. *)
 PROCEDURE Replace*(source: ARRAY OF CHAR; pos: INTEGER; VAR dest: ARRAY OF CHAR);
 VAR
   temp: ARRAY 256 OF CHAR;

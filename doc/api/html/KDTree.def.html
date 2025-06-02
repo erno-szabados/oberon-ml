@@ -1,0 +1,52 @@
+<!DOCTYPE html PUBLIC '-//W3C//DTD XHTML 1.0 Strict//EN' 'http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd'>
+<html xmlns='http://www.w3.org/1999/xhtml' xml:lang='en' lang='en'>
+	<head>
+		<meta name='viewport' content='width=device-width, initial-scale=1.0' />
+		<meta http-equiv='Content-Type' content='text/html; charset=utf-8' />
+		<title>DEFINITION KDTree</title>
+		<link rel='stylesheet' type='text/css' href='style.css' />
+	</head>
+	<body>
+		<p><a href='index.html'>Index</a></p>
+
+		<pre>
+DEFINITION <em>KDTree</em>;
+
+<span class='comment'>(* This module implements a space-partitioning K-dimensional tree. *)</span>
+
+CONST
+    <span class='comment'>(* Maximum dimensions of the space. *)</span>
+    MaxDims = 20;
+    <span class='comment'>(* Maximum nodes in the tree.  *)</span>
+    MaxNodes = 1000;
+
+TYPE
+    <span class='comment'>(* Represents a point in the K-dimensional space. *)</span>
+    Point = ARRAY MaxDims OF REAL;
+
+    <span class='comment'>(* Represents a tree node. *)</span>
+    KDNode = POINTER TO RECORD
+        point: Point;
+        left, right: KDNode;
+        axis: INTEGER
+    END;
+
+    <span class='comment'>(* Represents the K-dimensional tree. *)</span>
+    KDTree = RECORD
+        root: KDNode;
+        k: INTEGER;
+    END;
+
+<span class='comment'>(* Copy a k-dimensional point src to dst *)</span>
+PROCEDURE <em>CopyPoint</em>(VAR src, dst: Point; k: INTEGER);
+
+<span class='comment'>(* Initialize the KDTree *)</span>
+PROCEDURE <em>Init</em>(VAR tree: KDTree; k: INTEGER);
+
+<span class='comment'>(* Build the KD tree of specified depth, using the provided data points. *)</span>
+PROCEDURE <em>Build</em>(VAR tree: KDTree; VAR data: ARRAY OF Point; depth: INTEGER);
+
+END KDTree.
+</pre>
+	</body>
+</html>

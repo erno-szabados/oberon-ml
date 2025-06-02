@@ -1,25 +1,12 @@
 # Utf8Strings Module
 
-The `Utf8Strings` module offers a custom `String` type and a set of procedures for manipulating UTF-8 encoded strings. The operations focus on codepoint-level manipulations.
-
-### Functionalities
-
-The `Utf8Strings` module includes the following key operations:
-
-- **Length Calculation**: Determine the number of codepoints in a UTF-8 string.
-- **Insertion**: Insert a substring at a specified position within a UTF-8 string.
-- **Appending**: Add a substring to the end of a UTF-8 string.
-- **Deletion**: Remove a substring from a UTF-8 string.
-- **Extraction**: Extract a substring from a UTF-8 string based on specified indices.
-- **Finding Positions**: Locate the position of a substring within a UTF-8 string.
-
-### Type Conversions
-
-The module provides conversions between the custom `String` type and standard character arrays.
+The `Utf8Strings` module implements set of procedures for manipulating UTF-8 encoded strings. 
+It mostly follows the Oakwood Strings module interface, but omits the Cap
+function as capitalization rules are locale-dependent for UTF-8 strings. 
 
 ## Testing
 
-The `TestUtf8Strings` module contains a suite of test procedures that verify the correctness of the operations implemented in the `Utf8Strings` module.
+The `TestUtf8Strings` implements a basic test suite for the `Utf8Strings` module.
 
 ## Usage
 
@@ -52,5 +39,15 @@ Utf8Strings.Delete(src, 1, 1, dest);
 (* Example: Extract a substring *)
 Utf8Strings.Extract(src, 1, 2, dest);
 (* dest now contains "Ω😀" *)
+(* Example: Find position of a substring *)
+src := "AΩ😀Ω";
+Out.Int(Utf8Strings.Pos("Ω", src, 0), 0);  (* Output: 1 *)
+Out.Int(Utf8Strings.Pos("😀", src, 2), 0);  (* Output: -1 *)
+
+(* Example: Replace a substring *)
+src := "AΩ😀";
+dest := src;
+Utf8Strings.Replace("B", 1, dest);
+(* dest now contains "AB😀" *)
 ```
 

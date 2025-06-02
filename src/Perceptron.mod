@@ -1,8 +1,8 @@
 MODULE Perceptron;
 IMPORT Math, Out;
 
-(* This module implements a simple perceptron model. *)
-(* The perceptron uses a step activation function. *)
+(** This module implements a simple perceptron model. *)
+(** The perceptron uses a step activation function. *)
 
 CONST
     MaxWeights* = 100; 
@@ -17,8 +17,8 @@ TYPE
         isTrained: BOOLEAN
     END;
 
+(** Initializes a perceptron with numInputs inputs and learning rate lr.  *)    
 PROCEDURE Init*(VAR p: Perceptron; numInputs: INTEGER; lr: REAL) : BOOLEAN;
-(* Initialize the perceptron.  *)
 VAR 
     i: INTEGER;
     result: BOOLEAN;
@@ -40,8 +40,8 @@ BEGIN
     RETURN result
 END Init;
 
+(** Activation function for the perceptron, using the Heaviside step function. *)
 PROCEDURE Activate*(x: REAL): REAL;
-(* Activation function for the perceptron, using the Heaviside step function. *)
 VAR 
     result: REAL;
 BEGIN
@@ -53,8 +53,8 @@ BEGIN
     RETURN result
 END Activate;
 
+(** Predict the output for given inputs using the perceptron. *)
 PROCEDURE Predict*(p: Perceptron; inputs: ARRAY OF REAL): REAL;
-(* Predict the output for given inputs using the perceptron. *)
 VAR
     sum: REAL;
     i: INTEGER;
@@ -79,9 +79,9 @@ BEGIN
     RETURN result
 END Predict;
 
+(** NOTE: This training rule assumes a step activation function. *)
+(** For other activations (e.g., sigmoid, tanh), the update rule must be adapted.*)
 PROCEDURE Train(VAR p: Perceptron; inputs: ARRAY OF REAL; target: REAL);
-(* NOTE: This training rule assumes a step activation function. *)
-(* For other activations (e.g., sigmoid, tanh), the update rule must be adapted.*)
 VAR 
     output, error: REAL;
     i: INTEGER;
@@ -99,14 +99,14 @@ BEGIN
     p.isTrained := TRUE;
 END Train;
 
+(** Train the perceptron with the provided data and targets for a specified number of epochs.*)
+(** data: 2D array where each sub-array is an input vector.*)
+(** targets: 1D array of target outputs corresponding to each input vector.*)
+(** epochs: Number of times to iterate over the entire dataset.*)
 PROCEDURE Fit*(VAR p: Perceptron; 
                data: ARRAY OF ARRAY OF REAL; 
                targets: ARRAY OF REAL; 
                epochs: INTEGER) : BOOLEAN;
-(* Train the perceptron with the provided data and targets for a specified number of epochs.*)
-(* data: 2D array where each sub-array is an input vector.*)
-(* targets: 1D array of target outputs corresponding to each input vector.*)
-(* epochs: Number of times to iterate over the entire dataset.*)
 VAR
     epoch, i: INTEGER;
     result: BOOLEAN;

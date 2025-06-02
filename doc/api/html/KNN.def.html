@@ -1,0 +1,38 @@
+<!DOCTYPE html PUBLIC '-//W3C//DTD XHTML 1.0 Strict//EN' 'http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd'>
+<html xmlns='http://www.w3.org/1999/xhtml' xml:lang='en' lang='en'>
+	<head>
+		<meta name='viewport' content='width=device-width, initial-scale=1.0' />
+		<meta http-equiv='Content-Type' content='text/html; charset=utf-8' />
+		<title>DEFINITION KNN</title>
+		<link rel='stylesheet' type='text/css' href='style.css' />
+	</head>
+	<body>
+		<p><a href='index.html'>Index</a></p>
+
+		<pre>
+DEFINITION <em>KNN</em>;
+
+<span class='comment'>(* This module implements the K-Nearest Neighbor algorithm.  *)</span>
+
+IMPORT KDTree;
+
+CONST
+    <span class='comment'>(* Maximum number of neighbors to search for. *)</span>
+    MaxK = 20;  
+
+TYPE
+    <span class='comment'>(* Represents the Neighbors with their distances.  *)</span>
+    Neighbor = RECORD
+        point: KDTree.Point;
+        dist: REAL
+    END;
+
+    NeighborList = ARRAY MaxK OF Neighbor;
+
+<span class='comment'>(* Find the k nearest neighbors of the queried point in the tree. *)</span>
+PROCEDURE <em>FindKNN</em>(tree: KDTree.KDTree; VAR query: KDTree.Point; k: INTEGER; VAR neighbors: NeighborList; VAR count: INTEGER);
+
+END KNN.
+</pre>
+	</body>
+</html>

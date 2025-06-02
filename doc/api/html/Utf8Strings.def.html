@@ -1,0 +1,47 @@
+<!DOCTYPE html PUBLIC '-//W3C//DTD XHTML 1.0 Strict//EN' 'http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd'>
+<html xmlns='http://www.w3.org/1999/xhtml' xml:lang='en' lang='en'>
+	<head>
+		<meta name='viewport' content='width=device-width, initial-scale=1.0' />
+		<meta http-equiv='Content-Type' content='text/html; charset=utf-8' />
+		<title>DEFINITION Utf8Strings</title>
+		<link rel='stylesheet' type='text/css' href='style.css' />
+	</head>
+	<body>
+		<p><a href='index.html'>Index</a></p>
+
+		<pre>
+DEFINITION <em>Utf8Strings</em>;
+
+<span class='comment'>(* 
+This module implements set of procedures for manipulating UTF-8 encoded strings. 
+It mostly follows the Oakwood Strings module interface, but omits the Cap
+function as capitalization rules are locale-dependent for UTF-8 strings. 
+*)</span>
+
+PROCEDURE <em>Length</em>(s: ARRAY OF CHAR): INTEGER;
+
+<span class='comment'>(* Copies src into dest. Truncates if dest is too small. *)</span>
+PROCEDURE <em>Copy</em>(src: ARRAY OF CHAR; VAR dest: ARRAY OF CHAR);
+
+<span class='comment'>(* Inserts substr into src at codepoint position pos, writes result to dest. *)</span>
+PROCEDURE <em>Insert</em>(src: ARRAY OF CHAR; pos: INTEGER; substr: ARRAY OF CHAR; VAR dest: ARRAY OF CHAR);
+
+<span class='comment'>(* Appends substr to src, writes result to dest *)</span>
+PROCEDURE <em>Append</em>(src, substr: ARRAY OF CHAR; VAR dest: ARRAY OF CHAR);
+
+<span class='comment'>(* Deletes count codepoints from src at codepoint position pos, writes result to dest *)</span>
+PROCEDURE <em>Delete</em>(src: ARRAY OF CHAR; pos, count: INTEGER; VAR dest: ARRAY OF CHAR);
+
+<span class='comment'>(* Extracts count codepoints from src at codepoint position pos, writes result to dest *)</span>
+PROCEDURE <em>Extract</em>(src: ARRAY OF CHAR; pos, count: INTEGER; VAR dest: ARRAY OF CHAR);
+
+<span class='comment'>(* Returns the codepoint position of the first occurrence of pattern in s at or after startPos, or -1 if not found *)</span>
+PROCEDURE <em>Pos</em>(pattern, s: ARRAY OF CHAR; startPos: INTEGER): INTEGER;
+
+<span class='comment'>(* Replaces the substring at codepoint position pos in dest with source. *)</span>
+PROCEDURE <em>Replace</em>(source: ARRAY OF CHAR; pos: INTEGER; VAR dest: ARRAY OF CHAR);
+
+END Utf8Strings.
+</pre>
+	</body>
+</html>

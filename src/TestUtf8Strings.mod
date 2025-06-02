@@ -153,7 +153,7 @@ BEGIN
   s := "AΩ😀";
   Utf8Strings.Replace("", 1, s);
   expected := "AΩ😀";
-  AssertString("Replace with '' (Oakwood: no-op)", expected, s);
+  AssertString("Replace   vh '' (Oakwood: no-op)", expected, s);
 END TestReplace;
 
 BEGIN

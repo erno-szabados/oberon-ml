@@ -1,6 +1,8 @@
 MODULE Utf8;
 
-(* This module implements UTF-8 encoding and utility procedures. *)
+(** This module implements UTF-8 encoding and utility procedures.
+    For direct string manipulation, use the Utf8String module.
+ *)
 
 IMPORT SYSTEM, Bitwise;
 
@@ -14,10 +16,10 @@ CONST
   Mask3B = 0F0H; (* 0b11110000*)
   Mask4B = 0F8H; (* 0b11111000*)
 
+(** Determine the length of a UTF-8 character based on the first byte 
+ Returns the number of bytes in a UTF-8 character starting with firstByte 
+ Returns 0 for an invalid byte sequence. *)
 PROCEDURE CharLen*(firstByte: CHAR): INTEGER;
-(* Determine the length of a UTF-8 character based on the first byte *)
-(* Returns the number of bytes in a UTF-8 character starting with firstByte *)
-(* Returns 0 for an invalid byte sequence. *)
 VAR
   b : BYTE;
   result : INTEGER;
@@ -31,12 +33,13 @@ BEGIN
   RETURN result
 END CharLen;
 
-PROCEDURE IsInvalidContinuationByte(c : CHAR) : BOOLEAN;
 (* Test if the passed character is a valid continuation byte. *)
+PROCEDURE IsInvalidContinuationByte(c : CHAR) : BOOLEAN;
 BEGIN
   RETURN (Bitwise.And8(SYSTEM.VAL(BYTE, c), 0C0H) # 080H)
 END IsInvalidContinuationByte;
 
+(* Test if passed buffer contains a valid 2-bytes sequence *)
 PROCEDURE IsValid2ByteSequence(buf: ARRAY OF CHAR; i: INTEGER): BOOLEAN;
 VAR 
   result: BOOLEAN;
@@ -50,6 +53,7 @@ BEGIN
   RETURN result
 END IsValid2ByteSequence;
 
+(* Test if passed buffer contains a valid 3-bytes sequence *)
 PROCEDURE IsValid3ByteSequence(buf: ARRAY OF CHAR; i: INTEGER): BOOLEAN;
 VAR 
   result: BOOLEAN;
@@ -66,6 +70,7 @@ BEGIN
   RETURN result
 END IsValid3ByteSequence;
 
+(* Test if passed buffer contains a valid 4-bytes sequence *)
 PROCEDURE IsValid4ByteSequence(buf: ARRAY OF CHAR; i: INTEGER): BOOLEAN;
 VAR 
   result: BOOLEAN;
@@ -83,8 +88,8 @@ BEGIN
   RETURN result
 END IsValid4ByteSequence;
 
+(** Returns TRUE if buf[0..len-1] is valid UTF-8 *)
 PROCEDURE IsValid*(buf: ARRAY OF CHAR; len: INTEGER): BOOLEAN;
-(* Returns TRUE if buf[0..len-1] is valid UTF-8 *)
 VAR 
   c : CHAR;
   i, expectedCharLen : INTEGER;
@@ -126,8 +131,8 @@ BEGIN
   RETURN result
 END IsValid;
 
+(** Returns TRUE if buf starts with a UTF-8 BOM (EF BB BF), otherwise returns FALSE. *)
 PROCEDURE HasBOM*(buf: ARRAY OF CHAR; len: INTEGER): BOOLEAN;
-(* Returns TRUE if buf starts with a UTF-8 BOM (EF BB BF), otherwise returns FALSE. *)
 VAR 
   result: BOOLEAN;
 BEGIN
@@ -142,9 +147,9 @@ BEGIN
   RETURN result
 END HasBOM;
 
+(** Converts a Unicode code point to UTF-8 and writes it to buf at buf[index].
+    Returns TRUE if successful, FALSE if the code point is invalid or buf is too small. *)
 PROCEDURE Encode*(codePoint: INTEGER; VAR buf: ARRAY OF CHAR; index: INTEGER; VAR bytesWritten: INTEGER): BOOLEAN;
-(* Converts a Unicode code point to UTF-8 and writes it to buf at buf[index].
-   Returns TRUE if successful, FALSE if the code point is invalid or buf is too small. *)
 VAR
   i: ARRAY 4 OF INTEGER;
   result: BOOLEAN;
@@ -209,10 +214,10 @@ BEGIN
   RETURN result
 END Encode;
 
-PROCEDURE Decode*(buf: ARRAY OF CHAR; index: INTEGER; VAR codePoint: INTEGER): BOOLEAN;
-(*  Converts a byte array to an Unicode code point, starting the decode from buf[index]. *)
-(*  Returns TRUE on success, false if the byte sequence is invalid, or if the buffer 
+(** Converts a byte array to an Unicode code point, starting the decode from buf[index]. 
+    Returns TRUE on success, false if the byte sequence is invalid, or if the buffer 
     is too short to contain the potential data. *)
+PROCEDURE Decode*(buf: ARRAY OF CHAR; index: INTEGER; VAR codePoint: INTEGER): BOOLEAN;
 VAR
   i: ARRAY 4 OF INTEGER;
   len: INTEGER;
@@ -260,9 +265,9 @@ BEGIN
   RETURN result
 END Decode;
 
+(** Reads the next UTF-8 character (code point) from a byte array, advances the index, and returns the code point. 
+    Returns FALSE if the end of the array is reached or an invalid sequence is encountered. *)
 PROCEDURE NextChar*(buf: ARRAY OF CHAR; VAR index: INTEGER; VAR codePoint: INTEGER): BOOLEAN;
-(* Reads the next UTF-8 character (code point) from a byte array, advances the index, and returns the code point.  *)
-(* Returns FALSE if the end of the array is reached or an invalid sequence is encountered. *)
 VAR
   len: INTEGER;
   result: BOOLEAN;
@@ -279,10 +284,9 @@ BEGIN
   RETURN result
 END NextChar;
 
+(** Reads the previous UTF-8 character (code point) from a byte array, retracts the index, and returns the code point. 
+    Returns FALSE if the start of the array is reached or an invalid sequence is encountered. *)
 PROCEDURE PrevChar*(buf: ARRAY OF CHAR; VAR index: INTEGER; VAR codePoint: INTEGER): BOOLEAN;
-(* Reads the previous UTF-8 character (code point) from a byte array, retracts the index, and returns the code point.  *)
-(* Returns FALSE if the start of the array is reached or an invalid sequence is encountered. *)
-
 VAR
   start, i, len: INTEGER;
   result: BOOLEAN;
@@ -314,6 +318,7 @@ BEGIN
   RETURN result
 END PrevChar;
 
+(** Copy a code point from src[srcIdx] to dst[destIdx]. *)
 PROCEDURE CopyChar*(src: ARRAY OF CHAR; VAR srcIdx: INTEGER; VAR dest: ARRAY OF CHAR; VAR destIdx: INTEGER);
 VAR
   len, i: INTEGER;
@@ -325,6 +330,7 @@ BEGIN
   END;
 END CopyChar;
 
+(** Moves idx beyond the next codepoint in src. *)
 PROCEDURE SkipChar*(src: ARRAY OF CHAR; VAR idx: INTEGER);
 VAR len: INTEGER;
 BEGIN

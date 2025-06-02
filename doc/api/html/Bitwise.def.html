@@ -1,0 +1,68 @@
+<!DOCTYPE html PUBLIC '-//W3C//DTD XHTML 1.0 Strict//EN' 'http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd'>
+<html xmlns='http://www.w3.org/1999/xhtml' xml:lang='en' lang='en'>
+	<head>
+		<meta name='viewport' content='width=device-width, initial-scale=1.0' />
+		<meta http-equiv='Content-Type' content='text/html; charset=utf-8' />
+		<title>DEFINITION Bitwise</title>
+		<link rel='stylesheet' type='text/css' href='style.css' />
+	</head>
+	<body>
+		<p><a href='index.html'>Index</a></p>
+
+		<pre>
+DEFINITION <em>Bitwise</em>;
+
+<span class='comment'>(* This module implements bitwise operations for the INTEGER and BYTE types. *)</span>
+
+PROCEDURE <em>And8</em>(a, b: BYTE): BYTE;
+<span class='comment'>(* Perform bitwise AND operation on two bytes. *)</span>
+
+PROCEDURE <em>And</em>(a, b: INTEGER): INTEGER;
+<span class='comment'>(* Perform bitwise AND operation on two integers. *)</span>
+
+PROCEDURE <em>Or8</em>(a, b: BYTE): BYTE;
+<span class='comment'>(* Perform bitwise OR operation on two bytes. *)</span>
+
+PROCEDURE <em>Or</em>(a, b: INTEGER): INTEGER;
+<span class='comment'>(* Perform bitwise OR operation on two integers. *)</span>
+
+PROCEDURE <em>Xor8</em>(a, b: BYTE): BYTE;
+<span class='comment'>(* Perform bitwise XOR operation on two bytes. *)</span>
+
+PROCEDURE <em>Xor</em>(a, b: INTEGER): INTEGER;
+<span class='comment'>(* Perform bitwise XOR operation on two integers. *)</span>
+
+PROCEDURE <em>Not8</em>(a: BYTE): BYTE;
+<span class='comment'>(* Perform bitwise NOT operation on a byte. *)</span>
+
+<span class='comment'>(* Perform bitwise NOT operation on an integer. *)</span>
+PROCEDURE <em>Not</em>(a: INTEGER): INTEGER;
+
+PROCEDURE <em>ShiftLeft8</em>(a: BYTE; n: BYTE): BYTE;
+<span class='comment'>(* Perform shift left operation on a byte. *)</span>
+
+PROCEDURE <em>ShiftRight8</em>(a: BYTE; n: BYTE): BYTE;
+<span class='comment'>(* Perform signed shift right operation on a byte. *)</span>
+
+PROCEDURE <em>RotateLeft8</em>(a: BYTE; n: BYTE): BYTE;
+<span class='comment'>(* Perform rotate left operation on a byte. *)</span>
+
+PROCEDURE <em>RotateRight8</em>(a: BYTE; n: BYTE): BYTE;
+<span class='comment'>(* Perform rotate right operation on a byte. *)</span>
+
+PROCEDURE <em>ShiftLeft</em>(a: INTEGER; n: INTEGER): INTEGER;
+<span class='comment'>(* Perform shift left operation on an integer. *)</span>
+
+PROCEDURE <em>ShiftRight</em>(a: INTEGER; n: INTEGER): INTEGER;
+<span class='comment'>(* Perform signed shift right operation on an integer. *)</span>
+
+PROCEDURE <em>RotateLeft</em>(a: INTEGER; n: INTEGER): INTEGER;
+<span class='comment'>(* Perform rotate left operation on an integer. *)</span>
+
+PROCEDURE <em>RotateRight</em>(a: INTEGER; n: INTEGER): INTEGER;
+<span class='comment'>(* Perform rotate right operation on an integer. *)</span>
+
+END Bitwise.
+</pre>
+	</body>
+</html>

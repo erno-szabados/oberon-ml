@@ -1,0 +1,37 @@
+DEFINITION KDTree;
+
+(* This module implements a space-partitioning K-dimensional tree. *)
+
+CONST
+    (* Maximum dimensions of the space. *)
+    MaxDims = 20;
+    (* Maximum nodes in the tree.  *)
+    MaxNodes = 1000;
+
+TYPE
+    (* Represents a point in the K-dimensional space. *)
+    Point = ARRAY MaxDims OF REAL;
+
+    (* Represents a tree node. *)
+    KDNode = POINTER TO RECORD
+        point: Point;
+        left, right: KDNode;
+        axis: INTEGER
+    END;
+
+    (* Represents the K-dimensional tree. *)
+    KDTree = RECORD
+        root: KDNode;
+        k: INTEGER;
+    END;
+
+(* Copy a k-dimensional point src to dst *)
+PROCEDURE CopyPoint(VAR src, dst: Point; k: INTEGER);
+
+(* Initialize the KDTree *)
+PROCEDURE Init(VAR tree: KDTree; k: INTEGER);
+
+(* Build the KD tree of specified depth, using the provided data points. *)
+PROCEDURE Build(VAR tree: KDTree; VAR data: ARRAY OF Point; depth: INTEGER);
+
+END KDTree.

@@ -1,0 +1,49 @@
+<!DOCTYPE html PUBLIC '-//W3C//DTD XHTML 1.0 Strict//EN' 'http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd'>
+<html xmlns='http://www.w3.org/1999/xhtml' xml:lang='en' lang='en'>
+	<head>
+		<meta name='viewport' content='width=device-width, initial-scale=1.0' />
+		<meta http-equiv='Content-Type' content='text/html; charset=utf-8' />
+		<title>DEFINITION LinearRegressor</title>
+		<link rel='stylesheet' type='text/css' href='style.css' />
+	</head>
+	<body>
+		<p><a href='index.html'>Index</a></p>
+
+		<pre>
+DEFINITION <em>LinearRegressor</em>;
+
+<span class='comment'>(* This module implements a simple linear regression model. *)</span>
+<span class='comment'>(* It allows for training with a set of data points and making predictions. *)</span>
+
+CONST 
+    <span class='comment'>(* Maximum number of samples for training *)</span>
+    MaxSamples = 100; 
+
+TYPE
+    <span class='comment'>(* Regressor descriptor. *)</span>
+    Regressor = RECORD END;
+
+<span class='comment'>(* Initialize a new linear regressor with default values. *)</span>
+<span class='comment'>(* slope = 0.0, intercept = 0.0, isTrained = FALSE *)</span>
+PROCEDURE <em>Init</em>(VAR reg: Regressor);
+
+<span class='comment'>(* Train the linear regressor using the provided data points. *)</span>
+<span class='comment'>(* This procedure calculates the slope and intercept based on the input data. *)</span>
+PROCEDURE <em>Train</em>(VAR reg: Regressor; xData: ARRAY OF REAL; yData: ARRAY OF REAL; numSamples: INTEGER) : BOOLEAN;
+
+<span class='comment'>(* Predict the output for a given input using the trained regressor. *)</span>
+<span class='comment'>(* If the regressor is not trained, it returns 0.0. *)</span>
+PROCEDURE <em>Predict</em>(reg: Regressor; xInput: REAL): REAL;
+
+<span class='comment'>(* Get the slope of the trained regressor. *)</span>
+<span class='comment'>(* If the regressor is not trained, it returns 0.0. *)</span>
+PROCEDURE <em>GetSlope</em>(reg: Regressor): REAL;
+
+<span class='comment'>(* Get the intercept of the trained regressor. *)</span>
+<span class='comment'>(* If the regressor is not trained, it returns 0.0. *)</span>
+PROCEDURE <em>GetIntercept</em>(reg: Regressor): REAL;
+
+END LinearRegressor.
+</pre>
+	</body>
+</html>

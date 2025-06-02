@@ -1,32 +1,34 @@
 MODULE LinearRegressor;
 
+(** This module implements a simple linear regression model. *)
+(** It allows for training with a set of data points and making predictions. *)
+
 IMPORT Out;
 
-(* This module implements a simple linear regression model. *)
-(* It allows for training with a set of data points and making predictions. *)
-
 CONST 
-    MaxSamples* = 100; (* Maximum number of samples for training *)
+    (** Maximum number of samples for training *)
+    MaxSamples* = 100; 
 
 TYPE
+    (** Regressor descriptor. *)
     Regressor* = RECORD
         slope: REAL;
         intercept: REAL;
         isTrained: BOOLEAN
     END;
 
+(** Initialize a new linear regressor with default values. *)
+(** slope = 0.0, intercept = 0.0, isTrained = FALSE *)
 PROCEDURE Init*(VAR reg: Regressor);
-(* Initialize a new linear regressor with default values. *)
-(* slope = 0.0, intercept = 0.0, isTrained = FALSE *)
 BEGIN
     reg.slope := 0.0;
     reg.intercept := 0.0;
     reg.isTrained := FALSE;
 END Init;
 
+(** Train the linear regressor using the provided data points. *)
+(** This procedure calculates the slope and intercept based on the input data. *)
 PROCEDURE Train*(VAR reg: Regressor; xData: ARRAY OF REAL; yData: ARRAY OF REAL; numSamples: INTEGER) : BOOLEAN;
-(* Train the linear regressor using the provided data points. *)
-(* This procedure calculates the slope and intercept based on the input data. *)
 VAR
     sumX, sumY, sumXY, sumX2: REAL;
     i: INTEGER;
@@ -67,9 +69,9 @@ BEGIN
     RETURN result
 END Train;
 
+(** Predict the output for a given input using the trained regressor. *)
+(** If the regressor is not trained, it returns 0.0. *)
 PROCEDURE Predict*(reg: Regressor; xInput: REAL): REAL;
-(* Predict the output for a given input using the trained regressor. *)
-(* If the regressor is not trained, it returns 0.0. *)
 VAR 
     result: REAL;
 BEGIN
@@ -82,9 +84,9 @@ BEGIN
     RETURN result
 END Predict;
 
+(** Get the slope of the trained regressor. *)
+(** If the regressor is not trained, it returns 0.0. *)
 PROCEDURE GetSlope*(reg: Regressor): REAL;
-(* Get the slope of the trained regressor. *)
-(* If the regressor is not trained, it returns 0.0. *)
 VAR 
     result: REAL;
 BEGIN
@@ -96,9 +98,9 @@ BEGIN
     RETURN result
 END GetSlope;
 
+(** Get the intercept of the trained regressor. *)
+(** If the regressor is not trained, it returns 0.0. *)
 PROCEDURE GetIntercept*(reg: Regressor): REAL;
-(* Get the intercept of the trained regressor. *)
-(* If the regressor is not trained, it returns 0.0. *)
 VAR 
     result: REAL;
 BEGIN

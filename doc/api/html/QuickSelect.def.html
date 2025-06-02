@@ -1,0 +1,25 @@
+<!DOCTYPE html PUBLIC '-//W3C//DTD XHTML 1.0 Strict//EN' 'http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd'>
+<html xmlns='http://www.w3.org/1999/xhtml' xml:lang='en' lang='en'>
+	<head>
+		<meta name='viewport' content='width=device-width, initial-scale=1.0' />
+		<meta http-equiv='Content-Type' content='text/html; charset=utf-8' />
+		<title>DEFINITION QuickSelect</title>
+		<link rel='stylesheet' type='text/css' href='style.css' />
+	</head>
+	<body>
+		<p><a href='index.html'>Index</a></p>
+
+		<pre>
+DEFINITION <em>QuickSelect</em>;
+
+<span class='comment'>(* This module implements an algorithm to find the k-th smallest element in a 
+    fixed-size 2D array of REALs along a specified axis, which is commonly used for 
+    median selection in multidimensional data structures like KD-Trees.*)</span>
+
+<span class='comment'>(* Recursively finds the index of the k-th smallest element in the data array along the specified axis. *)</span>
+PROCEDURE <em>Select</em>(VAR data: ARRAY OF ARRAY OF REAL; left, right, k, axis: INTEGER): INTEGER;
+
+END QuickSelect.
+</pre>
+	</body>
+</html>

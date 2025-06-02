@@ -1,0 +1,5 @@
+DEFINITION TestPerceptron;
+
+PROCEDURE Test(): BOOLEAN;
+
+END TestPerceptron.

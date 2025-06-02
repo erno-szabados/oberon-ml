@@ -1,0 +1,30 @@
+DEFINITION Perceptron;
+CONST
+    MaxWeights = 100; 
+    ActivationThreshold = 0.0;
+
+TYPE
+    Perceptron = RECORD END;
+
+(* Initializes a perceptron with numInputs inputs and learning rate lr.  *)    
+PROCEDURE Init(VAR p: Perceptron; numInputs: INTEGER; lr: REAL) : BOOLEAN;
+
+(* Activation function for the perceptron, using the Heaviside step function. *)
+PROCEDURE Activate(x: REAL): REAL;
+
+(* Predict the output for given inputs using the perceptron. *)
+PROCEDURE Predict(p: Perceptron; inputs: ARRAY OF REAL): REAL;
+
+(* NOTE: This training rule assumes a step activation function. *)
+(* For other activations (e.g., sigmoid, tanh), the update rule must be adapted.*)
+
+(* Train the perceptron with the provided data and targets for a specified number of epochs.*)
+(* data: 2D array where each sub-array is an input vector.*)
+(* targets: 1D array of target outputs corresponding to each input vector.*)
+(* epochs: Number of times to iterate over the entire dataset.*)
+PROCEDURE Fit(VAR p: Perceptron; 
+               data: ARRAY OF ARRAY OF REAL; 
+               targets: ARRAY OF REAL; 
+               epochs: INTEGER) : BOOLEAN;
+
+END Perceptron.

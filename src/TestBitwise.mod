@@ -73,15 +73,32 @@ VAR
     a, result: INTEGER;
 BEGIN
     pass := TRUE;
-    a := 00H;
+    a := 0H;
     result := Bitwise.Not(a);
     
-    IF result # 0FFH THEN
+    IF result # 0FFFFFFFFH THEN
         pass := FALSE;
     END;
 
     WriteResult("TestNot", pass);
 END TestNot;
+
+PROCEDURE TestNot8;
+(* Test the Bitwise.Not procedure *)
+VAR
+    pass: BOOLEAN;
+    a, result: BYTE;
+BEGIN
+    pass := TRUE;
+    a := 00H;
+    result := Bitwise.Not8(a);
+    
+    IF result # 0FFH THEN
+        pass := FALSE;
+    END;
+
+    WriteResult("TestNot8", pass);
+END TestNot8;
 
 PROCEDURE TestShiftLeft;
 (* Test the Bitwise shift left operations *)
@@ -140,6 +157,7 @@ BEGIN
     TestOr;
     TestXor;
     TestNot;
+    TestNot8;
     TestShiftLeft;
     TestShiftRight;
     TestRotateLeft;
