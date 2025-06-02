@@ -260,7 +260,7 @@ BEGIN
   RETURN result
 END Decode;
 
-PROCEDURE NextChar*(VAR buf: ARRAY OF CHAR; VAR index: INTEGER; VAR codePoint: INTEGER): BOOLEAN;
+PROCEDURE NextChar*(buf: ARRAY OF CHAR; VAR index: INTEGER; VAR codePoint: INTEGER): BOOLEAN;
 (* Reads the next UTF-8 character (code point) from a byte array, advances the index, and returns the code point.  *)
 (* Returns FALSE if the end of the array is reached or an invalid sequence is encountered. *)
 VAR
@@ -279,7 +279,7 @@ BEGIN
   RETURN result
 END NextChar;
 
-PROCEDURE PrevChar*(VAR buf: ARRAY OF CHAR; VAR index: INTEGER; VAR codePoint: INTEGER): BOOLEAN;
+PROCEDURE PrevChar*(buf: ARRAY OF CHAR; VAR index: INTEGER; VAR codePoint: INTEGER): BOOLEAN;
 (* Reads the previous UTF-8 character (code point) from a byte array, retracts the index, and returns the code point.  *)
 (* Returns FALSE if the start of the array is reached or an invalid sequence is encountered. *)
 
@@ -313,5 +313,23 @@ BEGIN
 
   RETURN result
 END PrevChar;
+
+PROCEDURE CopyChar*(src: ARRAY OF CHAR; VAR srcIdx: INTEGER; VAR dest: ARRAY OF CHAR; VAR destIdx: INTEGER);
+VAR
+  len, i: INTEGER;
+BEGIN
+  len := CharLen(src[srcIdx]);
+  FOR i := 0 TO len - 1 DO
+    dest[destIdx] := src[srcIdx];
+    INC(srcIdx); INC(destIdx);
+  END;
+END CopyChar;
+
+PROCEDURE SkipChar*(src: ARRAY OF CHAR; VAR idx: INTEGER);
+VAR len: INTEGER;
+BEGIN
+  len := CharLen(src[idx]);
+  INC(idx, len);
+END SkipChar;
 
 END Utf8.

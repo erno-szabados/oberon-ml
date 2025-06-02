@@ -3,7 +3,7 @@ FLAGS=
 SRC=src
 BIN=bin
 
-all: bitwise regressor perceptron knn utf8
+all: bitwise regressor perceptron knn utf8 utf8Strings
 
 bitwise:
 	${COMPILER} ${SRC}/TestBitwise.mod ${FLAGS} -o ${BIN}/TestBitwise
@@ -20,6 +20,8 @@ knn:
 utf8:
 	${COMPILER} ${SRC}/TestUtf8.mod ${FLAGS} -o ${BIN}/TestUtf8
 
+utf8Strings:
+	${COMPILER} ${SRC}/TestUtf8Strings.mod ${FLAGS} -o ${BIN}/TestUtf8Strings
 
 clean:
 	rm -f ${BIN}/TestRegressor ${BIN}/TestPerceptron ${BIN}/TestKnn ${BIN}/TestUtf8
@@ -35,4 +37,4 @@ clean:
 	rm -f *.rel
 	rm -rf obj
 	
-.PHONY: regressor perceptron knn clean bitwise utf8 
+.PHONY: regressor perceptron knn clean bitwise utf8 utf8Strings
