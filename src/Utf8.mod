@@ -19,8 +19,8 @@ PROCEDURE CharLen*(firstByte: CHAR): INTEGER;
 (* Returns the number of bytes in a UTF-8 character starting with firstByte *)
 (* Returns 0 for an invalid byte sequence. *)
 VAR
-  result : INTEGER;
   b : BYTE;
+  result : INTEGER;
 BEGIN
   b := SYSTEM.VAL(BYTE, firstByte);
   IF Bitwise.And8(b, Mask1B) = 0 THEN result := 1;
@@ -263,8 +263,20 @@ END Decode;
 PROCEDURE NextChar*(VAR buf: ARRAY OF CHAR; VAR index: INTEGER; VAR codePoint: INTEGER): BOOLEAN;
 (* Reads the next UTF-8 character (code point) from a byte array, advances the index, and returns the code point.  *)
 (* Returns FALSE if the end of the array is reached or an invalid sequence is encountered. *)
+VAR
+  len: INTEGER;
+  result: BOOLEAN;
 BEGIN
-    RETURN FALSE (*TODO*)
+  result := FALSE;
+  (* Check for end of buffer *)
+  IF (index < LEN(buf)) & Decode(buf, index, codePoint) THEN
+    len := CharLen(buf[index]);
+  (* Advance index by the length of the sequence *)
+    INC(index, len);
+    result := TRUE;
+  END;
+  
+  RETURN result
 END NextChar;
 
 PROCEDURE PrevChar*(VAR buf: ARRAY OF CHAR; VAR index: INTEGER; VAR codePoint: INTEGER): BOOLEAN;
