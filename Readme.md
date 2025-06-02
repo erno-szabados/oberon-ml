@@ -1,6 +1,17 @@
 # Oberon ML Library
 
-This project implements classic ML algorithms in [Oberon-07](https://en.wikipedia.org/wiki/Oberon_(programming_language)). 
+This project implements
+
+- Utility functions: 
+   - convenient bitwise operations for INTEGER and BYTE types
+   - UTF-8 string manipulation.
+- Classic ML algorithms: 
+   - Perceptron, 
+   - Linear Regressor,
+   - K-Nearest Neighbor with K-D Tree and QuickSelect.
+- Unit tests for the above
+
+- Implementation is in [Oberon-07](https://en.wikipedia.org/wiki/Oberon_(programming_language)). 
 
 ## Requirements
 
@@ -8,11 +19,13 @@ This project implements classic ML algorithms in [Oberon-07](https://en.wikipedi
 - [Akron](https://github.com/AntKrotov/oberon-07-compiler) (Oberon-07 Compiler)
 - `make` (for building and running tests)
 
+## Documentation
+ - [HTML](doc/api//html/index.html) - generated with obncdoc
+
 ## Structure
 
-- [`src/Perceptron.mod`](src/Perceptron.mod): Single-layer Perceptron implementation.
-- [`src/LinearRegressor.mod`](src/LinearRegressor.mod): Linear Regressor implementation using Ordinary Least Squares.
-- [`src/KNN.mod`](src/KNN.mod): K-Nearest Neighbor implementation with QuickSelect.
+- [`src`](src/): Oberon sources for modules and the test suites.
+- [doc](doc/): OBNC API and API documentation for the implemented modules.
 - [lib](src/lib) - the runtime source code from the akron compiler source, needed if you use the akron compiler, licensed under BSD-2
 
 ## Building
@@ -27,8 +40,5 @@ OR
 make -f Makefile.akron
 
 The makefile symlinks the .mod files to .ob07 for the akron compiler, as it accepts this extension only. 
-
-bin/TestRegressor
-bin/TestPerceptron
-bin/TestKNN
+(NOTE: The akron makefile is not up-to-date, but it should not be too difficult to adapt the changes).
 ```
