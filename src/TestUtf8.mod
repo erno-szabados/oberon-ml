@@ -183,9 +183,60 @@ BEGIN
  
 END TestEncode;
 
+PROCEDURE CheckNextChar(testName: ARRAY OF CHAR; VAR buf: ARRAY OF CHAR; startIdx: INTEGER; expectedCodePoint: INTEGER; expectedNextIdx: INTEGER; expectedResult: BOOLEAN);
+VAR
+  idx, codePoint: INTEGER;
+  result, pass: BOOLEAN;
+BEGIN
+  idx := startIdx;
+  result := Utf8.NextChar(buf, idx, codePoint);
+  pass := (result = expectedResult) & 
+          ((~result) OR ((codePoint = expectedCodePoint) & (idx = expectedNextIdx)));
+  WriteResult(testName, pass);
+END CheckNextChar;
+
+PROCEDURE TestNextChar;
+VAR
+  buf: ARRAY 8 OF CHAR;
+BEGIN
+  (* ASCII: "A" *)
+  buf[0] := CHR(65);
+  CheckNextChar("NextChar: ASCII", buf, 0, 65, 1, TRUE);
+
+  (* 2-byte: U+00A2 (¢) = C2 A2 *)
+  buf[0] := CHR(0C2H); buf[1] := CHR(0A2H);
+  CheckNextChar("NextChar: 2-byte", buf, 0, 162, 2, TRUE);
+
+  (* 3-byte: U+20AC (€) = E2 82 AC *)
+  buf[0] := CHR(0E2H); buf[1] := CHR(082H); buf[2] := CHR(0ACH);
+  CheckNextChar("NextChar: 3-byte", buf, 0, 8364, 3, TRUE);
+
+  (* 4-byte: U+1F600 (😀) = F0 9F 98 80 *)
+  buf[0] := CHR(0F0H); buf[1] := CHR(09FH); buf[2] := CHR(098H); buf[3] := CHR(080H);
+  CheckNextChar("NextChar: 4-byte", buf, 0, 128512, 4, TRUE);
+
+  (* Mixed: "A" + "¢" + "€" + "😀" *)
+  buf[0] := CHR(65); (* 'A' *)
+  buf[1] := CHR(0C2H); buf[2] := CHR(0A2H); (* ¢ *)
+  buf[3] := CHR(0E2H); buf[4] := CHR(082H); buf[5] := CHR(0ACH); (* € *)
+  buf[6] := CHR(0F0H); buf[7] := CHR(09FH); (* partial 4-byte *)
+  CheckNextChar("NextChar: Mixed ASCII", buf, 0, 65, 1, TRUE);
+  CheckNextChar("NextChar: Mixed 2-byte", buf, 1, 162, 3, TRUE);
+  CheckNextChar("NextChar: Mixed 3-byte", buf, 3, 8364, 6, TRUE);
+  CheckNextChar("NextChar: Mixed incomplete 4-byte", buf, 6, 0, 6, FALSE);
+
+  (* Invalid: start at end of buffer *)
+  CheckNextChar("NextChar: End of buffer", buf, 8, 0, 8, FALSE);
+
+  (* Invalid: bad first byte *)
+  buf[0] := CHR(0FFH);
+  CheckNextChar("NextChar: Invalid first byte", buf, 0, 0, 0, FALSE);
+END TestNextChar;
+
 BEGIN
     TestCharLen;
     TestHasBOM;
     TestIsValid;
     TestEncode;
+    TestNextChar;
 END TestUtf8.
