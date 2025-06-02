@@ -33,7 +33,7 @@ BEGIN
         FOR i := 0 TO 3 DO
             testInput[0] := data[i][0];
             testInput[1] := data[i][1];
-            prediction := Perceptron.Predict(p, testInput);
+            result := Perceptron.Predict(p, testInput, prediction);
 
             Out.String("Prediction for input [");
             Out.Real(testInput[0], 1);

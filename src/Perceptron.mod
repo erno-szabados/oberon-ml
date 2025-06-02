@@ -1,5 +1,5 @@
 MODULE Perceptron;
-IMPORT Math, Out;
+IMPORT Out;
 
 (** This module implements a simple perceptron model. *)
 (** The perceptron uses a step activation function. *)
@@ -54,18 +54,19 @@ BEGIN
 END Activate;
 
 (** Predict the output for given inputs using the perceptron. *)
-PROCEDURE Predict*(p: Perceptron; inputs: ARRAY OF REAL): REAL;
+PROCEDURE Predict*(p: Perceptron; inputs: ARRAY OF REAL; VAR prediction: REAL): BOOLEAN;
 VAR
     sum: REAL;
     i: INTEGER;
-    result: REAL;
+    result: BOOLEAN;
 BEGIN
+    result := TRUE;
     IF ~p.isTrained THEN
         Out.String("Perceptron is not trained."); Out.Ln;
-        result := 0.0; (* Return a default value if not trained *)
+        result := FALSE; (* Return a default value if not trained *)
     ELSIF LEN(inputs) # p.numWeights THEN
         Out.String("Input size does not match perceptron weights."); Out.Ln;
-        result := 0.0; (* Return a default value if input size is incorrect *)
+        result := FALSE; (* Return a default value if input size is incorrect *)
     ELSE
         sum := 0.0;
         i := 0;
@@ -74,7 +75,7 @@ BEGIN
             INC(i);
         END;
         sum := sum + p.bias;
-        result := Activate(sum);
+        prediction := Activate(sum);
     END;
     RETURN result
 END Predict;
@@ -85,8 +86,9 @@ PROCEDURE Train(VAR p: Perceptron; inputs: ARRAY OF REAL; target: REAL);
 VAR 
     output, error: REAL;
     i: INTEGER;
+    result : BOOLEAN;
 BEGIN
-    output := Predict(p, inputs);
+    result := Predict(p, inputs, output);
     error := target - output;
     
     (* Update weights and bias *)
