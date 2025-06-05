@@ -25,7 +25,8 @@
 
 - The project uses **GNU Make** for building.
 - New modules and tests **must be added to the Makefile**.
-- Tests can be executed with the `make -f src/Makefile.obnc all` target.
+- Tests can be built in the `src` folder with the `make -f Makefile all` target.
+- The test XXX can be built in the `src` folder with the `make -f Makefile ../bin/TestXXX` target.
 
 ## Testing
 

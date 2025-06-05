@@ -13,7 +13,9 @@ BEGIN
 END WriteResult;
 
 PROCEDURE TestInitAndNext;
-VAR pass: BOOLEAN; i, first, second: INTEGER;
+VAR 
+    pass: BOOLEAN; 
+    first, second: INTEGER;
 BEGIN
     pass := TRUE;
     Random.Init(12345);

@@ -3,8 +3,9 @@
 This project implements
 
 - Utility functions: 
-   - convenient bitwise operations for INTEGER and BYTE types
-   - UTF-8 string manipulation.
+   - bitwise operations for INTEGER and BYTE types
+   - UTF-8 string manipulation
+   - Random numbers (PRNG with Lehmer MLCG)
 - Classic ML algorithms: 
    - Perceptron, 
    - Linear Regressor,
@@ -16,7 +17,6 @@ This project implements
 ## Requirements
 
 - [OBNC](https://miasap.se/obnc/) (Oberon-07 compiler) OR
-- [Akron](https://github.com/AntKrotov/oberon-07-compiler) (Oberon-07 Compiler)
 - `make` (for building and running tests)
 
 ## Documentation
@@ -33,12 +33,9 @@ This project implements
 To build, issue the commands from the project root:
 
 ```sh
-make -f src/Makefile.obnc
-OR
-make -f src/Makefile.akron
+cd src
+make -f Makefile
 ```
 The test binaries are generated in the `bin/` folder.
 
-The makefile symlinks the .mod files to .ob07 for the akron compiler, as it accepts this extension only. 
-(NOTE: The akron makefile is not up-to-date, but it should not be too difficult to adapt the changes).
 
