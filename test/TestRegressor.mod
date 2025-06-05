@@ -1,3 +1,10 @@
+(** TestRegressor.Mod - Tests for Regressor.Mod.
+
+Copyright (C) 2025
+
+Released under The 3-Clause BSD License.
+*)
+
 MODULE TestRegressor;
 
 IMPORT LinearRegressor, Tests;

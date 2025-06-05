@@ -1,3 +1,10 @@
+(** TestUtf8Strings.Mod - Tests for Utf8Strings.Mod.
+
+Copyright (C) 2025
+
+Released under The 3-Clause BSD License.
+*)
+
 MODULE TestUtf8Strings;
 
 IMPORT Utf8Strings, Tests;

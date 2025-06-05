@@ -1,3 +1,9 @@
+(** TestKnn.Mod - Tests for KNN.Mod.
+
+Copyright (C) 2025
+
+Released under The 3-Clause BSD License.
+*)
 MODULE TestKnn;
 
 IMPORT QuickSelect, KDTree, KNN, Tests;

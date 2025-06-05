@@ -1,3 +1,9 @@
+(** TestRandom.Mod - Tests for Random.Mod.
+
+Copyright (C) 2025
+
+Released under The 3-Clause BSD License.
+*)
 MODULE TestRandom;
 IMPORT Random, Tests;
 

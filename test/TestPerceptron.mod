@@ -1,3 +1,10 @@
+(** TestPerceptron.Mod - Tests for Perceptron.Mod.
+
+Copyright (C) 2025
+
+Released under The 3-Clause BSD License.
+*)
+
 MODULE TestPerceptron;
 
 IMPORT Random, Perceptron, Tests;
