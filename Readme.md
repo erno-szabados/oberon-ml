@@ -10,7 +10,8 @@ This project implements
    - Perceptron, 
    - Linear Regressor,
    - K-Nearest Neighbor with K-D Tree and QuickSelect.
-- Unit tests for the above
+- Unit tests for the above, using the Tests module from the [Artemis 
+  framework]: (https://github.com/rsdoiel/Artemis)
 
 - Implementation is in [Oberon-07](https://en.wikipedia.org/wiki/Oberon_(programming_language)). 
 
