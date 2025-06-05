@@ -25,10 +25,7 @@ PROCEDURE <em>Init</em>(VAR p: Perceptron; numInputs: INTEGER; lr: REAL) : BOOLE
 PROCEDURE <em>Activate</em>(x: REAL): REAL;
 
 <span class='comment'>(* Predict the output for given inputs using the perceptron. *)</span>
-PROCEDURE <em>Predict</em>(p: Perceptron; inputs: ARRAY OF REAL): REAL;
-
-<span class='comment'>(* NOTE: This training rule assumes a step activation function. *)</span>
-<span class='comment'>(* For other activations (e.g., sigmoid, tanh), the update rule must be adapted.*)</span>
+PROCEDURE <em>Predict</em>(p: Perceptron; inputs: ARRAY OF REAL; VAR prediction: REAL): BOOLEAN;
 
 <span class='comment'>(* Train the perceptron with the provided data and targets for a specified number of epochs.*)</span>
 <span class='comment'>(* data: 2D array where each sub-array is an input vector.*)</span>

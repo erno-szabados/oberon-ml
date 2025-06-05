@@ -1,0 +1,77 @@
+(* Clock.Mod - a hardware abstraction module.
+
+Copyright (C) 2021 R. S. Doiel
+
+Released under The 3-Clause BSD License.
+See https://opensource.org/licenses/BSD-3-Clause
+
+*)
+DEFINITION artClock; (* NOT PORTABLE, Assumes OBNC compiler *)
+
+TYPE
+  (* Clock and ClockDesc types holds a normalized presentation
+      of the system clock data structures. *)
+  Clock = POINTER TO ClockDesc;
+  ClockDesc = RECORD               (* this is what is used by clock_gettime(), clock_settime()  and would be used to do time intervals. *)
+
+               (* The following are based on C struct tm *)
+
+               year : INTEGER; (* Normalized year *)
+               month : INTEGER; (* 1 through 12, Jan. through Dec. *)
+               day : INTEGER; (* 1 through 31 *)
+               hour : INTEGER; (* 0 through 23 *)
+               minute : INTEGER; (* 0 through 59 *)
+               second : INTEGER; (* 0 through 59 *)
+               (* wDay is day of week 0 - 6, 6 = Saturday, 0 is Monday *) 
+               wDay : INTEGER;
+               (* yDay is a julian style date, days since start of year *)
+               yDay : INTEGER;
+               (* isDST has three possible settings. 
+                  -1 (negative number) info unavailable,
+                  zero if Standard Time, one if
+                  Daylight Savings Time *)
+               isDST : INTEGER; 
+               (* utcOffset can be impacted by isDST state
+                   and implementations on local system.
+                   E.g. America/Los Angeles PST is -08:00 UTC,
+                   America/Los Angeles PDT is -07:00 UTC *)
+               utcOffset : INTEGER
+             END;
+
+VAR
+  (* clock holds the values for the last call to either
+      Update() or Get(). *)
+  clock : Clock;
+  (* clockError is TRUE if an error occurred on the last call
+      to the host's get_clocktime(), otherwise it is set to FALSE *)
+
+(* Interface into POSIX time, date infrastructure. 
+    These procedures call into POSIX via OBNC's C interface. *)
+
+(* Copy copies the values from source clock to destination *)
+PROCEDURE Copy(source : Clock; VAR dest : Clock);
+
+(* Update populates Clock.clock based on what is
+    returned by host system clock. 
+
+    NOTE: the year is normalized and month is in range 1 to 12
+    unlike the values return POSIX localtime(). *)
+PROCEDURE Update();
+
+(* Get updates Clock.clock and sets the value of the
+    Clock from Clock.clock.
+
+    NOTE: the year is normalized and month is in range 1 to 12
+    unlike the values return POSIX localtime(). *)
+PROCEDURE Get(VAR c : Clock);
+
+(* Set attempts to set the host system clock. On most systems
+    this will require root level permissions.  If successful 
+    Clock.clock is updated and the value of 
+    ok will be TRUE. If the host system clock isn't updated 
+    (e.g. you don't have permission) then ok is set to FALSE.
+
+    NOTE: SetRtcTime() uses the C clock_settime() and localtime().  *)
+PROCEDURE Set(c : Clock; VAR ok : BOOLEAN);
+
+END artClock.

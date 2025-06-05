@@ -1,0 +1,92 @@
+<!DOCTYPE html PUBLIC '-//W3C//DTD XHTML 1.0 Strict//EN' 'http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd'>
+<html xmlns='http://www.w3.org/1999/xhtml' xml:lang='en' lang='en'>
+	<head>
+		<meta name='viewport' content='width=device-width, initial-scale=1.0' />
+		<meta http-equiv='Content-Type' content='text/html; charset=utf-8' />
+		<title>DEFINITION artClock</title>
+		<link rel='stylesheet' type='text/css' href='style.css' />
+	</head>
+	<body>
+		<p><a href='index.html'>Index</a></p>
+
+		<pre>
+<span class='comment'>(* Clock.Mod - a hardware abstraction module.
+
+Copyright (C) 2021 R. S. Doiel
+
+Released under The 3-Clause BSD License.
+See https://opensource.org/licenses/BSD-3-Clause
+
+*)</span>
+DEFINITION <em>artClock</em>; <span class='comment'>(* NOT PORTABLE, Assumes OBNC compiler *)</span>
+
+TYPE
+  <span class='comment'>(* Clock and ClockDesc types holds a normalized presentation
+      of the system clock data structures. *)</span>
+  Clock = POINTER TO ClockDesc;
+  ClockDesc = RECORD               <span class='comment'>(* this is what is used by clock_gettime(), clock_settime()  and would be used to do time intervals. *)</span>
+
+               <span class='comment'>(* The following are based on C struct tm *)</span>
+
+               year : INTEGER; <span class='comment'>(* Normalized year *)</span>
+               month : INTEGER; <span class='comment'>(* 1 through 12, Jan. through Dec. *)</span>
+               day : INTEGER; <span class='comment'>(* 1 through 31 *)</span>
+               hour : INTEGER; <span class='comment'>(* 0 through 23 *)</span>
+               minute : INTEGER; <span class='comment'>(* 0 through 59 *)</span>
+               second : INTEGER; <span class='comment'>(* 0 through 59 *)</span>
+               <span class='comment'>(* wDay is day of week 0 - 6, 6 = Saturday, 0 is Monday *)</span> 
+               wDay : INTEGER;
+               <span class='comment'>(* yDay is a julian style date, days since start of year *)</span>
+               yDay : INTEGER;
+               <span class='comment'>(* isDST has three possible settings. 
+                  -1 (negative number) info unavailable,
+                  zero if Standard Time, one if
+                  Daylight Savings Time *)</span>
+               isDST : INTEGER; 
+               <span class='comment'>(* utcOffset can be impacted by isDST state
+                   and implementations on local system.
+                   E.g. America/Los Angeles PST is -08:00 UTC,
+                   America/Los Angeles PDT is -07:00 UTC *)</span>
+               utcOffset : INTEGER
+             END;
+
+VAR
+  <span class='comment'>(* clock holds the values for the last call to either
+      Update() or Get(). *)</span>
+  clock : Clock;
+  <span class='comment'>(* clockError is TRUE if an error occurred on the last call
+      to the host's get_clocktime(), otherwise it is set to FALSE *)</span>
+
+<span class='comment'>(* Interface into POSIX time, date infrastructure. 
+    These procedures call into POSIX via OBNC's C interface. *)</span>
+
+<span class='comment'>(* Copy copies the values from source clock to destination *)</span>
+PROCEDURE <em>Copy</em>(source : Clock; VAR dest : Clock);
+
+<span class='comment'>(* Update populates Clock.clock based on what is
+    returned by host system clock. 
+
+    NOTE: the year is normalized and month is in range 1 to 12
+    unlike the values return POSIX localtime(). *)</span>
+PROCEDURE <em>Update</em>();
+
+<span class='comment'>(* Get updates Clock.clock and sets the value of the
+    Clock from Clock.clock.
+
+    NOTE: the year is normalized and month is in range 1 to 12
+    unlike the values return POSIX localtime(). *)</span>
+PROCEDURE <em>Get</em>(VAR c : Clock);
+
+<span class='comment'>(* Set attempts to set the host system clock. On most systems
+    this will require root level permissions.  If successful 
+    Clock.clock is updated and the value of 
+    ok will be TRUE. If the host system clock isn't updated 
+    (e.g. you don't have permission) then ok is set to FALSE.
+
+    NOTE: SetRtcTime() uses the C clock_settime() and localtime().  *)</span>
+PROCEDURE <em>Set</em>(c : Clock; VAR ok : BOOLEAN);
+
+END artClock.
+</pre>
+	</body>
+</html>

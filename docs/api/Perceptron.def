@@ -13,10 +13,7 @@ PROCEDURE Init(VAR p: Perceptron; numInputs: INTEGER; lr: REAL) : BOOLEAN;
 PROCEDURE Activate(x: REAL): REAL;
 
 (* Predict the output for given inputs using the perceptron. *)
-PROCEDURE Predict(p: Perceptron; inputs: ARRAY OF REAL): REAL;
-
-(* NOTE: This training rule assumes a step activation function. *)
-(* For other activations (e.g., sigmoid, tanh), the update rule must be adapted.*)
+PROCEDURE Predict(p: Perceptron; inputs: ARRAY OF REAL; VAR prediction: REAL): BOOLEAN;
 
 (* Train the perceptron with the provided data and targets for a specified number of epochs.*)
 (* data: 2D array where each sub-array is an input vector.*)
