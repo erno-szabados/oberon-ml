@@ -1,168 +1,146 @@
 MODULE TestUtf8Strings;
 
-IMPORT Out, Utf8Strings;
+IMPORT Utf8Strings, Tests;
 
-PROCEDURE WriteResult(testName: ARRAY OF CHAR; result: BOOLEAN);
-BEGIN
-  Out.String(testName);
-  IF result THEN
-    Out.String(" passed.");
-  ELSE
-    Out.String(" failed.");
-  END;
-  Out.Ln;
-END WriteResult;
+VAR
+  ts: Tests.TestSet;
 
-PROCEDURE AssertString(testName, expected, actual: ARRAY OF CHAR);
-VAR i, pass: INTEGER;
+PROCEDURE TestLength*(): BOOLEAN;
+VAR s: ARRAY 64 OF CHAR; len: INTEGER; test: BOOLEAN;
 BEGIN
-  i := 0; pass := 1;
-  WHILE (i < LEN(expected)) & (expected[i] # 0X) & (actual[i] # 0X) DO
-    IF expected[i] # actual[i] THEN pass := 0 END;
-    i := i + 1;
-  END;
-  IF expected[i] # actual[i] THEN pass := 0 END; (* Check for equal length *)
-  WriteResult(testName, pass = 1);
-END AssertString;
-
-PROCEDURE AssertInt(testName: ARRAY OF CHAR; expected, actual: INTEGER);
-BEGIN
-  WriteResult(testName, expected = actual);
-END AssertInt;
-
-PROCEDURE TestLength;
-VAR s: ARRAY 64 OF CHAR; len: INTEGER;
-BEGIN
+  test := TRUE;
   s := "AΩ😀";
   len := Utf8Strings.Length(s);
-  AssertInt("Length('AΩ😀')", 3, len);
+  Tests.ExpectedInt(3, len, "Length('AΩ😀')", test);
+  RETURN test
 END TestLength;
 
-PROCEDURE TestCopy;
-VAR s, t: ARRAY 64 OF CHAR;
+PROCEDURE TestCopy*(): BOOLEAN;
+VAR s, t: ARRAY 64 OF CHAR; test: BOOLEAN;
 BEGIN
+  test := TRUE;
   s := "AΩ😀";
   Utf8Strings.Copy(s, t);
-  AssertString("Copy", s, t);
+  Tests.ExpectedString(s, t, "Copy", test);
+  RETURN test
 END TestCopy;
 
-PROCEDURE TestInsert;
-VAR s, u: ARRAY 64 OF CHAR;
+PROCEDURE TestInsert*(): BOOLEAN;
+VAR s, u: ARRAY 64 OF CHAR; test: BOOLEAN;
 BEGIN
+  test := TRUE;
   s := "AΩ😀";
   Utf8Strings.Insert(s, 1, "X", u);
-  AssertString("Insert 'X' at pos 1", "AXΩ😀", u);
+  Tests.ExpectedString("AXΩ😀", u, "Insert 'X' at pos 1", test);
+  RETURN test
 END TestInsert;
 
-PROCEDURE TestAppend;
-VAR s, u: ARRAY 64 OF CHAR;
+PROCEDURE TestAppend*(): BOOLEAN;
+VAR s, u: ARRAY 64 OF CHAR; test: BOOLEAN;
 BEGIN
+  test := TRUE;
   s := "AΩ😀";
   Utf8Strings.Append(s, "!", u);
-  AssertString("Append '!'", "AΩ😀!", u);
+  Tests.ExpectedString("AΩ😀!", u, "Append '!'", test);
+  RETURN test
 END TestAppend;
 
-PROCEDURE TestDelete;
-VAR s, u: ARRAY 64 OF CHAR;
+PROCEDURE TestDelete*(): BOOLEAN;
+VAR s, u: ARRAY 64 OF CHAR; test: BOOLEAN;
 BEGIN
+  test := TRUE;
   s := "AΩ😀";
   Utf8Strings.Delete(s, 1, 1, u);
-  AssertString("Delete at pos 1", "A😀", u);
+  Tests.ExpectedString("A😀", u, "Delete at pos 1", test);
+  RETURN test
 END TestDelete;
 
-PROCEDURE TestExtract;
-VAR s, u: ARRAY 64 OF CHAR;
+PROCEDURE TestExtract*(): BOOLEAN;
+VAR s, u: ARRAY 64 OF CHAR; test: BOOLEAN;
 BEGIN
+  test := TRUE;
   s := "AΩ😀";
   Utf8Strings.Extract(s, 1, 2, u);
-  AssertString("Extract 2 from pos 1", "Ω😀", u);
+  Tests.ExpectedString("Ω😀", u, "Extract 2 from pos 1", test);
+  RETURN test
 END TestExtract;
 
-PROCEDURE TestPos;
-VAR s: ARRAY 64 OF CHAR; pos: INTEGER;
+PROCEDURE TestPos*(): BOOLEAN;
+VAR s: ARRAY 64 OF CHAR; pos: INTEGER; test: BOOLEAN;
 BEGIN
+  test := TRUE;
   s := "AΩ😀ΩA";
-  (* Find ASCII character *)
   pos := Utf8Strings.Pos("A", s, 0);
-  AssertInt("Pos('A', ... , 0)", 0, pos);
+  Tests.ExpectedInt(0, pos, "Pos('A', ... , 0)", test);
 
-  (* Find multi-byte character *)
   pos := Utf8Strings.Pos("Ω", s, 0);
-  AssertInt("Pos('Ω', ... , 0)", 1, pos);
+  Tests.ExpectedInt(1, pos, "Pos('Ω', ... , 0)", test);
 
-  (* Find emoji *)
   pos := Utf8Strings.Pos("😀", s, 0);
-  AssertInt("Pos('😀', ... , 0)", 2, pos);
+  Tests.ExpectedInt(2, pos, "Pos('😀', ... , 0)", test);
 
-  (* Find second occurrence, start after first *)
   pos := Utf8Strings.Pos("Ω", s, 2);
-  AssertInt("Pos('Ω', ... , 2)", 3, pos);
+  Tests.ExpectedInt(3, pos, "Pos('Ω', ... , 2)", test);
 
-  (* Not found *)
   pos := Utf8Strings.Pos("Z", s, 0);
-  AssertInt("Pos('Z', ... , 0)", -1, pos);
+  Tests.ExpectedInt(-1, pos, "Pos('Z', ... , 0)", test);
 
-  (* Pattern at end *)
   pos := Utf8Strings.Pos("A", s, 4);
-  AssertInt("Pos('A', ... , 4)", 4, pos);
+  Tests.ExpectedInt(4, pos, "Pos('A', ... , 4)", test);
 
-  (* Pattern not found after startPos *)
   pos := Utf8Strings.Pos("A", s, 5);
-  AssertInt("Pos('A', ... , 5)", -1, pos);
+  Tests.ExpectedInt(-1, pos, "Pos('A', ... , 5)", test);
 
-  (* Whole string as pattern *)
   pos := Utf8Strings.Pos("AΩ😀ΩA", s, 0);
-  AssertInt("Pos(full, ... , 0)", 0, pos);
+  Tests.ExpectedInt(0, pos, "Pos(full, ... , 0)", test);
 
-  (* Pattern longer than string *)
   pos := Utf8Strings.Pos("AΩ😀ΩAΩ", s, 0);
-  AssertInt("Pos(longer, ... , 0)", -1, pos);
+  Tests.ExpectedInt(-1, pos, "Pos(longer, ... , 0)", test);
+
+  RETURN test
 END TestPos;
 
-PROCEDURE TestReplace;
-VAR
-  s, expected: ARRAY 64 OF CHAR;
+PROCEDURE TestReplace*(): BOOLEAN;
+VAR s, expected: ARRAY 64 OF CHAR; test: BOOLEAN;
 BEGIN
-  (* Oakwood semantics: Replace deletes as many codepoints as the length of the source string *)
-
-  (* Replace middle codepoint with single codepoint *)
+  test := TRUE;
   s := "AΩ😀";
   Utf8Strings.Replace("X", 1, s);
   expected := "AX😀";
-  AssertString("Replace 'Ω' with 'X'", expected, s);
+  Tests.ExpectedString(expected, s, "Replace 'Ω' with 'X'", test);
 
-  (* Replace at start with single codepoint *)
   s := "AΩ😀";
   Utf8Strings.Replace("Z", 0, s);
   expected := "ZΩ😀";
-  AssertString("Replace 'A' with 'Z'", expected, s);
+  Tests.ExpectedString(expected, s, "Replace 'A' with 'Z'", test);
 
-  (* Replace at end with single codepoint *)
   s := "AΩ😀";
   Utf8Strings.Replace("!", 2, s);
   expected := "AΩ!";
-  AssertString("Replace '😀' with '!'", expected, s);
+  Tests.ExpectedString(expected, s, "Replace '😀' with '!'", test);
 
-  (* Replace middle codepoint with two codepoints (deletes two, inserts two) *)
   s := "AΩ😀";
   Utf8Strings.Replace("XY", 1, s);
   expected := "AXY";
-  AssertString("Replace 'Ω😀' with 'XY'", expected, s);
+  Tests.ExpectedString(expected, s, "Replace 'Ω😀' with 'XY'", test);
 
-  (* Replace with empty string (deletes zero codepoints, so string unchanged) *)
   s := "AΩ😀";
   Utf8Strings.Replace("", 1, s);
   expected := "AΩ😀";
-  AssertString("Replace   vh '' (Oakwood: no-op)", expected, s);
+  Tests.ExpectedString(expected, s, "Replace with '' (Oakwood: no-op)", test);
+
+  RETURN test
 END TestReplace;
 
 BEGIN
-  TestLength;
-  TestCopy;
-  TestInsert;
-  TestAppend;
-  TestDelete;
-  TestExtract;
-  TestPos;
-  TestReplace;
+  Tests.Init(ts, "Utf8Strings Tests");
+  Tests.Add(ts, TestLength);
+  Tests.Add(ts, TestCopy);
+  Tests.Add(ts, TestInsert);
+  Tests.Add(ts, TestAppend);
+  Tests.Add(ts, TestDelete);
+  Tests.Add(ts, TestExtract);
+  Tests.Add(ts, TestPos);
+  Tests.Add(ts, TestReplace);
+  ASSERT(Tests.Run(ts));
 END TestUtf8Strings.

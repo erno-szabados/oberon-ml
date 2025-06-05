@@ -1,165 +1,113 @@
+(** TestBitwise.Mod - Tests for Bitwise.Mod.
+
+Copyright (C) 2025
+
+Released under The 3-Clause BSD License.
+*)
+
 MODULE TestBitwise;
-IMPORT Bitwise, Out;
 
-PROCEDURE WriteResult(testName: ARRAY OF CHAR; result: BOOLEAN);
-BEGIN
-    Out.String(testName);
-    IF result THEN
-        Out.String(" passed.");
-    ELSE
-        Out.String(" failed.");
-    END;
-    Out.Ln;
-END WriteResult;
+IMPORT Bitwise, Tests;
 
-PROCEDURE TestAnd;
-(* Test the Bitwise.And procedure *)
 VAR
-    pass: BOOLEAN;
-    a, b, result: INTEGER;
-BEGIN  
-    pass := TRUE;
-    a := 0FFH;
-    b := 0AAH;
-    result := Bitwise.And(a, b);
-    
-    IF result # 0AAH THEN
-        pass := FALSE;
-    END;
+  ts: Tests.TestSet;
 
-    WriteResult("TestAnd", pass);
+PROCEDURE TestAnd*(): BOOLEAN;
+  VAR a, b, result: INTEGER; test: BOOLEAN;
+BEGIN
+  test := TRUE;
+  a := 0FFH; b := 0AAH;
+  result := Bitwise.And(a, b);
+  Tests.ExpectedInt(0AAH, result, "Bitwise.And failed", test);
+  RETURN test
 END TestAnd;
 
-PROCEDURE TestOr;
-(* Test the Bitwise.Or procedure *)
-VAR
-    pass: BOOLEAN;
-    a, b, result: INTEGER;
+PROCEDURE TestOr*(): BOOLEAN;
+  VAR a, b, result: INTEGER; test: BOOLEAN;
 BEGIN
-    pass := TRUE;
-    a := 0FFH;
-    b := 0AAH;
-    result := Bitwise.Or(a, b);
-    
-    IF result # 0FFH THEN
-        pass := FALSE;
-    END;
-
-    WriteResult("TestOr", pass);
+  test := TRUE;
+  a := 0FFH; b := 0AAH;
+  result := Bitwise.Or(a, b);
+  Tests.ExpectedInt(0FFH, result, "Bitwise.Or failed", test);
+  RETURN test
 END TestOr;
 
-PROCEDURE TestXor;
-(* Test the Bitwise.Xor procedure *)
-VAR
-    pass: BOOLEAN;
-    a, b, result: INTEGER;
+PROCEDURE TestXor*(): BOOLEAN;
+  VAR a, b, result: INTEGER; test: BOOLEAN;
 BEGIN
-    pass := TRUE;
-    a := 0FFH;
-    b := 0AAH;
-    result := Bitwise.Xor(a, b);
-    
-    IF result # 055H THEN
-        pass := FALSE;
-    END;
-
-    WriteResult("TestXor", pass);
+  test := TRUE;
+  a := 0FFH; b := 0AAH;
+  result := Bitwise.Xor(a, b);
+  Tests.ExpectedInt(055H, result, "Bitwise.Xor failed", test);
+  RETURN test
 END TestXor;
 
-PROCEDURE TestNot;
-(* Test the Bitwise.Not procedure *)
-VAR
-    pass: BOOLEAN;
-    a, result: INTEGER;
+PROCEDURE TestNot*(): BOOLEAN;
+  VAR a, result: INTEGER; test: BOOLEAN;
 BEGIN
-    pass := TRUE;
-    a := 0H;
-    result := Bitwise.Not(a);
-    
-    IF result # 0FFFFFFFFH THEN
-        pass := FALSE;
-    END;
-
-    WriteResult("TestNot", pass);
+  test := TRUE;
+  a := 0H;
+  result := Bitwise.Not(a);
+  Tests.ExpectedInt(0FFFFFFFFH, result, "Bitwise.Not failed", test);
+  RETURN test
 END TestNot;
 
-PROCEDURE TestNot8;
-(* Test the Bitwise.Not procedure *)
-VAR
-    pass: BOOLEAN;
-    a, result: BYTE;
+PROCEDURE TestNot8*(): BOOLEAN;
+  VAR a, result: BYTE; test: BOOLEAN;
 BEGIN
-    pass := TRUE;
-    a := 00H;
-    result := Bitwise.Not8(a);
-    
-    IF result # 0FFH THEN
-        pass := FALSE;
-    END;
-
-    WriteResult("TestNot8", pass);
+  test := TRUE;
+  a := 00H;
+  result := Bitwise.Not8(a);
+  Tests.ExpectedInt(0FFH, result, "Bitwise.Not8 failed", test);
+  RETURN test
 END TestNot8;
 
-PROCEDURE TestShiftLeft;
-(* Test the Bitwise shift left operations *)
-VAR pass: BOOLEAN;
-    result: INTEGER;
+PROCEDURE TestShiftLeft*(): BOOLEAN;
+  VAR result: INTEGER; test: BOOLEAN;
 BEGIN
-    result := Bitwise.ShiftLeft(0FFFFH, 1);
-    (* Out.Hex(result); *)
-    (* Out.Ln; *)
-    
-    (* Check if the result is as expected *)
-    (* 0FFH shifted left by 1 should be 0FEH *)
-    pass := (result = 01FFFEH);
-    WriteResult("TestShiftLeft", pass)
+  test := TRUE;
+  result := Bitwise.ShiftLeft(0FFFFH, 1);
+  Tests.ExpectedInt(01FFFEH, result, "Bitwise.ShiftLeft failed", test);
+  RETURN test
 END TestShiftLeft;
 
-PROCEDURE TestShiftRight;
-(* Test the Bitwise shift right operations *)
-VAR pass: BOOLEAN;
-    result: INTEGER;
+PROCEDURE TestShiftRight*(): BOOLEAN;
+  VAR result: INTEGER; test: BOOLEAN;
 BEGIN
-    result := Bitwise.ShiftRight(0FFFFH, 1);
-    
-    (* Check if the result is as expected *)
-    (* 0FFH shifted right by 1 should be 07FH *)
-    pass := (result = 07FFFH);
-    WriteResult("TestShiftRight", pass)
+  test := TRUE;
+  result := Bitwise.ShiftRight(0FFFFH, 1);
+  Tests.ExpectedInt(07FFFH, result, "Bitwise.ShiftRight failed", test);
+  RETURN test
 END TestShiftRight;
 
-PROCEDURE TestRotateLeft;
-(* Test the Bitwise rotate left operations *)
-VAR pass: BOOLEAN;
-    result: INTEGER;
+PROCEDURE TestRotateLeft*(): BOOLEAN;
+  VAR result: INTEGER; test: BOOLEAN;
 BEGIN
-    result := Bitwise.RotateLeft(0FFFFH, 1);
-    
-    (* Check if the result is as expected *)
-    pass := (result = 01FFFEH);
-    WriteResult("TestRotateLeft", pass)
+  test := TRUE;
+  result := Bitwise.RotateLeft(0FFFFH, 1);
+  Tests.ExpectedInt(01FFFEH, result, "Bitwise.RotateLeft failed", test);
+  RETURN test
 END TestRotateLeft;
 
-PROCEDURE TestRotateRight;
-(* Test the Bitwise rotate right operations *)
-VAR pass: BOOLEAN;
-    result: INTEGER;
+PROCEDURE TestRotateRight*(): BOOLEAN;
+  VAR result: INTEGER; test: BOOLEAN;
 BEGIN
-    result := Bitwise.RotateRight(0FFFFH, 1);
-
-    (* Check if the result is as expected *)
-    pass := (result = 080007FFFH);
-    WriteResult("TestRotateLeft", pass)
+  test := TRUE;
+  result := Bitwise.RotateRight(0FFFFH, 1);
+  Tests.ExpectedInt(080007FFFH, result, "Bitwise.RotateRight failed", test);
+  RETURN test
 END TestRotateRight;
 
 BEGIN
-    TestAnd;
-    TestOr;
-    TestXor;
-    TestNot;
-    TestNot8;
-    TestShiftLeft;
-    TestShiftRight;
-    TestRotateLeft;
-    TestRotateRight
+  Tests.Init(ts, "Bitwise Tests");
+  Tests.Add(ts, TestAnd);
+  Tests.Add(ts, TestOr);
+  Tests.Add(ts, TestXor);
+  Tests.Add(ts, TestNot);
+  Tests.Add(ts, TestNot8);
+  Tests.Add(ts, TestShiftLeft);
+  Tests.Add(ts, TestShiftRight);
+  Tests.Add(ts, TestRotateLeft);
+  Tests.Add(ts, TestRotateRight);
+  ASSERT(Tests.Run(ts));
 END TestBitwise.

@@ -1,319 +1,387 @@
 MODULE TestUtf8;
 
-IMPORT Out, Utf8;
+IMPORT Utf8, Tests;
 
-PROCEDURE WriteResult(testName: ARRAY OF CHAR; result: BOOLEAN);
-BEGIN
-    Out.String(testName);
-    IF result THEN
-        Out.String(" passed.");
-    ELSE
-        Out.String(" failed.");
-    END;
-    Out.Ln;
-END WriteResult;
-
-PROCEDURE TestCharLen;
 VAR
-  pass: BOOLEAN;
+    ts: Tests.TestSet;
+
+PROCEDURE TestCharLen*(): BOOLEAN;
+VAR
+    test: BOOLEAN;
 BEGIN
-  pass := TRUE;
-  (* TODO*)
-  IF Utf8.CharLen("A") # 1 THEN
-    pass := FALSE;
-  END;
-
-  IF Utf8.CharLen(CHR(0C2H)) # 2 THEN
-    pass := FALSE;
-  END;
-
-  IF Utf8.CharLen(CHR(0E0H)) # 3 THEN
-    pass := FALSE;
-  END;
-
-  IF Utf8.CharLen(CHR(0F0H)) # 4 THEN
-    pass := FALSE;
-  END;
-
-  (* Invalid first byte *)
-  IF Utf8.CharLen(CHR(0FFH)) # 0 THEN
-    pass := FALSE;
-  END;
-  
-  WriteResult("TestCharLen", pass)
+    test := TRUE;
+    
+    Tests.ExpectedInt(1, Utf8.CharLen("A"), "CharLen('A') should be 1", test);
+    Tests.ExpectedInt(2, Utf8.CharLen(CHR(0C2H)), "CharLen(0C2H) should be 2", test);
+    Tests.ExpectedInt(3, Utf8.CharLen(CHR(0E0H)), "CharLen(0E0H) should be 3", test);
+    Tests.ExpectedInt(4, Utf8.CharLen(CHR(0F0H)), "CharLen(0F0H) should be 4", test);
+    Tests.ExpectedInt(0, Utf8.CharLen(CHR(0FFH)), "CharLen(0FFH) should be 0 (invalid)", test);
+    
+    RETURN test
 END TestCharLen;
 
-PROCEDURE TestHasBOM;
+PROCEDURE TestHasBOM*(): BOOLEAN;
 VAR
-  buf: ARRAY 7 OF CHAR;
-  pass: BOOLEAN;
+    buf: ARRAY 7 OF CHAR;
+    test: BOOLEAN;
 BEGIN
-  pass := TRUE;
-  (* Valid: EF BB BF *)
-  buf[0] := CHR(0EFH); buf[1] := CHR(0BBH); buf[2] := CHR(0BFH);
-  IF Utf8.HasBOM(buf, 3) # TRUE THEN
-    pass := FALSE;
-  END;
-
-  (* Too short *)
-  IF Utf8.HasBOM(buf, 2) # FALSE THEN
-    pass := FALSE;
-  END;
-
-  (* Valid, with extra data *)
-  buf[3] := CHR(65); 
-  IF Utf8.HasBOM(buf, 4) # TRUE THEN
-    pass := FALSE;
-  END;
-
-  (* Wrong BOM sequence *)
-  buf[3] := CHR(0BCH); 
-  IF Utf8.HasBOM(buf, 3) # TRUE THEN
-    pass := FALSE;
-  END;
-
-  (* ASCII: "ABC" *)
-  buf[0] := CHR(65); buf[1] := CHR(66); buf[2] := CHR(67);
-  IF Utf8.HasBOM(buf, 3) # FALSE THEN
-    pass := FALSE;
-  END;
-
-  WriteResult("TestHasBOM", pass)
+    test := TRUE;
+    
+    (* Valid: EF BB BF *)
+    buf[0] := CHR(0EFH); buf[1] := CHR(0BBH); buf[2] := CHR(0BFH);
+    Tests.ExpectedBool(TRUE, Utf8.HasBOM(buf, 3), "HasBOM should detect valid BOM", test);
+    
+    (* Too short *)
+    Tests.ExpectedBool(FALSE, Utf8.HasBOM(buf, 2), "HasBOM should fail on short buffer", test);
+    
+    (* Valid, with extra data *)
+    buf[3] := CHR(65);
+    Tests.ExpectedBool(TRUE, Utf8.HasBOM(buf, 4), "HasBOM should detect valid BOM with extra data", test);
+    
+    (* Wrong BOM sequence *)
+    buf[2] := CHR(0BCH);
+    Tests.ExpectedBool(FALSE, Utf8.HasBOM(buf, 3), "HasBOM should fail on invalid BOM", test);
+    
+    (* ASCII: "ABC" *)
+    buf[0] := CHR(65); buf[1] := CHR(66); buf[2] := CHR(67);
+    Tests.ExpectedBool(FALSE, Utf8.HasBOM(buf, 3), "HasBOM should fail on ASCII", test);
+    
+    RETURN test
 END TestHasBOM;
 
-PROCEDURE CheckIsValid(testName : ARRAY OF CHAR; buf : ARRAY OF CHAR; len : INTEGER; expected : BOOLEAN);
-VAR 
-  pass : BOOLEAN;
-BEGIN
-  pass := Utf8.IsValid(buf, len) = expected;
-  WriteResult(testName, pass);
-END CheckIsValid;
-
-PROCEDURE TestIsValid;
+PROCEDURE TestIsValid*(): BOOLEAN;
 VAR
-  buf : ARRAY 7 OF CHAR;
+    buf: ARRAY 7 OF CHAR;
+    test: BOOLEAN;
 BEGIN
-   (* Valid 1-byte ASCII *)
-  buf[0] := CHR(65);
-  CheckIsValid("IsValid: ASCII", buf, 1, TRUE);
-
-  (* Valid 2-byte UTF-8: U+00A2 (¢) = C2 A2 *)
-  buf[0] := CHR(0C2H); buf[1] := CHR(0A2H);
-  CheckIsValid("IsValid: 2-byte", buf, 2, TRUE);
-
-  (* Valid 3-byte UTF-8: U+20AC (€) = E2 82 AC *)
-  buf[0] := CHR(0E2H); buf[1] := CHR(082H); buf[2] := CHR(0ACH);
-  CheckIsValid("IsValid: 3-byte", buf, 3, TRUE);
-
-  (* Valid 4-byte UTF-8: U+1F600 (😀) = F0 9F 98 80 *)
-  buf[0] := CHR(0F0H); buf[1] := CHR(09FH); buf[2] := CHR(098H); buf[3] := CHR(080H);
-  CheckIsValid("IsValid: 4-byte", buf, 4, TRUE);
-
-   (* Invalid: incomplete 2-byte sequence *)
-  buf[0] := CHR(0C2H); buf[1] := CHR(0);
-  CheckIsValid("IsValid: Incomplete 2-byte", buf, 1, FALSE);
-
-  (* Invalid: overlong encoding for ASCII 'A' (should be 1 byte, not 2) *)
-  buf[0] := CHR(0C1H); buf[1] := CHR(0A1H); buf[2] := CHR(0);
-  CheckIsValid("IsValid: Overlong ASCII", buf, 2, FALSE);
-
-  (* Invalid: incomplete 3-byte sequence *)
-  buf[0] := CHR(0E2H); buf[1] := CHR(082H); buf[2] := CHR(0);
-  CheckIsValid("IsValid: Incomplete 3-byte", buf, 2, FALSE);
-
-  (* Invalid: incomplete 4-byte sequence *)
-  buf[0] := CHR(0F0H); buf[1] := CHR(09FH); buf[2] := CHR(098H); buf[3] := CHR(0);
-  CheckIsValid("IsValid: Incomplete 4-byte", buf, 3, FALSE);
-
-  (* Valid: mixed valid sequence *)
-  buf[0] := CHR(65); (* 'A' *)
-  buf[1] := CHR(0C2H); buf[2] := CHR(0A2H); (* ¢ *)
-  buf[3] := CHR(0E2H); buf[4] := CHR(082H); buf[5] := CHR(0ACH); (* € *) 
-  buf[6] := CHR(0);
-  CheckIsValid("IsValid: Mixed valid", buf, 6, TRUE);
-
+    test := TRUE;
+    
+    (* Valid 1-byte ASCII *)
+    buf[0] := CHR(65);
+    Tests.ExpectedBool(TRUE, Utf8.IsValid(buf, 1), "IsValid should accept ASCII", test);
+    
+    (* Valid 2-byte UTF-8: U+00A2 (¢) = C2 A2 *)
+    buf[0] := CHR(0C2H); buf[1] := CHR(0A2H);
+    Tests.ExpectedBool(TRUE, Utf8.IsValid(buf, 2), "IsValid should accept 2-byte UTF-8", test);
+    
+    (* Valid 3-byte UTF-8: U+20AC (€) = E2 82 AC *)
+    buf[0] := CHR(0E2H); buf[1] := CHR(082H); buf[2] := CHR(0ACH);
+    Tests.ExpectedBool(TRUE, Utf8.IsValid(buf, 3), "IsValid should accept 3-byte UTF-8", test);
+    
+    (* Valid 4-byte UTF-8: U+1F600 (😀) = F0 9F 98 80 *)
+    buf[0] := CHR(0F0H); buf[1] := CHR(09FH); buf[2] := CHR(098H); buf[3] := CHR(080H);
+    Tests.ExpectedBool(TRUE, Utf8.IsValid(buf, 4), "IsValid should accept 4-byte UTF-8", test);
+    
+    (* Invalid: incomplete 2-byte sequence *)
+    buf[0] := CHR(0C2H); buf[1] := CHR(0);
+    Tests.ExpectedBool(FALSE, Utf8.IsValid(buf, 1), "IsValid should reject incomplete 2-byte", test);
+    
+    (* Invalid: overlong encoding for ASCII 'A' *)
+    buf[0] := CHR(0C1H); buf[1] := CHR(0A1H); buf[2] := CHR(0);
+    Tests.ExpectedBool(FALSE, Utf8.IsValid(buf, 2), "IsValid should reject overlong ASCII", test);
+    
+    (* Invalid: incomplete 3-byte sequence *)
+    buf[0] := CHR(0E2H); buf[1] := CHR(082H); buf[2] := CHR(0);
+    Tests.ExpectedBool(FALSE, Utf8.IsValid(buf, 2), "IsValid should reject incomplete 3-byte", test);
+    
+    (* Invalid: incomplete 4-byte sequence *)
+    buf[0] := CHR(0F0H); buf[1] := CHR(09FH); buf[2] := CHR(098H); buf[3] := CHR(0);
+    Tests.ExpectedBool(FALSE, Utf8.IsValid(buf, 3), "IsValid should reject incomplete 4-byte", test);
+    
+    (* Valid: mixed valid sequence *)
+    buf[0] := CHR(65); (* 'A' *)
+    buf[1] := CHR(0C2H); buf[2] := CHR(0A2H); (* ¢ *)
+    buf[3] := CHR(0E2H); buf[4] := CHR(082H); buf[5] := CHR(0ACH); (* € *) 
+    buf[6] := CHR(0);
+    Tests.ExpectedBool(TRUE, Utf8.IsValid(buf, 6), "IsValid should accept mixed valid UTF-8", test);
+    
+    RETURN test
 END TestIsValid;
 
-PROCEDURE CheckEncode(testName: ARRAY OF CHAR; codePoint: INTEGER; expected: ARRAY OF CHAR; expectedLen: INTEGER; expectedResult: BOOLEAN);
+PROCEDURE TestEncode*(): BOOLEAN;
 VAR
-  buf: ARRAY 7 OF CHAR;
-  bytesWritten: INTEGER;
-  pass, result: BOOLEAN;
-  i: INTEGER;
+    smallBuf: ARRAY 2 OF CHAR;
+    buf: ARRAY 4 OF CHAR;
+    bytesWritten: INTEGER;
+    expected: ARRAY 4 OF CHAR;
+    result, test: BOOLEAN;
 BEGIN
-  result := Utf8.Encode(codePoint, buf, 0, bytesWritten);
-  pass := (result = expectedResult) & (bytesWritten = expectedLen);
-  IF pass & expectedResult THEN
-    FOR i := 0 TO expectedLen - 1 DO
-      IF buf[i] # expected[i] THEN pass := FALSE; END;
+    test := TRUE;
+    
+    (* 1-byte ASCII: U+0041 'A' *)
+    expected[0] := CHR(65);
+    result := Utf8.Encode(65, buf, 0, bytesWritten);
+    Tests.ExpectedBool(TRUE, result, "Encode ASCII should succeed", test);
+    Tests.ExpectedInt(1, bytesWritten, "Encode ASCII byte count", test);
+    IF result & (bytesWritten = 1) THEN
+        Tests.ExpectedChar(expected[0], buf[0], "Encode ASCII output", test);
     END;
-  END;
-  WriteResult(testName, pass);
-END CheckEncode;
-
-PROCEDURE TestEncode;
-VAR
-  smallBuf : ARRAY 2 OF CHAR;
-  buf: ARRAY 4 OF CHAR;
-  bytesWritten: INTEGER;
-  result: BOOLEAN;
-BEGIN
-  (* 1-byte ASCII: U+0041 'A' *)
-  buf[0] := CHR(65); buf[1] := CHR(0); buf[2] := CHR(0); buf[3] := CHR(0);
-  CheckEncode("Encode: ASCII A", 65, buf, 1, TRUE);
-
-  (* 2-byte: U+00A2 (¢) = C2 A2 *)
-  buf[0] := CHR(0C2H); buf[1] := CHR(0A2H);
-  CheckEncode("Encode: U+00A2", 162, buf, 2, TRUE);
-
-  (* 3-byte: U+20AC (€) = E2 82 AC *)
-  buf[0] := CHR(0E2H); buf[1] := CHR(082H); buf[2] := CHR(0ACH);
-  CheckEncode("Encode: U+20AC", 8364, buf, 3, TRUE);
-
-  (* 4-byte: U+1F600 (😀) = F0 9F 98 80 *)
-  buf[0] := CHR(0F0H) ; buf[1] :=  CHR(09FH) ; buf[2] :=  CHR(098H) ; buf[3] :=  CHR(080H);
-  CheckEncode("Encode: U+1F600", 128512, buf, 4, TRUE);
-
-  (* Invalid: code point > U+10FFFF *)
-  CheckEncode("Encode: Invalid > U+10FFFF", 1114112, "", 0, FALSE);
-
-  (* Invalid: buffer too small for 4-byte sequence *)
-  result := Utf8.Encode(128512, smallBuf, 0, bytesWritten);
-  WriteResult("Encode: Buffer too small", (result = FALSE) & (bytesWritten = 0));
- 
+    
+    (* 2-byte: U+00A2 (¢) = C2 A2 *)
+    expected[0] := CHR(0C2H); expected[1] := CHR(0A2H);
+    result := Utf8.Encode(162, buf, 0, bytesWritten);
+    Tests.ExpectedBool(TRUE, result, "Encode U+00A2 should succeed", test);
+    Tests.ExpectedInt(2, bytesWritten, "Encode U+00A2 byte count", test);
+    IF result & (bytesWritten = 2) THEN
+        Tests.ExpectedChar(expected[0], buf[0], "Encode U+00A2 output byte 1", test);
+        Tests.ExpectedChar(expected[1], buf[1], "Encode U+00A2 output byte 2", test);
+    END;
+    
+    (* 3-byte: U+20AC (€) = E2 82 AC *)
+    expected[0] := CHR(0E2H); expected[1] := CHR(082H); expected[2] := CHR(0ACH);
+    result := Utf8.Encode(8364, buf, 0, bytesWritten);
+    Tests.ExpectedBool(TRUE, result, "Encode U+20AC should succeed", test);
+    Tests.ExpectedInt(3, bytesWritten, "Encode U+20AC byte count", test);
+    IF result & (bytesWritten = 3) THEN
+        Tests.ExpectedChar(expected[0], buf[0], "Encode U+20AC output byte 1", test);
+        Tests.ExpectedChar(expected[1], buf[1], "Encode U+20AC output byte 2", test);
+        Tests.ExpectedChar(expected[2], buf[2], "Encode U+20AC output byte 3", test);
+    END;
+    
+    (* 4-byte: U+1F600 (😀) = F0 9F 98 80 *)
+    expected[0] := CHR(0F0H); expected[1] := CHR(09FH); expected[2] := CHR(098H); expected[3] := CHR(080H);
+    result := Utf8.Encode(128512, buf, 0, bytesWritten);
+    Tests.ExpectedBool(TRUE, result, "Encode U+1F600 should succeed", test);
+    Tests.ExpectedInt(4, bytesWritten, "Encode U+1F600 byte count", test);
+    IF result & (bytesWritten = 4) THEN
+        Tests.ExpectedChar(expected[0], buf[0], "Encode U+1F600 output byte 1", test);
+        Tests.ExpectedChar(expected[1], buf[1], "Encode U+1F600 output byte 2", test);
+        Tests.ExpectedChar(expected[2], buf[2], "Encode U+1F600 output byte 3", test);
+        Tests.ExpectedChar(expected[3], buf[3], "Encode U+1F600 output byte 4", test);
+    END;
+    
+    (* Invalid: code point > U+10FFFF *)
+    result := Utf8.Encode(1114112, buf, 0, bytesWritten);
+    Tests.ExpectedBool(FALSE, result, "Encode invalid code point should fail", test);
+    Tests.ExpectedInt(0, bytesWritten, "Encode invalid code point byte count", test);
+    
+    (* Invalid: buffer too small for 4-byte sequence *)
+    result := Utf8.Encode(128512, smallBuf, 0, bytesWritten);
+    Tests.ExpectedBool(FALSE, result, "Encode with small buffer should fail", test);
+    Tests.ExpectedInt(0, bytesWritten, "Encode with small buffer byte count", test);
+    
+    RETURN test
 END TestEncode;
 
-PROCEDURE CheckEncodeDecode(testName: ARRAY OF CHAR; codePoint: INTEGER; expectSuccess: BOOLEAN);
+PROCEDURE TestEncodeDecodeIntegration*(): BOOLEAN;
 VAR
-  buf: ARRAY 4 OF CHAR;
-  bytesWritten, decoded: INTEGER;
-  encodeResult, decodeResult, pass: BOOLEAN;
+    buf: ARRAY 4 OF CHAR;
+    bytesWritten, decoded: INTEGER;
+    encodeResult, decodeResult, test: BOOLEAN;
 BEGIN
-  encodeResult := Utf8.Encode(codePoint, buf, 0, bytesWritten);
-  IF encodeResult THEN
-    decodeResult := Utf8.Decode(buf, 0, decoded);
-    pass := decodeResult & (decoded = codePoint);
-  ELSE
-    pass := ~expectSuccess;
-  END;
-  WriteResult(testName, pass);
-END CheckEncodeDecode;
-
-PROCEDURE TestEncodeDecodeIntegration;
-BEGIN
-  CheckEncodeDecode("EncodeDecode: ASCII A", 65, TRUE);
-  CheckEncodeDecode("EncodeDecode: U+00A2", 162, TRUE);
-  CheckEncodeDecode("EncodeDecode: U+20AC", 8364, TRUE);
-  CheckEncodeDecode("EncodeDecode: U+1F600", 128512, TRUE);
-  CheckEncodeDecode("EncodeDecode: Invalid > U+10FFFF", 1114112, FALSE);
+    test := TRUE;
+    
+    (* ASCII: U+0041 'A' *)
+    encodeResult := Utf8.Encode(65, buf, 0, bytesWritten);
+    Tests.ExpectedBool(TRUE, encodeResult, "EncodeDecode: ASCII encode should succeed", test);
+    IF encodeResult THEN
+        decodeResult := Utf8.Decode(buf, 0, decoded);
+        Tests.ExpectedBool(TRUE, decodeResult, "EncodeDecode: ASCII decode should succeed", test);
+        Tests.ExpectedInt(65, decoded, "EncodeDecode: ASCII round trip", test);
+    END;
+    
+    (* 2-byte: U+00A2 (¢) *)
+    encodeResult := Utf8.Encode(162, buf, 0, bytesWritten);
+    Tests.ExpectedBool(TRUE, encodeResult, "EncodeDecode: U+00A2 encode should succeed", test);
+    IF encodeResult THEN
+        decodeResult := Utf8.Decode(buf, 0, decoded);
+        Tests.ExpectedBool(TRUE, decodeResult, "EncodeDecode: U+00A2 decode should succeed", test);
+        Tests.ExpectedInt(162, decoded, "EncodeDecode: U+00A2 round trip", test);
+    END;
+    
+    (* 3-byte: U+20AC (€) *)
+    encodeResult := Utf8.Encode(8364, buf, 0, bytesWritten);
+    Tests.ExpectedBool(TRUE, encodeResult, "EncodeDecode: U+20AC encode should succeed", test);
+    IF encodeResult THEN
+        decodeResult := Utf8.Decode(buf, 0, decoded);
+        Tests.ExpectedBool(TRUE, decodeResult, "EncodeDecode: U+20AC decode should succeed", test);
+        Tests.ExpectedInt(8364, decoded, "EncodeDecode: U+20AC round trip", test);
+    END;
+    
+    (* 4-byte: U+1F600 (😀) *)
+    encodeResult := Utf8.Encode(128512, buf, 0, bytesWritten);
+    Tests.ExpectedBool(TRUE, encodeResult, "EncodeDecode: U+1F600 encode should succeed", test);
+    IF encodeResult THEN
+        decodeResult := Utf8.Decode(buf, 0, decoded);
+        Tests.ExpectedBool(TRUE, decodeResult, "EncodeDecode: U+1F600 decode should succeed", test);
+        Tests.ExpectedInt(128512, decoded, "EncodeDecode: U+1F600 round trip", test);
+    END;
+    
+    (* Invalid: code point > U+10FFFF *)
+    encodeResult := Utf8.Encode(1114112, buf, 0, bytesWritten);
+    Tests.ExpectedBool(FALSE, encodeResult, "EncodeDecode: Invalid encode should fail", test);
+    
+    RETURN test
 END TestEncodeDecodeIntegration;
 
-PROCEDURE CheckNextChar(testName: ARRAY OF CHAR; VAR buf: ARRAY OF CHAR; startIdx: INTEGER; expectedCodePoint: INTEGER; expectedNextIdx: INTEGER; expectedResult: BOOLEAN);
+PROCEDURE TestNextChar*(): BOOLEAN;
 VAR
-  idx, codePoint: INTEGER;
-  result, pass: BOOLEAN;
+    buf: ARRAY 8 OF CHAR;
+    idx, codePoint: INTEGER;
+    result, test: BOOLEAN;
 BEGIN
-  idx := startIdx;
-  result := Utf8.NextChar(buf, idx, codePoint);
-  pass := (result = expectedResult) & 
-          ((~result) OR ((codePoint = expectedCodePoint) & (idx = expectedNextIdx)));
-  WriteResult(testName, pass);
-END CheckNextChar;
-
-PROCEDURE TestNextChar;
-VAR
-  buf: ARRAY 8 OF CHAR;
-BEGIN
-  (* ASCII: "A" *)
-  buf[0] := CHR(65);
-  CheckNextChar("NextChar: ASCII", buf, 0, 65, 1, TRUE);
-
-  (* 2-byte: U+00A2 (¢) = C2 A2 *)
-  buf[0] := CHR(0C2H); buf[1] := CHR(0A2H);
-  CheckNextChar("NextChar: 2-byte", buf, 0, 162, 2, TRUE);
-
-  (* 3-byte: U+20AC (€) = E2 82 AC *)
-  buf[0] := CHR(0E2H); buf[1] := CHR(082H); buf[2] := CHR(0ACH);
-  CheckNextChar("NextChar: 3-byte", buf, 0, 8364, 3, TRUE);
-
-  (* 4-byte: U+1F600 (😀) = F0 9F 98 80 *)
-  buf[0] := CHR(0F0H); buf[1] := CHR(09FH); buf[2] := CHR(098H); buf[3] := CHR(080H);
-  CheckNextChar("NextChar: 4-byte", buf, 0, 128512, 4, TRUE);
-
-  (* Mixed: "A" + "¢" + "€" + "😀" *)
-  buf[0] := CHR(65); (* 'A' *)
-  buf[1] := CHR(0C2H); buf[2] := CHR(0A2H); (* ¢ *)
-  buf[3] := CHR(0E2H); buf[4] := CHR(082H); buf[5] := CHR(0ACH); (* € *)
-  buf[6] := CHR(0F0H); buf[7] := CHR(09FH); (* partial 4-byte *)
-  CheckNextChar("NextChar: Mixed ASCII", buf, 0, 65, 1, TRUE);
-  CheckNextChar("NextChar: Mixed 2-byte", buf, 1, 162, 3, TRUE);
-  CheckNextChar("NextChar: Mixed 3-byte", buf, 3, 8364, 6, TRUE);
-  CheckNextChar("NextChar: Mixed incomplete 4-byte", buf, 6, 0, 6, FALSE);
-
-  (* Invalid: start at end of buffer *)
-  CheckNextChar("NextChar: End of buffer", buf, 8, 0, 8, FALSE);
-
-  (* Invalid: bad first byte *)
-  buf[0] := CHR(0FFH);
-  CheckNextChar("NextChar: Invalid first byte", buf, 0, 0, 0, FALSE);
+    test := TRUE;
+    
+    (* ASCII: "A" *)
+    buf[0] := CHR(65);
+    idx := 0;
+    result := Utf8.NextChar(buf, idx, codePoint);
+    Tests.ExpectedBool(TRUE, result, "NextChar: ASCII should succeed", test);
+    Tests.ExpectedInt(65, codePoint, "NextChar: ASCII codepoint", test);
+    Tests.ExpectedInt(1, idx, "NextChar: ASCII next index", test);
+    
+    (* 2-byte: U+00A2 (¢) = C2 A2 *)
+    buf[0] := CHR(0C2H); buf[1] := CHR(0A2H);
+    idx := 0;
+    result := Utf8.NextChar(buf, idx, codePoint);
+    Tests.ExpectedBool(TRUE, result, "NextChar: 2-byte should succeed", test);
+    Tests.ExpectedInt(162, codePoint, "NextChar: 2-byte codepoint", test);
+    Tests.ExpectedInt(2, idx, "NextChar: 2-byte next index", test);
+    
+    (* 3-byte: U+20AC (€) = E2 82 AC *)
+    buf[0] := CHR(0E2H); buf[1] := CHR(082H); buf[2] := CHR(0ACH);
+    idx := 0;
+    result := Utf8.NextChar(buf, idx, codePoint);
+    Tests.ExpectedBool(TRUE, result, "NextChar: 3-byte should succeed", test);
+    Tests.ExpectedInt(8364, codePoint, "NextChar: 3-byte codepoint", test);
+    Tests.ExpectedInt(3, idx, "NextChar: 3-byte next index", test);
+    
+    (* 4-byte: U+1F600 (😀) = F0 9F 98 80 *)
+    buf[0] := CHR(0F0H); buf[1] := CHR(09FH); buf[2] := CHR(098H); buf[3] := CHR(080H);
+    idx := 0;
+    result := Utf8.NextChar(buf, idx, codePoint);
+    Tests.ExpectedBool(TRUE, result, "NextChar: 4-byte should succeed", test);
+    Tests.ExpectedInt(128512, codePoint, "NextChar: 4-byte codepoint", test);
+    Tests.ExpectedInt(4, idx, "NextChar: 4-byte next index", test);
+    
+    (* Mixed: "A" + "¢" + "€" + partial "😀" *)
+    buf[0] := CHR(65); (* 'A' *)
+    buf[1] := CHR(0C2H); buf[2] := CHR(0A2H); (* ¢ *)
+    buf[3] := CHR(0E2H); buf[4] := CHR(082H); buf[5] := CHR(0ACH); (* € *)
+    buf[6] := CHR(0F0H); buf[7] := CHR(09FH); (* partial 4-byte *)
+    
+    idx := 0;
+    result := Utf8.NextChar(buf, idx, codePoint);
+    Tests.ExpectedBool(TRUE, result, "NextChar: Mixed ASCII should succeed", test);
+    Tests.ExpectedInt(65, codePoint, "NextChar: Mixed ASCII codepoint", test);
+    Tests.ExpectedInt(1, idx, "NextChar: Mixed ASCII next index", test);
+    
+    result := Utf8.NextChar(buf, idx, codePoint);
+    Tests.ExpectedBool(TRUE, result, "NextChar: Mixed 2-byte should succeed", test);
+    Tests.ExpectedInt(162, codePoint, "NextChar: Mixed 2-byte codepoint", test);
+    Tests.ExpectedInt(3, idx, "NextChar: Mixed 2-byte next index", test);
+    
+    result := Utf8.NextChar(buf, idx, codePoint);
+    Tests.ExpectedBool(TRUE, result, "NextChar: Mixed 3-byte should succeed", test);
+    Tests.ExpectedInt(8364, codePoint, "NextChar: Mixed 3-byte codepoint", test);
+    Tests.ExpectedInt(6, idx, "NextChar: Mixed 3-byte next index", test);
+    
+    result := Utf8.NextChar(buf, idx, codePoint);
+    Tests.ExpectedBool(FALSE, result, "NextChar: Mixed incomplete 4-byte should fail", test);
+    Tests.ExpectedInt(6, idx, "NextChar: Mixed incomplete 4-byte index unchanged", test);
+    
+    (* Invalid: start at end of buffer *)
+    idx := 8;
+    result := Utf8.NextChar(buf, idx, codePoint);
+    Tests.ExpectedBool(FALSE, result, "NextChar: End of buffer should fail", test);
+    Tests.ExpectedInt(8, idx, "NextChar: End of buffer index unchanged", test);
+    
+    (* Invalid: bad first byte *)
+    buf[0] := CHR(0FFH);
+    idx := 0;
+    result := Utf8.NextChar(buf, idx, codePoint);
+    Tests.ExpectedBool(FALSE, result, "NextChar: Invalid first byte should fail", test);
+    Tests.ExpectedInt(0, idx, "NextChar: Invalid first byte index unchanged", test);
+    
+    RETURN test
 END TestNextChar;
 
-PROCEDURE CheckPrevChar(testName: ARRAY OF CHAR; VAR buf: ARRAY OF CHAR; startIdx: INTEGER; expectedCodePoint: INTEGER; expectedPrevIdx: INTEGER; expectedResult: BOOLEAN);
+PROCEDURE TestPrevChar*(): BOOLEAN;
 VAR
-  idx, codePoint: INTEGER;
-  result, pass: BOOLEAN;
+    buf: ARRAY 8 OF CHAR;
+    idx, codePoint: INTEGER;
+    result, test: BOOLEAN;
 BEGIN
-  idx := startIdx;
-  result := Utf8.PrevChar(buf, idx, codePoint);
-  pass := (result = expectedResult) &
-          ((~result) OR ((codePoint = expectedCodePoint) & (idx = expectedPrevIdx)));
-  WriteResult(testName, pass);
-END CheckPrevChar;
-
-PROCEDURE TestPrevChar;
-VAR
-  buf: ARRAY 8 OF CHAR;
-BEGIN
-  (* ASCII: "A" *)
-  buf[0] := CHR(65);
-  CheckPrevChar("PrevChar: ASCII", buf, 1, 65, 0, TRUE);
-
-  (* 2-byte: U+00A2 (¢) = C2 A2 *)
-  buf[0] := CHR(0C2H); buf[1] := CHR(0A2H);
-  CheckPrevChar("PrevChar: 2-byte", buf, 2, 162, 0, TRUE);
-
-  (* 3-byte: U+20AC (€) = E2 82 AC *)
-  buf[0] := CHR(0E2H); buf[1] := CHR(082H); buf[2] := CHR(0ACH);
-  CheckPrevChar("PrevChar: 3-byte", buf, 3, 8364, 0, TRUE);
-
-  (* 4-byte: U+1F600 (😀) = F0 9F 98 80 *)
-  buf[0] := CHR(0F0H); buf[1] := CHR(09FH); buf[2] := CHR(098H); buf[3] := CHR(080H);
-  CheckPrevChar("PrevChar: 4-byte", buf, 4, 128512, 0, TRUE);
-
-  (* Mixed: "A" + "¢" + "€" + "😀" *)
-  buf[0] := CHR(65); (* 'A' *)
-  buf[1] := CHR(0C2H); buf[2] := CHR(0A2H); (* ¢ *)
-  buf[3] := CHR(0E2H); buf[4] := CHR(082H); buf[5] := CHR(0ACH); (* € *)
-  buf[6] := CHR(0F0H); buf[7] := CHR(09FH); (* partial 4-byte *)
-  CheckPrevChar("PrevChar: Mixed 3-byte", buf, 6, 8364, 3, TRUE);
-  CheckPrevChar("PrevChar: Mixed 2-byte", buf, 3, 162, 1, TRUE);
-  CheckPrevChar("PrevChar: Mixed ASCII", buf, 1, 65, 0, TRUE);
-  CheckPrevChar("PrevChar: Mixed incomplete 4-byte", buf, 8, 0, 8, FALSE);
-
-  (* Invalid: at start of buffer *)
-  CheckPrevChar("PrevChar: At start", buf, 0, 0, 0, FALSE);
-
-  (* Invalid: bad start byte *)
-  buf[0] := CHR(0FFH);
-  CheckPrevChar("PrevChar: Invalid start byte", buf, 1, 0, 1, FALSE);
+    test := TRUE;
+    
+    (* ASCII: "A" *)
+    buf[0] := CHR(65);
+    idx := 1;
+    result := Utf8.PrevChar(buf, idx, codePoint);
+    Tests.ExpectedBool(TRUE, result, "PrevChar: ASCII should succeed", test);
+    Tests.ExpectedInt(65, codePoint, "PrevChar: ASCII codepoint", test);
+    Tests.ExpectedInt(0, idx, "PrevChar: ASCII prev index", test);
+    
+    (* 2-byte: U+00A2 (¢) = C2 A2 *)
+    buf[0] := CHR(0C2H); buf[1] := CHR(0A2H);
+    idx := 2;
+    result := Utf8.PrevChar(buf, idx, codePoint);
+    Tests.ExpectedBool(TRUE, result, "PrevChar: 2-byte should succeed", test);
+    Tests.ExpectedInt(162, codePoint, "PrevChar: 2-byte codepoint", test);
+    Tests.ExpectedInt(0, idx, "PrevChar: 2-byte prev index", test);
+    
+    (* 3-byte: U+20AC (€) = E2 82 AC *)
+    buf[0] := CHR(0E2H); buf[1] := CHR(082H); buf[2] := CHR(0ACH);
+    idx := 3;
+    result := Utf8.PrevChar(buf, idx, codePoint);
+    Tests.ExpectedBool(TRUE, result, "PrevChar: 3-byte should succeed", test);
+    Tests.ExpectedInt(8364, codePoint, "PrevChar: 3-byte codepoint", test);
+    Tests.ExpectedInt(0, idx, "PrevChar: 3-byte prev index", test);
+    
+    (* 4-byte: U+1F600 (😀) = F0 9F 98 80 *)
+    buf[0] := CHR(0F0H); buf[1] := CHR(09FH); buf[2] := CHR(098H); buf[3] := CHR(080H);
+    idx := 4;
+    result := Utf8.PrevChar(buf, idx, codePoint);
+    Tests.ExpectedBool(TRUE, result, "PrevChar: 4-byte should succeed", test);
+    Tests.ExpectedInt(128512, codePoint, "PrevChar: 4-byte codepoint", test);
+    Tests.ExpectedInt(0, idx, "PrevChar: 4-byte prev index", test);
+    
+    (* Mixed: "A" + "¢" + "€" + partial "😀" *)
+    buf[0] := CHR(65); (* 'A' *)
+    buf[1] := CHR(0C2H); buf[2] := CHR(0A2H); (* ¢ *)
+    buf[3] := CHR(0E2H); buf[4] := CHR(082H); buf[5] := CHR(0ACH); (* € *)
+    buf[6] := CHR(0F0H); buf[7] := CHR(09FH); (* partial 4-byte *)
+    
+    idx := 6;
+    result := Utf8.PrevChar(buf, idx, codePoint);
+    Tests.ExpectedBool(TRUE, result, "PrevChar: Mixed 3-byte should succeed", test);
+    Tests.ExpectedInt(8364, codePoint, "PrevChar: Mixed 3-byte codepoint", test);
+    Tests.ExpectedInt(3, idx, "PrevChar: Mixed 3-byte prev index", test);
+    
+    result := Utf8.PrevChar(buf, idx, codePoint);
+    Tests.ExpectedBool(TRUE, result, "PrevChar: Mixed 2-byte should succeed", test);
+    Tests.ExpectedInt(162, codePoint, "PrevChar: Mixed 2-byte codepoint", test);
+    Tests.ExpectedInt(1, idx, "PrevChar: Mixed 2-byte prev index", test);
+    
+    result := Utf8.PrevChar(buf, idx, codePoint);
+    Tests.ExpectedBool(TRUE, result, "PrevChar: Mixed ASCII should succeed", test);
+    Tests.ExpectedInt(65, codePoint, "PrevChar: Mixed ASCII codepoint", test);
+    Tests.ExpectedInt(0, idx, "PrevChar: Mixed ASCII prev index", test);
+    
+    (* Invalid: at start of buffer *)
+    idx := 0;
+    result := Utf8.PrevChar(buf, idx, codePoint);
+    Tests.ExpectedBool(FALSE, result, "PrevChar: At start should fail", test);
+    Tests.ExpectedInt(0, idx, "PrevChar: At start index unchanged", test);
+    
+    (* Invalid: bad start byte *)
+    buf[0] := CHR(0FFH);
+    idx := 1;
+    result := Utf8.PrevChar(buf, idx, codePoint);
+    Tests.ExpectedBool(FALSE, result, "PrevChar: Invalid start byte should fail", test);
+    Tests.ExpectedInt(1, idx, "PrevChar: Invalid start byte index unchanged", test);
+    
+    RETURN test
 END TestPrevChar;
 
 BEGIN
-    TestCharLen;
-    TestHasBOM;
-    TestIsValid;
-    TestEncode;
-    TestEncodeDecodeIntegration;
-    TestNextChar;
-    TestPrevChar;
+    Tests.Init(ts, "UTF-8 Tests");
+    Tests.Add(ts, TestCharLen);
+    Tests.Add(ts, TestHasBOM);
+    Tests.Add(ts, TestIsValid);
+    Tests.Add(ts, TestEncode);
+    Tests.Add(ts, TestEncodeDecodeIntegration);
+    Tests.Add(ts, TestNextChar);
+    Tests.Add(ts, TestPrevChar);
+    ASSERT(Tests.Run(ts));
 END TestUtf8.
