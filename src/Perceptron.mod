@@ -127,6 +127,7 @@ BEGIN
                 Train(p, data[i], targets[i]);
                 INC(i);
             END;
+            (* Out.String("Epoch "); Out.Int(epoch + 1, 0); Out.Ln; *)
             
             (* Check if all predictions are correct *)
             allCorrect := TRUE;

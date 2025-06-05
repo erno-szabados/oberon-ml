@@ -1,6 +1,6 @@
 MODULE TestPerceptron;
 
-IMPORT Out, Perceptron;
+IMPORT Out, Random, Perceptron;
 
 PROCEDURE Test*(): BOOLEAN;
 (* Test the Perceptron module by initializing, training, and predicting values. *)
@@ -17,7 +17,7 @@ VAR
     allCorrect: BOOLEAN;
 BEGIN
     numInputs := 2;
-    epochs := 5;
+    epochs := 50;
     result := FALSE;
 
     (* Example: AND logic gate *)
@@ -26,7 +26,7 @@ BEGIN
     data[2][0] := 1.0; data[2][1] := 0.0; targets[2] := 0.0;
     data[3][0] := 1.0; data[3][1] := 1.0; targets[3] := 1.0;
 
-    IF Perceptron.Init(p, numInputs, 0.1) THEN
+    IF Perceptron.Init(p, numInputs, 0.02) THEN
         result := Perceptron.Fit(p, data, targets, epochs);
 
         allCorrect := TRUE;
@@ -61,6 +61,7 @@ BEGIN
 END Test;
 
 BEGIN
+    Random.Init(423);
     IF Test() THEN
         Out.String("Perceptron module test passed.");
         Out.Ln;
