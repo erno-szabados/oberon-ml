@@ -1,3 +1,5 @@
 bin/*
 *.ob07
 .obnc
+.vscode
+
