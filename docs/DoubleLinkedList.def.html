@@ -18,40 +18,30 @@
 *)</span>
 DEFINITION <em>DoubleLinkedList</em>;
 
-<span class='comment'>(*
-    This module implements a Double Linked List.
-    It provides basic operations such as initialization,
-    appending items, removing the first item, and checking if the list is empty.
-    The list is built using pointers to a custom item type defined in Collections.
-    Each node has both next and prev pointers.
- *)</span>
-
 IMPORT Collections;
 
 TYPE
-    DoubleListItem = RECORD (Collections.Item)
-        next: POINTER TO DoubleListItem;
-        prev: POINTER TO DoubleListItem
+    ListItem = RECORD (Collections.Item)
+        next: POINTER TO ListItem;
+        prev: POINTER TO ListItem
     END;
-    DoubleListItemPtr = POINTER TO DoubleListItem;
+    ListItemPtr = POINTER TO ListItem;
 
-    List = RECORD
-        head: DoubleListItemPtr;
-        tail: DoubleListItemPtr;
-        size: INTEGER
-    END;
+    List = POINTER TO ListDesc;
 
-PROCEDURE <em>Init</em>(VAR list: List);
+PROCEDURE <em>New</em>(): List;
 
-PROCEDURE <em>Append</em>(VAR list: List; item: DoubleListItemPtr);
+PROCEDURE <em>Free</em>(VAR list: List);
 
-PROCEDURE <em>RemoveFirst</em>(VAR list: List; VAR result: DoubleListItemPtr);
+PROCEDURE <em>Append</em>(list: List; item: ListItemPtr);
 
-PROCEDURE <em>RemoveLast</em>(VAR list: List; VAR result: DoubleListItemPtr);
+PROCEDURE <em>RemoveFirst</em>(list: List; VAR result: ListItemPtr);
 
-PROCEDURE <em>InsertAfter</em>(VAR list: List; after: DoubleListItemPtr; item: DoubleListItemPtr);
+PROCEDURE <em>RemoveLast</em>(list: List; VAR result: ListItemPtr);
 
-PROCEDURE <em>InsertBefore</em>(VAR list: List; before: DoubleListItemPtr; item: DoubleListItemPtr);
+PROCEDURE <em>InsertAfter</em>(list: List; after: ListItemPtr; item: ListItemPtr);
+
+PROCEDURE <em>InsertBefore</em>(list: List; before: ListItemPtr; item: ListItemPtr);
 
 PROCEDURE <em>Count</em>(list: List): INTEGER;
 
@@ -60,6 +50,8 @@ PROCEDURE <em>IsEmpty</em>(list: List): BOOLEAN;
 <span class='comment'>(* Apply a procedure to each element in the list, passing a state variable. 
 If visit returns FALSE, iteration stops. *)</span>
 PROCEDURE <em>Foreach</em>(list: List; visit: Collections.VisitProc; VAR state: Collections.VisitorState);
+
+PROCEDURE <em>Head</em>(list: List): ListItemPtr;
 
 END DoubleLinkedList.
 </pre>

@@ -1,0 +1,46 @@
+<!DOCTYPE html PUBLIC '-//W3C//DTD XHTML 1.0 Strict//EN' 'http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd'>
+<html xmlns='http://www.w3.org/1999/xhtml' xml:lang='en' lang='en'>
+	<head>
+		<meta name='viewport' content='width=device-width, initial-scale=1.0' />
+		<meta http-equiv='Content-Type' content='text/html; charset=utf-8' />
+		<title>DEFINITION Deque</title>
+		<link rel='stylesheet' type='text/css' href='style.css' />
+	</head>
+	<body>
+		<p><a href='index.html'>Index</a></p>
+
+		<pre>
+DEFINITION <em>Deque</em>;
+
+IMPORT DoubleLinkedList, Collections;
+
+TYPE
+    Item = RECORD (DoubleLinkedList.ListItem)        <span class='comment'>(* A base type for items in the deque. *)</span>
+        <span class='comment'>(* Extend this type to add more fields as needed. *)</span>
+ END;
+    ItemPtr = POINTER TO Item;
+
+    Deque = POINTER TO DequeDesc;
+
+PROCEDURE <em>New</em>(): Deque;
+
+PROCEDURE <em>Free</em>(VAR dq: Deque);
+
+PROCEDURE <em>Prepend</em>(dq: Deque; item: ItemPtr);
+
+PROCEDURE <em>Append</em>(dq: Deque; item: ItemPtr);
+
+PROCEDURE <em>RemoveFirst</em>(dq: Deque; VAR result: ItemPtr);
+
+PROCEDURE <em>RemoveLast</em>(dq: Deque; VAR result: ItemPtr);
+
+PROCEDURE <em>Count</em>(dq: Deque): INTEGER;
+
+PROCEDURE <em>IsEmpty</em>(dq: Deque): BOOLEAN;
+
+PROCEDURE <em>Foreach</em>(dq: Deque; visit: Collections.VisitProc; VAR state: Collections.VisitorState); 
+
+END Deque.
+</pre>
+	</body>
+</html>

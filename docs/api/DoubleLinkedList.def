@@ -6,40 +6,30 @@
 *)
 DEFINITION DoubleLinkedList;
 
-(*
-    This module implements a Double Linked List.
-    It provides basic operations such as initialization,
-    appending items, removing the first item, and checking if the list is empty.
-    The list is built using pointers to a custom item type defined in Collections.
-    Each node has both next and prev pointers.
- *)
-
 IMPORT Collections;
 
 TYPE
-    DoubleListItem = RECORD (Collections.Item)
-        next: POINTER TO DoubleListItem;
-        prev: POINTER TO DoubleListItem
+    ListItem = RECORD (Collections.Item)
+        next: POINTER TO ListItem;
+        prev: POINTER TO ListItem
     END;
-    DoubleListItemPtr = POINTER TO DoubleListItem;
+    ListItemPtr = POINTER TO ListItem;
 
-    List = RECORD
-        head: DoubleListItemPtr;
-        tail: DoubleListItemPtr;
-        size: INTEGER
-    END;
+    List = POINTER TO ListDesc;
 
-PROCEDURE Init(VAR list: List);
+PROCEDURE New(): List;
 
-PROCEDURE Append(VAR list: List; item: DoubleListItemPtr);
+PROCEDURE Free(VAR list: List);
 
-PROCEDURE RemoveFirst(VAR list: List; VAR result: DoubleListItemPtr);
+PROCEDURE Append(list: List; item: ListItemPtr);
 
-PROCEDURE RemoveLast(VAR list: List; VAR result: DoubleListItemPtr);
+PROCEDURE RemoveFirst(list: List; VAR result: ListItemPtr);
 
-PROCEDURE InsertAfter(VAR list: List; after: DoubleListItemPtr; item: DoubleListItemPtr);
+PROCEDURE RemoveLast(list: List; VAR result: ListItemPtr);
 
-PROCEDURE InsertBefore(VAR list: List; before: DoubleListItemPtr; item: DoubleListItemPtr);
+PROCEDURE InsertAfter(list: List; after: ListItemPtr; item: ListItemPtr);
+
+PROCEDURE InsertBefore(list: List; before: ListItemPtr; item: ListItemPtr);
 
 PROCEDURE Count(list: List): INTEGER;
 
@@ -48,5 +38,7 @@ PROCEDURE IsEmpty(list: List): BOOLEAN;
 (* Apply a procedure to each element in the list, passing a state variable. 
 If visit returns FALSE, iteration stops. *)
 PROCEDURE Foreach(list: List; visit: Collections.VisitProc; VAR state: Collections.VisitorState);
+
+PROCEDURE Head(list: List): ListItemPtr;
 
 END DoubleLinkedList.
