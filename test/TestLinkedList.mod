@@ -32,12 +32,9 @@ VAR list: LinkedList.List; pass: BOOLEAN;
 BEGIN
   pass := TRUE;
   LinkedList.Init(list);
-  IF list.head # NIL THEN
-    pass := FALSE
-  END;
-  IF list.tail # NIL THEN
-    pass := FALSE
-  END;
+  IF list.head # NIL THEN pass := FALSE END;
+  IF list.tail # NIL THEN pass := FALSE END;
+  IF LinkedList.Count(list) # 0 THEN pass := FALSE END;
   RETURN pass
 END TestInit;
 
@@ -55,31 +52,38 @@ BEGIN
   LinkedList.Append(list, n1);
   IF list.head # n1 THEN pass := FALSE END;
   IF list.tail # n1 THEN pass := FALSE END;
+  IF LinkedList.Count(list) # 1 THEN pass := FALSE END;
 
   LinkedList.Append(list, n2);
   IF list.head # n1 THEN pass := FALSE END;
   IF list.tail # n2 THEN pass := FALSE END;
   IF n1.next # n2 THEN pass := FALSE END;
+  IF LinkedList.Count(list) # 2 THEN pass := FALSE END;
 
   LinkedList.Append(list, n3);
   IF list.tail # n3 THEN pass := FALSE END;
   IF n2.next # n3 THEN pass := FALSE END;
+  IF LinkedList.Count(list) # 3 THEN pass := FALSE END;
 
   LinkedList.RemoveFirst(list, out);
   IF out # n1 THEN pass := FALSE END;
   IF list.head # n2 THEN pass := FALSE END;
+  IF LinkedList.Count(list) # 2 THEN pass := FALSE END;
 
   LinkedList.RemoveFirst(list, out);
   IF out # n2 THEN pass := FALSE END;
   IF list.head # n3 THEN pass := FALSE END;
+  IF LinkedList.Count(list) # 1 THEN pass := FALSE END;
 
   LinkedList.RemoveFirst(list, out);
   IF out # n3 THEN pass := FALSE END;
   IF list.head # NIL THEN pass := FALSE END;
   IF list.tail # NIL THEN pass := FALSE END;
+  IF LinkedList.Count(list) # 0 THEN pass := FALSE END;
 
   LinkedList.RemoveFirst(list, out);
   IF out # NIL THEN pass := FALSE END;
+  IF LinkedList.Count(list) # 0 THEN pass := FALSE END;
 
   RETURN pass
 END TestAppendAndRemove;

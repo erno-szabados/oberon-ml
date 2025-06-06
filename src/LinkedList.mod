@@ -20,14 +20,16 @@ TYPE
     List* = RECORD
     (* Linked list type. *)
         head*: Collections.ListItemPtr;
-        tail*: Collections.ListItemPtr
+        tail*: Collections.ListItemPtr;
+        size*: INTEGER
 END;
 
 (* Initialize the Linked List. *)
 PROCEDURE Init*(VAR list: List);
 BEGIN
     list.head := NIL;
-    list.tail := NIL
+    list.tail := NIL;
+    list.size := 0
 END Init;
 
 (* Append a new element. *)
@@ -40,7 +42,8 @@ BEGIN
     ELSE
       list.tail.next := item;
       list.tail := item
-    END
+    END;
+    INC(list.size)
 END Append;
 
 (* Remove and return the first list element. *)
@@ -51,11 +54,18 @@ BEGIN
       list.head := list.head.next;
       IF list.head = NIL THEN
         list.tail := NIL
-      END
+      END;
+      DEC(list.size)
     ELSE
       result := NIL
     END
 END RemoveFirst;
+
+(* Return the number of elements in the list. *)
+PROCEDURE Count*(list: List): INTEGER;
+BEGIN
+    RETURN list.size
+END Count;
 
 (* Test if the list is empty. *)
 PROCEDURE IsEmpty*(list: List): BOOLEAN;
