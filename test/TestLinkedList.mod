@@ -24,7 +24,6 @@ VAR
 
 (*
   Visitor procedures for Foreach: 
-  - These are top-level procedures because Oberon-07 does not support closures or nested procedure variable capture.
   - The state is passed explicitly as a VAR parameter, allowing reentrancy and multiple traversals.
   - The user must provide a VisitorState or extension as needed.
   - This pattern allows Foreach to be used for both full traversal and early exit by returning FALSE from the visitor.
