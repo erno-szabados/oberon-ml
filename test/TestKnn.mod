@@ -39,7 +39,6 @@ VAR
     data: ARRAY 5 OF KDTree.Point;
     tree: KDTree.KDTree;
     node: KDTree.KDNode;
-    i: INTEGER;
     test: BOOLEAN;
 BEGIN
     test := TRUE;
