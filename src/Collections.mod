@@ -1,4 +1,3 @@
-
 (** TestLinkedList.Mod - Tests for LinkedList.Mod.
 
 Copyright (C) 2025
@@ -15,14 +14,19 @@ MODULE Collections;
 
   TYPE
     Item* = RECORD
-      (* Minimal universal base type *)
+      (** Minimal universal base type *)
     END;
     ItemPtr* = POINTER TO Item;
 
     ListItem* = RECORD (Item)
-      (* A useful base type for collections with nodes having next elements.  *)
+      (** A useful base type for collections with nodes having next elements.  *)
       next*: POINTER TO ListItem
     END;
     ListItemPtr* = POINTER TO ListItem;
+
+    (** General visitor state, extend as needed. *)
+    VisitorState* = RECORD END; 
+    (* External iterator for the Collections supporting ForEach *)
+    VisitProc* = PROCEDURE(item: ItemPtr; VAR state: VisitorState): BOOLEAN;
 
 END Collections.

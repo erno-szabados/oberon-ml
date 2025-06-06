@@ -15,8 +15,33 @@ TYPE
   END;
   TestNodePtr = POINTER TO TestNode;
 
+  TestVisitorState = RECORD (Collections.VisitorState)
+    sum, count: INTEGER
+  END;
+
 VAR
-  ts: Tests.TestSet;
+  ts : Tests.TestSet;
+
+(*
+  Visitor procedures for Foreach: 
+  - These are top-level procedures because Oberon-07 does not support closures or nested procedure variable capture.
+  - The state is passed explicitly as a VAR parameter, allowing reentrancy and multiple traversals.
+  - The user must provide a VisitorState or extension as needed.
+  - This pattern allows Foreach to be used for both full traversal and early exit by returning FALSE from the visitor.
+*)
+PROCEDURE Visitor(item: Collections.ListItemPtr; VAR state: Collections.VisitorState): BOOLEAN;
+BEGIN
+  state(TestVisitorState).sum := state(TestVisitorState).sum + item(TestNodePtr).value;
+  INC(state(TestVisitorState).count);
+  RETURN TRUE
+END Visitor;
+
+PROCEDURE VisitorEarlyStop(item: Collections.ListItemPtr; VAR state: Collections.VisitorState): BOOLEAN;
+BEGIN
+  state(TestVisitorState).sum := state(TestVisitorState).sum + item(TestNodePtr).value;
+  INC(state(TestVisitorState).count);
+  RETURN state(TestVisitorState).count < 2
+END VisitorEarlyStop;
 
 PROCEDURE NewNode(val: INTEGER): TestNodePtr;
 VAR node: TestNodePtr;
@@ -27,7 +52,7 @@ BEGIN
   RETURN node
 END NewNode;
 
-PROCEDURE TestInit*(): BOOLEAN;
+PROCEDURE TestInit(): BOOLEAN;
 VAR list: LinkedList.List; pass: BOOLEAN;
 BEGIN
   pass := TRUE;
@@ -38,7 +63,7 @@ BEGIN
   RETURN pass
 END TestInit;
 
-PROCEDURE TestAppendAndRemove*(): BOOLEAN;
+PROCEDURE TestAppendAndRemove(): BOOLEAN;
 VAR 
     list: LinkedList.List; 
     n1, n2, n3: TestNodePtr;
@@ -88,7 +113,7 @@ BEGIN
   RETURN pass
 END TestAppendAndRemove;
 
-PROCEDURE TestIsEmpty*(): BOOLEAN;
+PROCEDURE TestIsEmpty(): BOOLEAN;
 VAR 
     list: LinkedList.List; 
     n: TestNodePtr; 
@@ -106,7 +131,7 @@ BEGIN
   RETURN pass
 END TestIsEmpty;
 
-PROCEDURE TestInsertAfter*(): BOOLEAN;
+PROCEDURE TestInsertAfter(): BOOLEAN;
 VAR
   list: LinkedList.List;
   n1, n2, n3, n4: TestNodePtr;
@@ -141,11 +166,37 @@ BEGIN
   RETURN pass
 END TestInsertAfter;
 
+PROCEDURE TestForeach(): BOOLEAN;
+VAR
+  list: LinkedList.List;
+  n1, n2, n3: TestNodePtr;
+  state: TestVisitorState;
+  pass: BOOLEAN;
+BEGIN
+  pass := TRUE;
+  LinkedList.Init(list);
+  n1 := NewNode(10); n2 := NewNode(20); n3 := NewNode(30);
+  LinkedList.Append(list, n1);
+  LinkedList.Append(list, n2);
+  LinkedList.Append(list, n3);
+
+  state.sum := 0; state.count := 0;
+  LinkedList.Foreach(list, Visitor, state);
+  IF (state.sum # 60) OR (state.count # 3) THEN pass := FALSE END;
+
+  state.sum := 0; state.count := 0;
+  LinkedList.Foreach(list, VisitorEarlyStop, state);
+  IF (state.sum # 30) OR (state.count # 2) THEN pass := FALSE END;
+
+  RETURN pass
+END TestForeach;
+
 BEGIN
   Tests.Init(ts, "LinkedList Tests");
   Tests.Add(ts, TestInit);
   Tests.Add(ts, TestAppendAndRemove);
   Tests.Add(ts, TestIsEmpty);
   Tests.Add(ts, TestInsertAfter);
+  Tests.Add(ts, TestForeach);
   ASSERT(Tests.Run(ts));
 END TestLinkedList.
