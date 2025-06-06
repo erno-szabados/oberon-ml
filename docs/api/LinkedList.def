@@ -1,0 +1,52 @@
+(* TestLinkedList.Mod - Tests for LinkedList.Mod.
+
+Copyright (C) 2025
+
+Released under The 3-Clause BSD License.
+*)
+
+DEFINITION LinkedList;
+
+(*
+    This module implements a Linked List. 
+    It provides basic operations such as initialization,
+    appending items, removing the first item, and checking if the list is empty.
+    The list is built using pointers to a custom item type defined in Collections.
+ *)
+
+IMPORT Collections;
+
+TYPE
+    List = RECORD    (* Linked list type. *)
+
+        head: Collections.ListItemPtr;
+        tail: Collections.ListItemPtr;
+        size: INTEGER
+END;
+    (* This type defines a callback to iterate over elements of a linked list, with a user-supplied state. 
+       Iteration stops if the function procedure returns FALSE. *)
+    VisitProc = PROCEDURE(item: Collections.ListItemPtr; VAR state: Collections.VisitorState): BOOLEAN;
+
+(* Initialize the Linked List. *)
+PROCEDURE Init(VAR list: List);
+
+(* Append a new element. *)
+PROCEDURE Append(VAR list: List; item: Collections.ListItemPtr);
+
+(* Remove and return the first list element. *)
+PROCEDURE RemoveFirst(VAR list: List; VAR result: Collections.ListItemPtr);
+
+(* Insert a new element after a given node. *)
+PROCEDURE InsertAfter(VAR list: List; after: Collections.ListItemPtr; item: Collections.ListItemPtr);
+
+(* Return the number of elements in the list. *)
+PROCEDURE Count(list: List): INTEGER;
+
+(* Test if the list is empty. *)
+PROCEDURE IsEmpty(list: List): BOOLEAN;
+
+(* Apply a procedure to each element in the list, passing a state variable. 
+If visit returns FALSE, iteration stops. *)
+PROCEDURE Foreach(list: List; visit: VisitProc; VAR state: Collections.VisitorState);
+
+END LinkedList.

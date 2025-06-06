@@ -1,0 +1,67 @@
+<!DOCTYPE html PUBLIC '-//W3C//DTD XHTML 1.0 Strict//EN' 'http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd'>
+<html xmlns='http://www.w3.org/1999/xhtml' xml:lang='en' lang='en'>
+	<head>
+		<meta name='viewport' content='width=device-width, initial-scale=1.0' />
+		<meta http-equiv='Content-Type' content='text/html; charset=utf-8' />
+		<title>DEFINITION LinkedList</title>
+		<link rel='stylesheet' type='text/css' href='style.css' />
+	</head>
+	<body>
+		<p><a href='index.html'>Index</a></p>
+
+		<pre>
+<span class='comment'>(* TestLinkedList.Mod - Tests for LinkedList.Mod.
+
+Copyright (C) 2025
+
+Released under The 3-Clause BSD License.
+*)</span>
+
+DEFINITION <em>LinkedList</em>;
+
+<span class='comment'>(*
+    This module implements a Linked List. 
+    It provides basic operations such as initialization,
+    appending items, removing the first item, and checking if the list is empty.
+    The list is built using pointers to a custom item type defined in Collections.
+ *)</span>
+
+IMPORT Collections;
+
+TYPE
+    List = RECORD    <span class='comment'>(* Linked list type. *)</span>
+
+        head: Collections.ListItemPtr;
+        tail: Collections.ListItemPtr;
+        size: INTEGER
+END;
+    <span class='comment'>(* This type defines a callback to iterate over elements of a linked list, with a user-supplied state. 
+       Iteration stops if the function procedure returns FALSE. *)</span>
+    VisitProc = PROCEDURE(item: Collections.ListItemPtr; VAR state: Collections.VisitorState): BOOLEAN;
+
+<span class='comment'>(* Initialize the Linked List. *)</span>
+PROCEDURE <em>Init</em>(VAR list: List);
+
+<span class='comment'>(* Append a new element. *)</span>
+PROCEDURE <em>Append</em>(VAR list: List; item: Collections.ListItemPtr);
+
+<span class='comment'>(* Remove and return the first list element. *)</span>
+PROCEDURE <em>RemoveFirst</em>(VAR list: List; VAR result: Collections.ListItemPtr);
+
+<span class='comment'>(* Insert a new element after a given node. *)</span>
+PROCEDURE <em>InsertAfter</em>(VAR list: List; after: Collections.ListItemPtr; item: Collections.ListItemPtr);
+
+<span class='comment'>(* Return the number of elements in the list. *)</span>
+PROCEDURE <em>Count</em>(list: List): INTEGER;
+
+<span class='comment'>(* Test if the list is empty. *)</span>
+PROCEDURE <em>IsEmpty</em>(list: List): BOOLEAN;
+
+<span class='comment'>(* Apply a procedure to each element in the list, passing a state variable. 
+If visit returns FALSE, iteration stops. *)</span>
+PROCEDURE <em>Foreach</em>(list: List; visit: VisitProc; VAR state: Collections.VisitorState);
+
+END LinkedList.
+</pre>
+	</body>
+</html>
