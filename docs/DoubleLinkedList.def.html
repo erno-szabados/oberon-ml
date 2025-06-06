@@ -1,0 +1,68 @@
+<!DOCTYPE html PUBLIC '-//W3C//DTD XHTML 1.0 Strict//EN' 'http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd'>
+<html xmlns='http://www.w3.org/1999/xhtml' xml:lang='en' lang='en'>
+	<head>
+		<meta name='viewport' content='width=device-width, initial-scale=1.0' />
+		<meta http-equiv='Content-Type' content='text/html; charset=utf-8' />
+		<title>DEFINITION DoubleLinkedList</title>
+		<link rel='stylesheet' type='text/css' href='style.css' />
+	</head>
+	<body>
+		<p><a href='index.html'>Index</a></p>
+
+		<pre>
+<span class='comment'>(* 
+    DoubleLinkedList.Mod
+
+    Copyright (C) 2025
+    Released under The 3-Clause BSD License.
+*)</span>
+DEFINITION <em>DoubleLinkedList</em>;
+
+<span class='comment'>(*
+    This module implements a Double Linked List.
+    It provides basic operations such as initialization,
+    appending items, removing the first item, and checking if the list is empty.
+    The list is built using pointers to a custom item type defined in Collections.
+    Each node has both next and prev pointers.
+ *)</span>
+
+IMPORT Collections;
+
+TYPE
+    DoubleListItem = RECORD (Collections.Item)
+        next: POINTER TO DoubleListItem;
+        prev: POINTER TO DoubleListItem
+    END;
+    DoubleListItemPtr = POINTER TO DoubleListItem;
+
+    List = RECORD
+        head: DoubleListItemPtr;
+        tail: DoubleListItemPtr;
+        size: INTEGER
+    END;
+    VisitProc = PROCEDURE(item: DoubleListItemPtr; VAR state: Collections.VisitorState): BOOLEAN;
+
+PROCEDURE <em>Init</em>(VAR list: List);
+
+PROCEDURE <em>Append</em>(VAR list: List; item: DoubleListItemPtr);
+
+PROCEDURE <em>RemoveFirst</em>(VAR list: List; VAR result: DoubleListItemPtr);
+
+PROCEDURE <em>RemoveLast</em>(VAR list: List; VAR result: DoubleListItemPtr);
+
+PROCEDURE <em>InsertAfter</em>(VAR list: List; after: DoubleListItemPtr; item: DoubleListItemPtr);
+
+PROCEDURE <em>InsertBefore</em>(VAR list: List; before: DoubleListItemPtr; item: DoubleListItemPtr);
+
+PROCEDURE <em>Count</em>(list: List): INTEGER;
+
+PROCEDURE <em>IsEmpty</em>(list: List): BOOLEAN;
+
+<span class='comment'>(* Apply a procedure to each element in the list, passing a state variable. 
+If visit returns FALSE, iteration stops. *)</span>
+PROCEDURE <em>Foreach</em>(list: List; visit: VisitProc; VAR state: Collections.VisitorState);
+
+END DoubleLinkedList.
+</pre>
+	</body>
+</html>

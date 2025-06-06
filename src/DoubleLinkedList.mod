@@ -1,6 +1,12 @@
+(** 
+    DoubleLinkedList.Mod
+
+    Copyright (C) 2025
+    Released under The 3-Clause BSD License.
+*)
 MODULE DoubleLinkedList;
 
-(***
+(**
     This module implements a Double Linked List.
     It provides basic operations such as initialization,
     appending items, removing the first item, and checking if the list is empty.
@@ -12,18 +18,19 @@ IMPORT Collections;
 
 TYPE
     DoubleListItem* = RECORD (Collections.Item)
+        (*  Represents a list node in a double-linked list. *)
         next*: POINTER TO DoubleListItem;
         prev*: POINTER TO DoubleListItem
     END;
     DoubleListItemPtr* = POINTER TO DoubleListItem;
 
     List* = RECORD
+        (* Represents a double-linked list. *)
         head*: DoubleListItemPtr;
         tail*: DoubleListItemPtr;
         size*: INTEGER
     END;
-    VisitProc* = PROCEDURE(item: DoubleListItemPtr; VAR state: Collections.VisitorState): BOOLEAN;
-
+   
 (* Initialize the Double Linked List. *)
 PROCEDURE Init*(VAR list: List);
 BEGIN
@@ -131,7 +138,7 @@ END IsEmpty;
 
 (** Apply a procedure to each element in the list, passing a state variable. 
 If visit returns FALSE, iteration stops. *)
-PROCEDURE Foreach*(list: List; visit: VisitProc; VAR state: Collections.VisitorState);
+PROCEDURE Foreach*(list: List; visit: Collections.VisitProc; VAR state: Collections.VisitorState);
 VAR current: DoubleListItemPtr; cont: BOOLEAN;
 BEGIN
     current := list.head;
