@@ -7,69 +7,69 @@ Released under The 3-Clause BSD License.
 
 MODULE LinkedList;
 
-(**
-    This module implements a Linked List. 
-    It provides basic operations such as initialization,
-    appending items, removing the first item, and checking if the list is empty.
-    The list is built using pointers to a custom item type defined in Collections.
- *)
-
 IMPORT Collections;
 
 TYPE
-    List* = RECORD
-    (** Linked list type. *)
-        head*: Collections.ListItemPtr;
-        tail*: Collections.ListItemPtr;
-        size*: INTEGER
-END;
+    List* = POINTER TO ListDesc;  (* Opaque pointer type *)
+    ListDesc = RECORD
+        head: Collections.ListItemPtr;
+        tail: Collections.ListItemPtr;
+        size: INTEGER
+    END;
     (** This type defines a callback to iterate over elements of a linked list, with a user-supplied state. 
        Iteration stops if the function procedure returns FALSE. *)
     VisitProc* = PROCEDURE(item: Collections.ListItemPtr; VAR state: Collections.VisitorState): BOOLEAN;
 
-(** Initialize the Linked List. *)
-PROCEDURE Init*(VAR list: List);
+(* Constructor: Allocate and initialize a new list *)
+PROCEDURE New*(): List;
+VAR list: List;
 BEGIN
+    NEW(list);
     list.head := NIL;
     list.tail := NIL;
-    list.size := 0
-END Init;
+    list.size := 0;
+    RETURN list
+END New;
+
+(* Destructor: (optional, only if you want to clear memory) *)
+PROCEDURE Free*(VAR list: List);
+BEGIN
+    list := NIL
+END Free;
 
 (** Append a new element. *)
-PROCEDURE Append*(VAR list: List; item: Collections.ListItemPtr);
+PROCEDURE Append*(list: List; item: Collections.ListItemPtr);
 BEGIN
     item.next := NIL;
     IF list.head = NIL THEN
-      list.head := item;
-      list.tail := item
+        list.head := item;
+        list.tail := item
     ELSE
-      list.tail.next := item;
-      list.tail := item
+        list.tail.next := item;
+        list.tail := item
     END;
     INC(list.size)
 END Append;
 
 (** Remove and return the first list element. *)
-PROCEDURE RemoveFirst*(VAR list: List; VAR result: Collections.ListItemPtr);
+PROCEDURE RemoveFirst*(list: List; VAR result: Collections.ListItemPtr);
 BEGIN
     IF list.head # NIL THEN
-      result := list.head;
-      list.head := list.head.next;
-      IF list.head = NIL THEN
-        list.tail := NIL
-      END;
-      DEC(list.size)
+        result := list.head;
+        list.head := list.head.next;
+        IF list.head = NIL THEN
+            list.tail := NIL
+        END;
+        DEC(list.size)
     ELSE
-      result := NIL
+        result := NIL
     END
 END RemoveFirst;
 
 (** Insert a new element after a given node. *)
-PROCEDURE InsertAfter*(VAR list: List; after: Collections.ListItemPtr; item: Collections.ListItemPtr);
+PROCEDURE InsertAfter*(list: List; after: Collections.ListItemPtr; item: Collections.ListItemPtr);
 BEGIN
-    IF after = NIL THEN
-        (* Cannot insert after NIL; do nothing. *)
-    ELSE
+    IF after # NIL THEN
         item.next := after.next;
         after.next := item;
         IF list.tail = after THEN
