@@ -61,6 +61,21 @@ BEGIN
     END
 END RemoveFirst;
 
+(* Insert a new element after a given node. *)
+PROCEDURE InsertAfter*(VAR list: List; after: Collections.ListItemPtr; item: Collections.ListItemPtr);
+BEGIN
+    IF after = NIL THEN
+        (* Cannot insert after NIL; do nothing. *)
+    ELSE
+        item.next := after.next;
+        after.next := item;
+        IF list.tail = after THEN
+            list.tail := item
+        END;
+        INC(list.size)
+    END
+END InsertAfter;
+
 (* Return the number of elements in the list. *)
 PROCEDURE Count*(list: List): INTEGER;
 BEGIN

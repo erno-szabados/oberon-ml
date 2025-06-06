@@ -106,10 +106,46 @@ BEGIN
   RETURN pass
 END TestIsEmpty;
 
+PROCEDURE TestInsertAfter*(): BOOLEAN;
+VAR
+  list: LinkedList.List;
+  n1, n2, n3, n4: TestNodePtr;
+  pass: BOOLEAN;
+BEGIN
+  pass := TRUE;
+  LinkedList.Init(list);
+  n1 := NewNode(1); n2 := NewNode(2); n3 := NewNode(3); n4 := NewNode(4);
+
+  LinkedList.Append(list, n1);
+  LinkedList.Append(list, n2);
+  LinkedList.Append(list, n4); (* List: n1 -> n2 -> n4 *)
+
+  LinkedList.InsertAfter(list, n2, n3); (* Insert n3 after n2: n1 -> n2 -> n3 -> n4 *)
+
+  IF n2.next # n3 THEN pass := FALSE END;
+  IF n3.next # n4 THEN pass := FALSE END;
+  IF list.tail # n4 THEN pass := FALSE END;
+  IF LinkedList.Count(list) # 4 THEN pass := FALSE END;
+
+  (* Insert after tail, should update tail *)
+  LinkedList.InsertAfter(list, n4, NewNode(5));
+  IF (list.tail IS TestNodePtr) THEN
+    IF list.tail(TestNodePtr).value # 5 THEN pass := FALSE END;
+  END;
+  IF LinkedList.Count(list) # 5 THEN pass := FALSE END;
+
+  (* Insert after NIL should do nothing *)
+  LinkedList.InsertAfter(list, NIL, NewNode(99));
+  IF LinkedList.Count(list) # 5 THEN pass := FALSE END;
+
+  RETURN pass
+END TestInsertAfter;
+
 BEGIN
   Tests.Init(ts, "LinkedList Tests");
   Tests.Add(ts, TestInit);
   Tests.Add(ts, TestAppendAndRemove);
   Tests.Add(ts, TestIsEmpty);
+  Tests.Add(ts, TestInsertAfter);
   ASSERT(Tests.Run(ts));
 END TestLinkedList.
