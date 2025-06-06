@@ -9,7 +9,7 @@ MODULE TestDoubleLinkedList;
 IMPORT DoubleLinkedList, Collections, Tests;
 
 TYPE
-  TestNode = RECORD (DoubleLinkedList.DoubleListItem)
+  TestNode = RECORD (DoubleLinkedList.ListItem)
     value: INTEGER
   END;
   TestNodePtr = POINTER TO TestNode;
@@ -31,14 +31,14 @@ BEGIN
   RETURN node
 END NewNode;
 
-PROCEDURE Visitor(item: DoubleLinkedList.DoubleListItemPtr; VAR state: Collections.VisitorState): BOOLEAN;
+PROCEDURE Visitor(item: Collections.ItemPtr; VAR state: Collections.VisitorState): BOOLEAN;
 BEGIN
   state(TestVisitorState).sum := state(TestVisitorState).sum + item(TestNodePtr).value;
   INC(state(TestVisitorState).count);
   RETURN TRUE
 END Visitor;
 
-PROCEDURE VisitorEarlyStop(item: DoubleLinkedList.DoubleListItemPtr; VAR state: Collections.VisitorState): BOOLEAN;
+PROCEDURE VisitorEarlyStop(item: Collections.ItemPtr; VAR state: Collections.VisitorState): BOOLEAN;
 BEGIN
   state(TestVisitorState).sum := state(TestVisitorState).sum + item(TestNodePtr).value;
   INC(state(TestVisitorState).count);
@@ -60,7 +60,7 @@ PROCEDURE TestAppendAndRemove(): BOOLEAN;
 VAR 
     list: DoubleLinkedList.List; 
     n1, n2, n3: TestNodePtr;
-    out: DoubleLinkedList.DoubleListItemPtr;
+    out: DoubleLinkedList.ListItemPtr;
     pass: BOOLEAN;
 BEGIN
   pass := TRUE;
@@ -100,7 +100,7 @@ PROCEDURE TestIsEmpty(): BOOLEAN;
 VAR 
     list: DoubleLinkedList.List; 
     n: TestNodePtr; 
-    out: DoubleLinkedList.DoubleListItemPtr;
+    out: DoubleLinkedList.ListItemPtr;
     pass: BOOLEAN;
 BEGIN
   pass := TRUE;

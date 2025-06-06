@@ -9,43 +9,68 @@ MODULE Dequeue;
 IMPORT DoubleLinkedList, Collections;
 
 TYPE
-    Dequeue* = RECORD
+    Item* = RECORD (DoubleLinkedList.ListItem)
+        (** A base type for items in the dequeue. *)
+        (** Extend this type to add more fields as needed. *)
+    END;
+    ItemPtr* = POINTER TO Item;
+
+    Dequeue* = POINTER TO DequeueDesc;
+    DequeueDesc = RECORD
         list: DoubleLinkedList.List
     END;
-    ItemPtr* = DoubleLinkedList.DoubleListItemPtr;
 
-(* Initialize the dequeue. *)
-PROCEDURE Init*(VAR dq: Dequeue);
+
+(* Constructor: Allocate and initialize a new dequeue. *)
+PROCEDURE New*(): Dequeue;
+VAR dq: Dequeue;
 BEGIN
-    DoubleLinkedList.Init(dq.list)
-END Init;
+    NEW(dq);
+    dq.list := DoubleLinkedList.New();
+    RETURN dq
+END New;
+
+(* Destructor: Free the dequeue. *)
+PROCEDURE Free*(VAR dq: Dequeue);
+BEGIN
+    IF dq # NIL THEN
+        DoubleLinkedList.Free(dq.list);
+        dq := NIL
+    END
+END Free;
 
 (* Add an item to the front of the dequeue. *)
-PROCEDURE Prepend*(VAR dq: Dequeue; item: ItemPtr);
+PROCEDURE Prepend*(dq: Dequeue; item: ItemPtr);
+VAR head: DoubleLinkedList.ListItemPtr;
 BEGIN
-    IF dq.list.head = NIL THEN
-        DoubleLinkedList.Append(dq.list, item)
+    IF DoubleLinkedList.IsEmpty(dq.list) THEN
+        DoubleLinkedList.Append(dq.list, item(ItemPtr))
     ELSE
-        DoubleLinkedList.InsertBefore(dq.list, dq.list.head, item)
+        head := DoubleLinkedList.Head(dq.list);
+        DoubleLinkedList.InsertBefore(dq.list, head, item)
     END
 END Prepend;
 
 (* Add an item to the back of the dequeue. *)
-PROCEDURE Append*(VAR dq: Dequeue; item: ItemPtr);
+PROCEDURE Append*(dq: Dequeue; item: ItemPtr);
 BEGIN
-    DoubleLinkedList.Append(dq.list, item)
+    DoubleLinkedList.Append(dq.list, item(ItemPtr))
 END Append;
 
 (* Remove and return the first item. *)
-PROCEDURE RemoveFirst*(VAR dq: Dequeue; VAR result: ItemPtr);
+PROCEDURE RemoveFirst*(dq: Dequeue; VAR result: ItemPtr);
+VAR dllItem: DoubleLinkedList.ListItemPtr;
 BEGIN
-    DoubleLinkedList.RemoveFirst(dq.list, result)
+    DoubleLinkedList.RemoveFirst(dq.list, dllItem);
+    result := dllItem(ItemPtr)
 END RemoveFirst;
 
 (* Remove and return the last item. *)
-PROCEDURE RemoveLast*(VAR dq: Dequeue; VAR result: ItemPtr);
+PROCEDURE RemoveLast*(dq: Dequeue; VAR result: ItemPtr);
+VAR dllItem: DoubleLinkedList.ListItemPtr;
 BEGIN
-    DoubleLinkedList.RemoveLast(dq.list, result)
+    DoubleLinkedList.RemoveLast(dq.list, dllItem);
+    result := dllItem(ItemPtr)
 END RemoveLast;
 
 (* Return the number of items in the dequeue. *)
@@ -64,8 +89,9 @@ BEGIN
     RETURN result
 END IsEmpty;
 
+
 (* Apply a procedure to each element in the dequeue. *)
-PROCEDURE Foreach*(dq: Dequeue; visit: Collections.VisitProc; VAR state: Collections.VisitorState);
+PROCEDURE Foreach*(dq: Dequeue; visit: Collections.VisitProc; VAR state: Collections.VisitorState); 
 BEGIN
     DoubleLinkedList.Foreach(dq.list, visit, state)
 END Foreach;
