@@ -1,14 +1,14 @@
 (*
-    TestDequeue.Mod - Unit tests for Dequeue.Mod
+    TestDeque.Mod - Unit tests for Deque.Mod
     Copyright (C) 2025
     Released under The 3-Clause BSD License.
 *)
-MODULE TestDequeue;
+MODULE TestDeque;
 
-IMPORT Dequeue, Collections, Tests;
+IMPORT Deque, Collections, Tests;
 
 TYPE
-    TestItem = RECORD (Dequeue.Item)
+    TestItem = RECORD (Deque.Item)
         value: INTEGER
     END;
     TestItemPtr = POINTER TO TestItem;
@@ -37,79 +37,79 @@ BEGIN
 END Visitor;
 
 PROCEDURE TestNewAndIsEmpty(): BOOLEAN;
-VAR dq: Dequeue.Dequeue; pass: BOOLEAN;
+VAR dq: Deque.Deque; pass: BOOLEAN;
 BEGIN
     pass := TRUE;
-    dq := Dequeue.New();
-    IF ~Dequeue.IsEmpty(dq) THEN pass := FALSE END;
-    IF Dequeue.Count(dq) # 0 THEN pass := FALSE END;
-    Dequeue.Free(dq);
+    dq := Deque.New();
+    IF ~Deque.IsEmpty(dq) THEN pass := FALSE END;
+    IF Deque.Count(dq) # 0 THEN pass := FALSE END;
+    Deque.Free(dq);
     RETURN pass
 END TestNewAndIsEmpty;
 
 PROCEDURE TestAppendAndRemove(): BOOLEAN;
-VAR dq: Dequeue.Dequeue; a, b, c: TestItemPtr; res: Dequeue.ItemPtr; pass: BOOLEAN;
+VAR dq: Deque.Deque; a, b, c: TestItemPtr; res: Deque.ItemPtr; pass: BOOLEAN;
 BEGIN
     pass := TRUE;
-    dq := Dequeue.New();
+    dq := Deque.New();
     a := NewItem(1); b := NewItem(2); c := NewItem(3);
-    Dequeue.Append(dq, a);
-    Dequeue.Append(dq, b);
-    Dequeue.Append(dq, c);
-    IF Dequeue.IsEmpty(dq) THEN pass := FALSE END;
-    IF Dequeue.Count(dq) # 3 THEN pass := FALSE END;
-    Dequeue.RemoveFirst(dq, res);
+    Deque.Append(dq, a);
+    Deque.Append(dq, b);
+    Deque.Append(dq, c);
+    IF Deque.IsEmpty(dq) THEN pass := FALSE END;
+    IF Deque.Count(dq) # 3 THEN pass := FALSE END;
+    Deque.RemoveFirst(dq, res);
     IF res # a THEN pass := FALSE END;
-    Dequeue.RemoveLast(dq, res);
+    Deque.RemoveLast(dq, res);
     IF res # c THEN pass := FALSE END;
-    Dequeue.RemoveFirst(dq, res);
+    Deque.RemoveFirst(dq, res);
     IF res # b THEN pass := FALSE END;
-    IF ~Dequeue.IsEmpty(dq) THEN pass := FALSE END;
-    Dequeue.Free(dq);
+    IF ~Deque.IsEmpty(dq) THEN pass := FALSE END;
+    Deque.Free(dq);
     RETURN pass
 END TestAppendAndRemove;
 
 PROCEDURE TestPrependAndRemove(): BOOLEAN;
-VAR dq: Dequeue.Dequeue; a, b, c: TestItemPtr; res: Dequeue.ItemPtr; pass: BOOLEAN;
+VAR dq: Deque.Deque; a, b, c: TestItemPtr; res: Deque.ItemPtr; pass: BOOLEAN;
 BEGIN
     pass := TRUE;
-    dq := Dequeue.New();
+    dq := Deque.New();
     a := NewItem(1); b := NewItem(2); c := NewItem(3);
-    Dequeue.Prepend(dq, a);
-    Dequeue.Prepend(dq, b);
-    Dequeue.Prepend(dq, c);
-    IF Dequeue.Count(dq) # 3 THEN pass := FALSE END;
-    Dequeue.RemoveFirst(dq, res);
+    Deque.Prepend(dq, a);
+    Deque.Prepend(dq, b);
+    Deque.Prepend(dq, c);
+    IF Deque.Count(dq) # 3 THEN pass := FALSE END;
+    Deque.RemoveFirst(dq, res);
     IF res # c THEN pass := FALSE END;
-    Dequeue.RemoveLast(dq, res);
+    Deque.RemoveLast(dq, res);
     IF res # a THEN pass := FALSE END;
-    Dequeue.RemoveFirst(dq, res);
+    Deque.RemoveFirst(dq, res);
     IF res # b THEN pass := FALSE END;
-    IF ~Dequeue.IsEmpty(dq) THEN pass := FALSE END;
-    Dequeue.Free(dq);
+    IF ~Deque.IsEmpty(dq) THEN pass := FALSE END;
+    Deque.Free(dq);
     RETURN pass
 END TestPrependAndRemove;
 
 PROCEDURE TestForeach(): BOOLEAN;
-VAR dq: Dequeue.Dequeue; a, b, c: TestItemPtr;
+VAR dq: Deque.Deque; a, b, c: TestItemPtr;
     state: TestVisitorState; pass: BOOLEAN;
 BEGIN
     pass := TRUE;
-    dq := Dequeue.New();
+    dq := Deque.New();
     a := NewItem(1); b := NewItem(2); c := NewItem(3);
-    Dequeue.Append(dq, a); Dequeue.Append(dq, b); Dequeue.Append(dq, c);
+    Deque.Append(dq, a); Deque.Append(dq, b); Deque.Append(dq, c);
     state.sum := 0; state.count := 0;
-    Dequeue.Foreach(dq, Visitor, state);
+    Deque.Foreach(dq, Visitor, state);
     IF (state.sum # 6) OR (state.count # 3) THEN pass := FALSE END;
-    Dequeue.Free(dq);
+    Deque.Free(dq);
     RETURN pass
 END TestForeach;
 
 BEGIN
-    Tests.Init(ts, "Dequeue Tests");
+    Tests.Init(ts, "Deque Tests");
     Tests.Add(ts, TestNewAndIsEmpty);
     Tests.Add(ts, TestAppendAndRemove);
     Tests.Add(ts, TestPrependAndRemove);
     Tests.Add(ts, TestForeach);
     ASSERT(Tests.Run(ts));
-END TestDequeue.
+END TestDeque.
