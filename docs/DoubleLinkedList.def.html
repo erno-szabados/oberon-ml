@@ -40,7 +40,6 @@ TYPE
         tail: DoubleListItemPtr;
         size: INTEGER
     END;
-    VisitProc = PROCEDURE(item: DoubleListItemPtr; VAR state: Collections.VisitorState): BOOLEAN;
 
 PROCEDURE <em>Init</em>(VAR list: List);
 
@@ -60,7 +59,7 @@ PROCEDURE <em>IsEmpty</em>(list: List): BOOLEAN;
 
 <span class='comment'>(* Apply a procedure to each element in the list, passing a state variable. 
 If visit returns FALSE, iteration stops. *)</span>
-PROCEDURE <em>Foreach</em>(list: List; visit: VisitProc; VAR state: Collections.VisitorState);
+PROCEDURE <em>Foreach</em>(list: List; visit: Collections.VisitProc; VAR state: Collections.VisitorState);
 
 END DoubleLinkedList.
 </pre>
