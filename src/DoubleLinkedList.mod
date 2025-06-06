@@ -6,41 +6,43 @@
 *)
 MODULE DoubleLinkedList;
 
-(**
-    This module implements a Double Linked List.
-    It provides basic operations such as initialization,
-    appending items, removing the first item, and checking if the list is empty.
-    The list is built using pointers to a custom item type defined in Collections.
-    Each node has both next and prev pointers.
- *)
-
 IMPORT Collections;
 
 TYPE
     DoubleListItem* = RECORD (Collections.Item)
-        (*  Represents a list node in a double-linked list. *)
         next*: POINTER TO DoubleListItem;
         prev*: POINTER TO DoubleListItem
     END;
     DoubleListItemPtr* = POINTER TO DoubleListItem;
 
-    List* = RECORD
-        (* Represents a double-linked list. *)
-        head*: DoubleListItemPtr;
-        tail*: DoubleListItemPtr;
-        size*: INTEGER
+    List* = POINTER TO ListDesc;  (* Opaque pointer type *)
+    ListDesc = RECORD
+        head: DoubleListItemPtr;
+        tail: DoubleListItemPtr;
+        size: INTEGER
     END;
-   
-(* Initialize the Double Linked List. *)
-PROCEDURE Init*(VAR list: List);
+
+    VisitProc* = PROCEDURE(item: DoubleListItemPtr; VAR state: Collections.VisitorState): BOOLEAN;
+
+(* Constructor: Allocate and initialize a new double linked list *)
+PROCEDURE New*(): List;
+VAR list: List;
 BEGIN
+    NEW(list);
     list.head := NIL;
     list.tail := NIL;
-    list.size := 0
-END Init;
+    list.size := 0;
+    RETURN list
+END New;
+
+(* Destructor: (optional, only if you want to clear memory) *)
+PROCEDURE Free*(VAR list: List);
+BEGIN
+    list := NIL
+END Free;
 
 (* Append a new element. *)
-PROCEDURE Append*(VAR list: List; item: DoubleListItemPtr);
+PROCEDURE Append*(list: List; item: DoubleListItemPtr);
 BEGIN
     item.next := NIL;
     item.prev := list.tail;
@@ -55,7 +57,7 @@ BEGIN
 END Append;
 
 (* Remove and return the first list element. *)
-PROCEDURE RemoveFirst*(VAR list: List; VAR result: DoubleListItemPtr);
+PROCEDURE RemoveFirst*(list: List; VAR result: DoubleListItemPtr);
 BEGIN
     IF list.head # NIL THEN
         result := list.head;
@@ -72,7 +74,7 @@ BEGIN
 END RemoveFirst;
 
 (* Remove and return the last list element. *)
-PROCEDURE RemoveLast*(VAR list: List; VAR result: DoubleListItemPtr);
+PROCEDURE RemoveLast*(list: List; VAR result: DoubleListItemPtr);
 BEGIN
     IF list.tail # NIL THEN
         result := list.tail;
@@ -89,11 +91,9 @@ BEGIN
 END RemoveLast;
 
 (* Insert a new element after a given node. *)
-PROCEDURE InsertAfter*(VAR list: List; after: DoubleListItemPtr; item: DoubleListItemPtr);
+PROCEDURE InsertAfter*(list: List; after: DoubleListItemPtr; item: DoubleListItemPtr);
 BEGIN
-    IF after = NIL THEN
-        (* Cannot insert after NIL; do nothing. *)
-    ELSE
+    IF after # NIL THEN
         item.next := after.next;
         item.prev := after;
         IF after.next # NIL THEN
@@ -107,11 +107,9 @@ BEGIN
 END InsertAfter;
 
 (* Insert a new element before a given node. *)
-PROCEDURE InsertBefore*(VAR list: List; before: DoubleListItemPtr; item: DoubleListItemPtr);
+PROCEDURE InsertBefore*(list: List; before: DoubleListItemPtr; item: DoubleListItemPtr);
 BEGIN
-    IF before = NIL THEN
-        (* Cannot insert before NIL; do nothing. *)
-    ELSE
+    IF before # NIL THEN
         item.prev := before.prev;
         item.next := before;
         IF before.prev # NIL THEN
@@ -138,7 +136,7 @@ END IsEmpty;
 
 (** Apply a procedure to each element in the list, passing a state variable. 
 If visit returns FALSE, iteration stops. *)
-PROCEDURE Foreach*(list: List; visit: Collections.VisitProc; VAR state: Collections.VisitorState);
+PROCEDURE Foreach*(list: List; visit: VisitProc; VAR state: Collections.VisitorState);
 VAR current: DoubleListItemPtr; cont: BOOLEAN;
 BEGIN
     current := list.head;

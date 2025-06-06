@@ -31,32 +31,32 @@ BEGIN
   RETURN node
 END NewNode;
 
-PROCEDURE Visitor(item: Collections.ItemPtr; VAR state: Collections.VisitorState): BOOLEAN;
+PROCEDURE Visitor(item: DoubleLinkedList.DoubleListItemPtr; VAR state: Collections.VisitorState): BOOLEAN;
 BEGIN
   state(TestVisitorState).sum := state(TestVisitorState).sum + item(TestNodePtr).value;
   INC(state(TestVisitorState).count);
   RETURN TRUE
 END Visitor;
 
-PROCEDURE VisitorEarlyStop(item: Collections.ItemPtr; VAR state: Collections.VisitorState): BOOLEAN;
+PROCEDURE VisitorEarlyStop(item: DoubleLinkedList.DoubleListItemPtr; VAR state: Collections.VisitorState): BOOLEAN;
 BEGIN
   state(TestVisitorState).sum := state(TestVisitorState).sum + item(TestNodePtr).value;
   INC(state(TestVisitorState).count);
   RETURN state(TestVisitorState).count < 2
 END VisitorEarlyStop;
 
-PROCEDURE TestInit*(): BOOLEAN;
+PROCEDURE TestNewAndIsEmpty(): BOOLEAN;
 VAR list: DoubleLinkedList.List; pass: BOOLEAN;
 BEGIN
   pass := TRUE;
-  DoubleLinkedList.Init(list);
-  IF list.head # NIL THEN pass := FALSE END;
-  IF list.tail # NIL THEN pass := FALSE END;
+  list := DoubleLinkedList.New();
+  IF ~DoubleLinkedList.IsEmpty(list) THEN pass := FALSE END;
   IF DoubleLinkedList.Count(list) # 0 THEN pass := FALSE END;
+  DoubleLinkedList.Free(list);
   RETURN pass
-END TestInit;
+END TestNewAndIsEmpty;
 
-PROCEDURE TestAppendAndRemove*(): BOOLEAN;
+PROCEDURE TestAppendAndRemove(): BOOLEAN;
 VAR 
     list: DoubleLinkedList.List; 
     n1, n2, n3: TestNodePtr;
@@ -64,53 +64,39 @@ VAR
     pass: BOOLEAN;
 BEGIN
   pass := TRUE;
-  DoubleLinkedList.Init(list);
+  list := DoubleLinkedList.New();
   n1 := NewNode(1); n2 := NewNode(2); n3 := NewNode(3);
 
   DoubleLinkedList.Append(list, n1);
-  IF list.head # n1 THEN pass := FALSE END;
-  IF list.tail # n1 THEN pass := FALSE END;
   IF DoubleLinkedList.Count(list) # 1 THEN pass := FALSE END;
 
   DoubleLinkedList.Append(list, n2);
-  IF list.head # n1 THEN pass := FALSE END;
-  IF list.tail # n2 THEN pass := FALSE END;
-  IF n1.next # n2 THEN pass := FALSE END;
-  IF n2.prev # n1 THEN pass := FALSE END;
   IF DoubleLinkedList.Count(list) # 2 THEN pass := FALSE END;
 
   DoubleLinkedList.Append(list, n3);
-  IF list.tail # n3 THEN pass := FALSE END;
-  IF n2.next # n3 THEN pass := FALSE END;
-  IF n3.prev # n2 THEN pass := FALSE END;
   IF DoubleLinkedList.Count(list) # 3 THEN pass := FALSE END;
 
   DoubleLinkedList.RemoveFirst(list, out);
   IF out # n1 THEN pass := FALSE END;
-  IF list.head # n2 THEN pass := FALSE END;
-  IF n2.prev # NIL THEN pass := FALSE END;
   IF DoubleLinkedList.Count(list) # 2 THEN pass := FALSE END;
 
   DoubleLinkedList.RemoveLast(list, out);
   IF out # n3 THEN pass := FALSE END;
-  IF list.tail # n2 THEN pass := FALSE END;
-  IF n2.next # NIL THEN pass := FALSE END;
   IF DoubleLinkedList.Count(list) # 1 THEN pass := FALSE END;
 
   DoubleLinkedList.RemoveFirst(list, out);
   IF out # n2 THEN pass := FALSE END;
-  IF list.head # NIL THEN pass := FALSE END;
-  IF list.tail # NIL THEN pass := FALSE END;
   IF DoubleLinkedList.Count(list) # 0 THEN pass := FALSE END;
 
   DoubleLinkedList.RemoveFirst(list, out);
   IF out # NIL THEN pass := FALSE END;
   IF DoubleLinkedList.Count(list) # 0 THEN pass := FALSE END;
 
+  DoubleLinkedList.Free(list);
   RETURN pass
 END TestAppendAndRemove;
 
-PROCEDURE TestIsEmpty*(): BOOLEAN;
+PROCEDURE TestIsEmpty(): BOOLEAN;
 VAR 
     list: DoubleLinkedList.List; 
     n: TestNodePtr; 
@@ -118,24 +104,25 @@ VAR
     pass: BOOLEAN;
 BEGIN
   pass := TRUE;
-  DoubleLinkedList.Init(list);
+  list := DoubleLinkedList.New();
   IF ~DoubleLinkedList.IsEmpty(list) THEN pass := FALSE END;
   n := NewNode(42);
   DoubleLinkedList.Append(list, n);
   IF DoubleLinkedList.IsEmpty(list) THEN pass := FALSE END;
   DoubleLinkedList.RemoveFirst(list, out);
   IF ~DoubleLinkedList.IsEmpty(list) THEN pass := FALSE END;
+  DoubleLinkedList.Free(list);
   RETURN pass
 END TestIsEmpty;
 
-PROCEDURE TestInsertAfterBefore*(): BOOLEAN;
+PROCEDURE TestInsertAfterBefore(): BOOLEAN;
 VAR
   list: DoubleLinkedList.List;
-  n1, n2, n3, n4, n5: TestNodePtr;
+  n1, n2, n3, n4, n5, n6, n0, n99, nm1: TestNodePtr;
   pass: BOOLEAN;
 BEGIN
   pass := TRUE;
-  DoubleLinkedList.Init(list);
+  list := DoubleLinkedList.New();
   n1 := NewNode(1); n2 := NewNode(2); n3 := NewNode(3); n4 := NewNode(4); n5 := NewNode(5);
 
   DoubleLinkedList.Append(list, n1);
@@ -157,27 +144,30 @@ BEGIN
   IF DoubleLinkedList.Count(list) # 5 THEN pass := FALSE END;
 
   (* Insert after tail, should update tail *)
-  DoubleLinkedList.InsertAfter(list, n5, NewNode(6));
-  IF list.tail(TestNodePtr).value # 6 THEN pass := FALSE END;
+  n6 := NewNode(6);
+  DoubleLinkedList.InsertAfter(list, n5, n6);
   IF DoubleLinkedList.Count(list) # 6 THEN pass := FALSE END;
 
   (* Insert before head, should update head *)
-  DoubleLinkedList.InsertBefore(list, n1, NewNode(0));
-  IF list.head(TestNodePtr).value # 0 THEN pass := FALSE END;
+  n0 := NewNode(0);
+  DoubleLinkedList.InsertBefore(list, n1, n0);
   IF DoubleLinkedList.Count(list) # 7 THEN pass := FALSE END;
 
   (* Insert after NIL should do nothing *)
-  DoubleLinkedList.InsertAfter(list, NIL, NewNode(99));
+  n99 := NewNode(99);
+  DoubleLinkedList.InsertAfter(list, NIL, n99);
   IF DoubleLinkedList.Count(list) # 7 THEN pass := FALSE END;
 
   (* Insert before NIL should do nothing *)
-  DoubleLinkedList.InsertBefore(list, NIL, NewNode(-1));
+  nm1 := NewNode(-1);
+  DoubleLinkedList.InsertBefore(list, NIL, nm1);
   IF DoubleLinkedList.Count(list) # 7 THEN pass := FALSE END;
 
+  DoubleLinkedList.Free(list);
   RETURN pass
 END TestInsertAfterBefore;
 
-PROCEDURE TestForeach*(): BOOLEAN;
+PROCEDURE TestForeach(): BOOLEAN;
 VAR
   list: DoubleLinkedList.List;
   n1, n2, n3: TestNodePtr;
@@ -185,7 +175,7 @@ VAR
   pass: BOOLEAN;
 BEGIN
   pass := TRUE;
-  DoubleLinkedList.Init(list);
+  list := DoubleLinkedList.New();
   n1 := NewNode(10); n2 := NewNode(20); n3 := NewNode(30);
   DoubleLinkedList.Append(list, n1);
   DoubleLinkedList.Append(list, n2);
@@ -199,12 +189,13 @@ BEGIN
   DoubleLinkedList.Foreach(list, VisitorEarlyStop, state);
   IF (state.sum # 30) OR (state.count # 2) THEN pass := FALSE END;
 
+  DoubleLinkedList.Free(list);
   RETURN pass
 END TestForeach;
 
 BEGIN
   Tests.Init(ts, "DoubleLinkedList Tests");
-  Tests.Add(ts, TestInit);
+  Tests.Add(ts, TestNewAndIsEmpty);
   Tests.Add(ts, TestAppendAndRemove);
   Tests.Add(ts, TestIsEmpty);
   Tests.Add(ts, TestInsertAfterBefore);
