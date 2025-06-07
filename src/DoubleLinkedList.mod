@@ -10,6 +10,7 @@ IMPORT Collections;
 
 TYPE
     ListItem* = RECORD (Collections.Item)
+    (* Represents a DLL item *)
         next*: POINTER TO ListItem;
         prev*: POINTER TO ListItem
     END;

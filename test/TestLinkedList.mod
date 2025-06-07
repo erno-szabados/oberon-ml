@@ -10,7 +10,7 @@ MODULE TestLinkedList;
 IMPORT LinkedList, Collections, Tests;
 
 TYPE
-  TestNode = RECORD (Collections.ListItem)
+  TestNode = RECORD (LinkedList.ListItem)
     value: INTEGER
   END;
   TestNodePtr = POINTER TO TestNode;
@@ -22,14 +22,14 @@ TYPE
 VAR
   ts : Tests.TestSet;
 
-PROCEDURE Visitor(item: Collections.ListItemPtr; VAR state: Collections.VisitorState): BOOLEAN;
+PROCEDURE Visitor(item: Collections.ItemPtr; VAR state: Collections.VisitorState): BOOLEAN;
 BEGIN
   state(TestVisitorState).sum := state(TestVisitorState).sum + item(TestNodePtr).value;
   INC(state(TestVisitorState).count);
   RETURN TRUE
 END Visitor;
 
-PROCEDURE VisitorEarlyStop(item: Collections.ListItemPtr; VAR state: Collections.VisitorState): BOOLEAN;
+PROCEDURE VisitorEarlyStop(item: Collections.ItemPtr; VAR state: Collections.VisitorState): BOOLEAN;
 BEGIN
   state(TestVisitorState).sum := state(TestVisitorState).sum + item(TestNodePtr).value;
   INC(state(TestVisitorState).count);
@@ -60,7 +60,7 @@ PROCEDURE TestAppendAndRemove(): BOOLEAN;
 VAR 
     list: LinkedList.List; 
     n1, n2, n3: TestNodePtr;
-    out: Collections.ListItemPtr;
+    out: LinkedList.ListItemPtr;
     pass: BOOLEAN;
 BEGIN
   pass := TRUE;

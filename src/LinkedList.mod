@@ -10,16 +10,19 @@ MODULE LinkedList;
 IMPORT Collections;
 
 TYPE
+    ListItem* = RECORD (Collections.Item)
+      (** Represents a LL item. *)
+      next*: POINTER TO ListItem
+    END;
+    ListItemPtr* = POINTER TO ListItem;
+
     List* = POINTER TO ListDesc;  (* Opaque pointer type *)
     ListDesc = RECORD
-        head: Collections.ListItemPtr;
-        tail: Collections.ListItemPtr;
+        head: ListItemPtr;
+        tail: ListItemPtr;
         size: INTEGER
     END;
-    (** This type defines a callback to iterate over elements of a linked list, with a user-supplied state. 
-       Iteration stops if the function procedure returns FALSE. *)
-    VisitProc* = PROCEDURE(item: Collections.ListItemPtr; VAR state: Collections.VisitorState): BOOLEAN;
-
+   
 (* Constructor: Allocate and initialize a new list *)
 PROCEDURE New*(): List;
 VAR list: List;
@@ -38,7 +41,7 @@ BEGIN
 END Free;
 
 (** Append a new element. *)
-PROCEDURE Append*(list: List; item: Collections.ListItemPtr);
+PROCEDURE Append*(list: List; item: ListItemPtr);
 BEGIN
     item.next := NIL;
     IF list.head = NIL THEN
@@ -52,7 +55,7 @@ BEGIN
 END Append;
 
 (** Remove and return the first list element. *)
-PROCEDURE RemoveFirst*(list: List; VAR result: Collections.ListItemPtr);
+PROCEDURE RemoveFirst*(list: List; VAR result: ListItemPtr);
 BEGIN
     IF list.head # NIL THEN
         result := list.head;
@@ -67,7 +70,7 @@ BEGIN
 END RemoveFirst;
 
 (** Insert a new element after a given node. *)
-PROCEDURE InsertAfter*(list: List; after: Collections.ListItemPtr; item: Collections.ListItemPtr);
+PROCEDURE InsertAfter*(list: List; after: ListItemPtr; item: ListItemPtr);
 BEGIN
     IF after # NIL THEN
         item.next := after.next;
@@ -93,8 +96,8 @@ END IsEmpty;
 
 (** Apply a procedure to each element in the list, passing a state variable. 
 If visit returns FALSE, iteration stops. *)
-PROCEDURE Foreach*(list: List; visit: VisitProc; VAR state: Collections.VisitorState);
-VAR current: Collections.ListItemPtr; cont: BOOLEAN;
+PROCEDURE Foreach*(list: List; visit: Collections.VisitProc; VAR state: Collections.VisitorState);
+VAR current: ListItemPtr; cont: BOOLEAN;
 BEGIN
     current := list.head;
     cont := TRUE;

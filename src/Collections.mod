@@ -18,12 +18,6 @@ MODULE Collections;
     END;
     ItemPtr* = POINTER TO Item;
 
-    ListItem* = RECORD (Item)
-      (** A useful base type for collections with nodes having next elements.  *)
-      next*: POINTER TO ListItem
-    END;
-    ListItemPtr* = POINTER TO ListItem;
-
     (** General visitor state, extend as needed. *)
     VisitorState* = RECORD END; 
     (* External iterator for the Collections supporting ForEach *)
