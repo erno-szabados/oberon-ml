@@ -9,17 +9,16 @@
   - For bitwise operations, use our own implementation from `Bitwise.mod`.
   - Use VAR in procedure parameters for mutable variables.
   - SYSTEM.VAL() does not allow procedure parameters, use a local variable to convert types.
-  - Language specification is available in `doc/TheProgrammingLanguageOberon.md`
+  - Language specification is available in `docs/md/Oberon.md`
+  - Collections documentation is available in `docs/md/Collections.md`
+  - Compiler tools description for obnc is available in `docs/md/obnc.md`
   **Best Practices**
   - Functions and procedures should be clear, concise, and well-structured.
-  - Use modules to encapsulate functionality.
+  - Use modules to encapsulate functionality. Use opaque pointers to expose necessary types. Hide implementation details.
   - Use helper functions to avoid code duplication.
   - Use meaningful names for modules, procedures, and variables.
   - Use PascalCase for module names, constants and procedures and camelCase for variables.
   - Export only what is necessary; keep the interface clean.
-- **Dependencies:** 
-- Oberon-07 standard libraries are documented in `doc/obnc/*.def.txt`. 
-- Do not use the lib folder, that is just for the acron compiler dependencies.
 
 ## Building
 
@@ -33,3 +32,12 @@
 - Place unit tests in the `test/` directory, using idiomatic Oberon-07 test patterns.
 - Reference style and approach: see `test/TestUTF8.mod`.
 - Tests should be granular enough to help identify problems, but avoid excess verbosity.
+
+## Documentation
+
+- Oberon-07 standard libraries provided by obnc (Oakwood API and extensions) are documented in `docs/obnc/*.def`.
+- Our own API is documented in `docs/api/*.def`.
+- Exported procedures documentation comment lines start with `(**` and end with `*)`, so obncdoc finds them.
+- Internal procedures documentation comment lines start with `(*` and end with `*)`, so they are not included in the API documentation.
+- Documentation is generated using `obncdoc` and placed in the `docs/` directory.
+- The header should contain a copyright notice for the 3 clause BSD license, the module name, a brief description, and the author.

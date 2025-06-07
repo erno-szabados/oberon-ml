@@ -6,6 +6,7 @@ This project implements
    - bitwise operations for INTEGER and BYTE types
    - UTF-8 string manipulation
    - Random numbers (PRNG with Lehmer MLCG)
+   - Collections: linked lists, deque (TODO: hashmap)
 - Classic ML algorithms: 
    - Perceptron, 
    - Linear Regressor,
@@ -22,12 +23,14 @@ This project implements
 
 ## Documentation
  - [HTML](https://erno-szabados.github.io/oberon-ml/) - generated with obncdoc
+ - [Collections](docs/md/Collections.md) - documents our collections API
+ - [Oberon](docs/md/Oberon.md) - The Oberon report in markdown format
 
 ## Structure
 
 - [src](src/): Oberon sources for modules and the test suites.
+- [examples](examples/): Simple examples to demonstrate API use
 - [docs](docs/): OBNC API and API documentation for the implemented modules.
-- [lib](src/lib) - the runtime source code from the akron compiler source, needed if you use the akron compiler, licensed under BSD-2
 
 ## Building
 
@@ -37,6 +40,14 @@ To build, issue the commands from the project root:
 cd src
 make -f Makefile
 ```
+
+To build the examples, issue
+
+```sh
+cd src
+make -f Makefile examples
+```
+
 The test binaries are generated in the `bin/` folder.
 
 
