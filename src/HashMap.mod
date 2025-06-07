@@ -10,13 +10,31 @@ MODULE HashMap;
 IMPORT Collections, LinkedList, Bitwise;
 
 CONST
-    DefaultSize = 16;
+    DefaultSize* = 16;
     MaxSize = 1024;
 
 TYPE
+    (** Base type for hashmap keys *)
+    Key* = RECORD(Collections.Item)
+        (* Base key type - extend this for specific key types *)
+    END;
+    KeyPtr* = POINTER TO Key;
+    
+    (** Integer key implementation *)
+    IntegerKey* = RECORD(Key)
+        value*: INTEGER
+    END;
+    IntegerKeyPtr* = POINTER TO IntegerKey;
+    
+    (** Key operations interface *)
+    KeyOps* = RECORD
+        hash*: PROCEDURE(key: KeyPtr; size: INTEGER): INTEGER;
+        equals*: PROCEDURE(key1, key2: KeyPtr): BOOLEAN
+    END;
+
     (** Key-Value pair for storage *)
     KeyValuePair* = RECORD(Collections.Item)
-        key*: INTEGER;
+        key*: KeyPtr;
         value*: Collections.ItemPtr
     END;
     KeyValuePairPtr* = POINTER TO KeyValuePair;
@@ -30,11 +48,21 @@ TYPE
     HashMapDesc = RECORD
         buckets: BucketArray;
         size: INTEGER;
-        count: INTEGER
+        count: INTEGER;
+        keyOps: KeyOps
     END;
 
+(** Create integer key *)
+PROCEDURE NewIntegerKey*(value: INTEGER): IntegerKeyPtr;
+VAR key: IntegerKeyPtr;
+BEGIN
+    NEW(key);
+    key.value := value;
+    RETURN key
+END NewIntegerKey;
+
 (** Create a new key-value pair *)
-PROCEDURE NewKeyValuePair*(key: INTEGER; value: Collections.ItemPtr): KeyValuePairPtr;
+PROCEDURE NewKeyValuePair*(key: KeyPtr; value: Collections.ItemPtr): KeyValuePairPtr;
 VAR pair: KeyValuePairPtr;
 BEGIN
     NEW(pair);
@@ -43,22 +71,43 @@ BEGIN
     RETURN pair
 END NewKeyValuePair;
 
-(* Internal hash function *)
-PROCEDURE Hash(key: INTEGER; size: INTEGER): INTEGER;
-VAR hash: INTEGER;
+(* Hash function for integer keys *)
+PROCEDURE HashInteger(key: KeyPtr; size: INTEGER): INTEGER;
+VAR 
+    intKey: IntegerKeyPtr;
+    hash: INTEGER;
 BEGIN
-    (* Simple hash function: multiply by a prime and take modulus *)
-    hash := Bitwise.Xor(key, Bitwise.ShiftRight(key, 16));
+    intKey := key(IntegerKeyPtr);
+    hash := Bitwise.Xor(intKey.value, Bitwise.ShiftRight(intKey.value, 16));
     hash := hash * 73;
     hash := Bitwise.Xor(hash, Bitwise.ShiftRight(hash, 13));
     hash := hash * 37;
     hash := Bitwise.Xor(hash, Bitwise.ShiftRight(hash, 9));
     IF hash < 0 THEN hash := -hash END;
     RETURN hash MOD size
-END Hash;
+END HashInteger;
+
+(* Equality function for integer keys *)
+PROCEDURE EqualsInteger(key1, key2: KeyPtr): BOOLEAN;
+VAR 
+    intKey1, intKey2: IntegerKeyPtr;
+    result: BOOLEAN;
+BEGIN
+    intKey1 := key1(IntegerKeyPtr);
+    intKey2 := key2(IntegerKeyPtr);
+    result := intKey1.value = intKey2.value;
+    RETURN result
+END EqualsInteger;
+
+(** Get integer key operations *)
+PROCEDURE IntegerKeyOps*(VAR ops: KeyOps);
+BEGIN
+    ops.hash := HashInteger;
+    ops.equals := EqualsInteger
+END IntegerKeyOps;
 
 (* Internal helper function *)
-PROCEDURE FindInBucket(list: LinkedList.List; key: INTEGER; VAR found: KeyValuePairPtr): BOOLEAN;
+PROCEDURE FindInBucket(list: LinkedList.List; key: KeyPtr; keyOps: KeyOps; VAR found: KeyValuePairPtr): BOOLEAN;
 VAR 
     i: INTEGER;
     item: Collections.ItemPtr;
@@ -71,7 +120,7 @@ BEGIN
     FOR i := 0 TO LinkedList.Count(list) - 1 DO
         IF LinkedList.GetAt(list, i, item) THEN
             pair := item(KeyValuePairPtr);
-            IF pair.key = key THEN
+            IF keyOps.equals(pair.key, key) THEN
                 found := pair;
                 result := TRUE
             END
@@ -82,7 +131,7 @@ BEGIN
 END FindInBucket;
 
 (** Constructor: Allocate and initialize a new hashmap with specified size *)
-PROCEDURE NewWithSize*(initialSize: INTEGER): HashMap;
+PROCEDURE NewWithSize*(initialSize: INTEGER; keyOps: KeyOps): HashMap;
 VAR 
     map: HashMap;
     i: INTEGER;
@@ -97,6 +146,7 @@ BEGIN
     
     map.size := initialSize;
     map.count := 0;
+    map.keyOps := keyOps;
     
     FOR i := 0 TO map.size - 1 DO
         map.buckets[i] := LinkedList.New()
@@ -105,11 +155,14 @@ BEGIN
     RETURN map
 END NewWithSize;
 
-(** Constructor: Allocate and initialize a new hashmap *)
+(** Constructor: Allocate and initialize a new hashmap with integer keys *)
 PROCEDURE New*(): HashMap;
-VAR result: HashMap;
+VAR 
+    result: HashMap;
+    ops: KeyOps;
 BEGIN
-    result := NewWithSize(DefaultSize);
+    IntegerKeyOps(ops);
+    result := NewWithSize(DefaultSize, ops);
     RETURN result
 END New;
 
@@ -126,17 +179,17 @@ BEGIN
 END Free;
 
 (** Insert or update a key-value pair *)
-PROCEDURE Put*(map: HashMap; key: INTEGER; value: Collections.ItemPtr);
+PROCEDURE PutKey*(map: HashMap; key: KeyPtr; value: Collections.ItemPtr);
 VAR 
     index: INTEGER;
     bucket: LinkedList.List;
     existingPair: KeyValuePairPtr;
     newPair: KeyValuePairPtr;
 BEGIN
-    index := Hash(key, map.size);
+    index := map.keyOps.hash(key, map.size);
     bucket := map.buckets[index];
     
-    IF FindInBucket(bucket, key, existingPair) THEN
+    IF FindInBucket(bucket, key, map.keyOps, existingPair) THEN
         (* Update existing key *)
         existingPair.value := value
     ELSE
@@ -145,20 +198,28 @@ BEGIN
         LinkedList.Append(bucket, newPair);
         INC(map.count)
     END
+END PutKey;
+
+(** Insert or update a key-value pair with integer key *)
+PROCEDURE Put*(map: HashMap; key: INTEGER; value: Collections.ItemPtr);
+VAR intKey: IntegerKeyPtr;
+BEGIN
+    intKey := NewIntegerKey(key);
+    PutKey(map, intKey, value)
 END Put;
 
 (** Get a value by key *)
-PROCEDURE Get*(map: HashMap; key: INTEGER; VAR value: Collections.ItemPtr): BOOLEAN;
+PROCEDURE GetKey*(map: HashMap; key: KeyPtr; VAR value: Collections.ItemPtr): BOOLEAN;
 VAR 
     index: INTEGER;
     bucket: LinkedList.List;
     pair: KeyValuePairPtr;
     result: BOOLEAN;
 BEGIN
-    index := Hash(key, map.size);
+    index := map.keyOps.hash(key, map.size);
     bucket := map.buckets[index];
     
-    IF FindInBucket(bucket, key, pair) THEN
+    IF FindInBucket(bucket, key, map.keyOps, pair) THEN
         value := pair.value;
         result := TRUE
     ELSE
@@ -167,24 +228,46 @@ BEGIN
     END;
     
     RETURN result
+END GetKey;
+
+(** Get a value by integer key *)
+PROCEDURE Get*(map: HashMap; key: INTEGER; VAR value: Collections.ItemPtr): BOOLEAN;
+VAR 
+    intKey: IntegerKeyPtr;
+    result: BOOLEAN;
+BEGIN
+    intKey := NewIntegerKey(key);
+    result := GetKey(map, intKey, value);
+    RETURN result
 END Get;
 
 (** Check if a key exists in the hashmap *)
-PROCEDURE Contains*(map: HashMap; key: INTEGER): BOOLEAN;
+PROCEDURE ContainsKey*(map: HashMap; key: KeyPtr): BOOLEAN;
 VAR 
     index: INTEGER;
     bucket: LinkedList.List;
     pair: KeyValuePairPtr;
     result: BOOLEAN;
 BEGIN
-    index := Hash(key, map.size);
+    index := map.keyOps.hash(key, map.size);
     bucket := map.buckets[index];
-    result := FindInBucket(bucket, key, pair);
+    result := FindInBucket(bucket, key, map.keyOps, pair);
+    RETURN result
+END ContainsKey;
+
+(** Check if an integer key exists in the hashmap *)
+PROCEDURE Contains*(map: HashMap; key: INTEGER): BOOLEAN;
+VAR 
+    intKey: IntegerKeyPtr;
+    result: BOOLEAN;
+BEGIN
+    intKey := NewIntegerKey(key);
+    result := ContainsKey(map, intKey);
     RETURN result
 END Contains;
 
 (** Remove a key-value pair from the hashmap *)
-PROCEDURE Remove*(map: HashMap; key: INTEGER): BOOLEAN;
+PROCEDURE RemoveKey*(map: HashMap; key: KeyPtr): BOOLEAN;
 VAR 
     index, i: INTEGER;
     bucket: LinkedList.List;
@@ -193,13 +276,13 @@ VAR
     result: BOOLEAN;
 BEGIN
     result := FALSE;
-    index := Hash(key, map.size);
+    index := map.keyOps.hash(key, map.size);
     bucket := map.buckets[index];
     
     FOR i := 0 TO LinkedList.Count(bucket) - 1 DO
         IF LinkedList.GetAt(bucket, i, item) THEN
             pair := item(KeyValuePairPtr);
-            IF pair.key = key THEN
+            IF map.keyOps.equals(pair.key, key) THEN
                 IF LinkedList.RemoveAt(bucket, i, item) THEN
                     DEC(map.count);
                     result := TRUE
@@ -208,6 +291,17 @@ BEGIN
         END
     END;
     
+    RETURN result
+END RemoveKey;
+
+(** Remove an integer key-value pair from the hashmap *)
+PROCEDURE Remove*(map: HashMap; key: INTEGER): BOOLEAN;
+VAR 
+    intKey: IntegerKeyPtr;
+    result: BOOLEAN;
+BEGIN
+    intKey := NewIntegerKey(key);
+    result := RemoveKey(map, intKey);
     RETURN result
 END Remove;
 

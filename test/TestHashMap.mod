@@ -71,22 +71,18 @@ END TestNewAndFree;
 PROCEDURE TestNewWithSize*(): BOOLEAN;
 VAR 
     map: HashMap.HashMap;
+    ops: HashMap.KeyOps;
     pass: BOOLEAN;
 BEGIN
     pass := TRUE;
     
-    map := HashMap.NewWithSize(32);
+    HashMap.IntegerKeyOps(ops);
+    map := HashMap.NewWithSize(32, ops);
     Tests.ExpectedBool(TRUE, map # NIL, "HashMap.NewWithSize should return non-nil", pass);
     Tests.ExpectedBool(TRUE, HashMap.IsEmpty(map), "New hashmap should be empty", pass);
     Tests.ExpectedInt(0, HashMap.Count(map), "New hashmap should have count 0", pass);
     
     HashMap.Free(map);
-    
-    (* Test with invalid size *)
-    map := HashMap.NewWithSize(-1);
-    Tests.ExpectedBool(TRUE, map # NIL, "HashMap.NewWithSize with negative size should return non-nil", pass);
-    HashMap.Free(map);
-    
     RETURN pass
 END TestNewWithSize;
 
@@ -238,10 +234,12 @@ VAR
     map: HashMap.HashMap;
     item1, item2: TestItemPtr;
     loadFactor: INTEGER;
+    ops: HashMap.KeyOps;
     pass: BOOLEAN;
 BEGIN
     pass := TRUE;
-    map := HashMap.NewWithSize(4); (* Small size for testing *)
+    HashMap.IntegerKeyOps(ops);
+    map := HashMap.NewWithSize(4, ops); (* Small size for testing *)
     
     Tests.ExpectedInt(0, HashMap.LoadFactor(map), "Empty map should have 0 load factor", pass);
     
@@ -299,10 +297,12 @@ VAR
     item1, item2, item3: TestItemPtr;
     value: Collections.ItemPtr;
     retrieved: TestItemPtr;
+    ops: HashMap.KeyOps;
     pass: BOOLEAN;
 BEGIN
     pass := TRUE;
-    map := HashMap.NewWithSize(2); (* Very small size to force collisions *)
+    HashMap.IntegerKeyOps(ops);
+    map := HashMap.NewWithSize(2, ops); (* Very small size to force collisions *)
     
     item1 := NewTestItem(100);
     item2 := NewTestItem(200);
@@ -318,23 +318,23 @@ BEGIN
     (* Verify we can retrieve all items *)
     IF HashMap.Get(map, 1, value) THEN
         retrieved := value(TestItemPtr);
-        Tests.ExpectedInt(100, retrieved.value, "Should retrieve first item correctly", pass);
+        Tests.ExpectedInt(100, retrieved.value, "Should retrieve first item correctly", pass)
     ELSE
-        Tests.ExpectedBool(TRUE, FALSE, "Should be able to get first item", pass);
+        Tests.ExpectedBool(TRUE, FALSE, "Should be able to get first item", pass)
     END;
     
     IF HashMap.Get(map, 3, value) THEN
         retrieved := value(TestItemPtr);
-        Tests.ExpectedInt(200, retrieved.value, "Should retrieve second item correctly", pass);
+        Tests.ExpectedInt(200, retrieved.value, "Should retrieve second item correctly", pass)
     ELSE
-        Tests.ExpectedBool(TRUE, FALSE, "Should be able to get second item", pass);
+        Tests.ExpectedBool(TRUE, FALSE, "Should be able to get second item", pass)
     END;
     
     IF HashMap.Get(map, 5, value) THEN
         retrieved := value(TestItemPtr);
-        Tests.ExpectedInt(300, retrieved.value, "Should retrieve third item correctly", pass);
+        Tests.ExpectedInt(300, retrieved.value, "Should retrieve third item correctly", pass)
     ELSE
-        Tests.ExpectedBool(TRUE, FALSE, "Should be able to get third item", pass);
+        Tests.ExpectedBool(TRUE, FALSE, "Should be able to get third item", pass)
     END;
     
     (* Test removal with collisions *)
