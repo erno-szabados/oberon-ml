@@ -6,6 +6,7 @@
   - Only fixed-size arrays are allowed by the language. 
   - Open array parameters are allowed as procedure parameters only.
   - Return is only allowed as the last statement in a procedure. Use a `result` variable for returning values.
+  - The last statement before an `END` or and `ELSE` **must not end with a semicolon**.
   - For bitwise operations, use our own implementation from `Bitwise.mod`.
   - Use VAR in procedure parameters for mutable variables.
   - SYSTEM.VAL() does not allow procedure parameters, use a local variable to convert types.
@@ -39,5 +40,5 @@
 - Our own API is documented in `docs/api/*.def`.
 - Exported procedures documentation comment lines start with `(**` and end with `*)`, so obncdoc finds them.
 - Internal procedures documentation comment lines start with `(*` and end with `*)`, so they are not included in the API documentation.
-- Documentation is generated using `obncdoc` and placed in the `docs/` directory.
+- Documentation is generated using `obncdoc` (supports whole folder only) and placed in the `docs/` directory.
 - The header should contain a copyright notice for the 3 clause BSD license, the module name, a brief description, and the author.

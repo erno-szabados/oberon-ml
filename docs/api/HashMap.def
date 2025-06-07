@@ -1,0 +1,68 @@
+(* HashMap.mod - A hashmap implementation using separate chaining.
+
+Copyright (C) 2025
+
+Released under The 3-Clause BSD License.
+*)
+
+DEFINITION HashMap;
+
+IMPORT Collections;
+
+CONST
+    DefaultSize = 16;
+
+TYPE
+    (* Key-Value pair for storage *)
+    KeyValuePair = RECORD(Collections.Item)
+        key: INTEGER;
+        value: Collections.ItemPtr
+    END;
+    KeyValuePairPtr = POINTER TO KeyValuePair;
+
+    (* Bucket array type *)
+
+    (* Opaque pointer to a HashMap *)
+    HashMap = POINTER TO HashMapDesc;
+
+(* Create a new key-value pair *)
+PROCEDURE NewKeyValuePair(key: INTEGER; value: Collections.ItemPtr): KeyValuePairPtr;
+
+(* Simple hash function for INTEGER keys *)
+
+(* Constructor: Allocate and initialize a new hashmap with specified size *)
+PROCEDURE NewWithSize(initialSize: INTEGER): HashMap;
+
+(* Constructor: Allocate and initialize a new hashmap *)
+PROCEDURE New(): HashMap;
+
+(* Destructor: Free the hashmap *)
+PROCEDURE Free(VAR map: HashMap);
+
+(* Find a key-value pair in a bucket *)
+
+(* Insert or update a key-value pair *)
+PROCEDURE Put(map: HashMap; key: INTEGER; value: Collections.ItemPtr);
+
+(* Get a value by key *)
+PROCEDURE Get(map: HashMap; key: INTEGER; VAR value: Collections.ItemPtr): BOOLEAN;
+
+(* Check if a key exists in the hashmap *)
+PROCEDURE Contains(map: HashMap; key: INTEGER): BOOLEAN;
+
+(* Remove a key-value pair from the hashmap *)
+PROCEDURE Remove(map: HashMap; key: INTEGER): BOOLEAN;
+
+(* Get the number of key-value pairs in the hashmap *)
+PROCEDURE Count(map: HashMap): INTEGER;
+
+(* Test if the hashmap is empty *)
+PROCEDURE IsEmpty(map: HashMap): BOOLEAN;
+
+(* Get the current load factor as percentage *)
+PROCEDURE LoadFactor(map: HashMap): INTEGER;
+
+(* Apply a procedure to each key-value pair in the hashmap *)
+PROCEDURE Foreach(map: HashMap; visit: Collections.VisitProc; VAR state: Collections.VisitorState);
+
+END HashMap.
