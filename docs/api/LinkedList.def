@@ -45,4 +45,7 @@ PROCEDURE Foreach(list: List; visit: Collections.VisitProc; VAR state: Collectio
 (* Get item at specified position (0-based index), returns TRUE if successful. *)
 PROCEDURE GetAt(list: List; position: INTEGER; VAR result: Collections.ItemPtr): BOOLEAN;
 
+(* Remove item at specified position (0-based index), returns TRUE if successful. *)
+PROCEDURE RemoveAt(list: List; position: INTEGER; VAR result: Collections.ItemPtr): BOOLEAN;
+
 END LinkedList.

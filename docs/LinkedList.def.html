@@ -57,6 +57,9 @@ PROCEDURE <em>Foreach</em>(list: List; visit: Collections.VisitProc; VAR state: 
 <span class='comment'>(* Get item at specified position (0-based index), returns TRUE if successful. *)</span>
 PROCEDURE <em>GetAt</em>(list: List; position: INTEGER; VAR result: Collections.ItemPtr): BOOLEAN;
 
+<span class='comment'>(* Remove item at specified position (0-based index), returns TRUE if successful. *)</span>
+PROCEDURE <em>RemoveAt</em>(list: List; position: INTEGER; VAR result: Collections.ItemPtr): BOOLEAN;
+
 END LinkedList.
 </pre>
 	</body>
