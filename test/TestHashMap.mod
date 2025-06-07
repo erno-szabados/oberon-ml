@@ -16,6 +16,12 @@ TYPE
     END;
     TestItemPtr = POINTER TO TestItem;
     
+    (* Integer item for testing - simple wrapper around INTEGER *)
+    IntegerItem = RECORD(Collections.Item)
+        value: INTEGER
+    END;
+    IntegerItemPtr = POINTER TO IntegerItem;
+    
     (* Visitor state for testing iteration *)
     TestVisitorState = RECORD(Collections.VisitorState)
         sum: INTEGER;
@@ -33,6 +39,15 @@ BEGIN
     item.value := value;
     RETURN item
 END NewTestItem;
+
+(** Create a new integer item *)
+PROCEDURE NewIntegerItem(value: INTEGER): IntegerItemPtr;
+VAR item: IntegerItemPtr;
+BEGIN
+    NEW(item);
+    item.value := value;
+    RETURN item
+END NewIntegerItem;
 
 (** Visitor procedure for testing iteration *)
 PROCEDURE Visitor(item: Collections.ItemPtr; VAR state: Collections.VisitorState): BOOLEAN;
@@ -348,6 +363,83 @@ BEGIN
     RETURN pass
 END TestCollisionHandling;
 
+PROCEDURE TestStringKeys*(): BOOLEAN;
+VAR
+    map: HashMap.HashMap;
+    value: Collections.ItemPtr;
+    intValue: IntegerItemPtr;
+    success: BOOLEAN;
+    pass: BOOLEAN;
+BEGIN
+    pass := TRUE;
+    
+    (* Create string-based hashmap *)
+    map := HashMap.NewStringMap();
+    
+    (* Test empty map *)
+    Tests.ExpectedInt(0, HashMap.Count(map), "New string map should be empty", pass);
+    Tests.ExpectedBool(TRUE, HashMap.IsEmpty(map), "New string map should report as empty", pass);
+    
+    (* Add some string key-value pairs *)
+    intValue := NewIntegerItem(42);
+    HashMap.PutString(map, "hello", intValue);
+    
+    intValue := NewIntegerItem(100);
+    HashMap.PutString(map, "world", intValue);
+    
+    intValue := NewIntegerItem(7);
+    HashMap.PutString(map, "test", intValue);
+    
+    (* Test count *)
+    Tests.ExpectedInt(3, HashMap.Count(map), "String map should contain 3 items", pass);
+    
+    (* Test retrieval *)
+    success := HashMap.GetString(map, "hello", value);
+    Tests.ExpectedBool(TRUE, success, "Should find 'hello' key", pass);
+    IF success THEN
+        intValue := value(IntegerItemPtr);
+        Tests.ExpectedInt(42, intValue.value, "'hello' should map to 42", pass)
+    END;
+    
+    success := HashMap.GetString(map, "world", value);
+    Tests.ExpectedBool(TRUE, success, "Should find 'world' key", pass);
+    IF success THEN
+        intValue := value(IntegerItemPtr);
+        Tests.ExpectedInt(100, intValue.value, "'world' should map to 100", pass)
+    END;
+    
+    (* Test Contains *)
+    Tests.ExpectedBool(TRUE, HashMap.ContainsString(map, "test"), "Should contain 'test' key", pass);
+    Tests.ExpectedBool(FALSE, HashMap.ContainsString(map, "missing"), "Should not contain 'missing' key", pass);
+    
+    (* Test key update *)
+    intValue := NewIntegerItem(999);
+    HashMap.PutString(map, "hello", intValue);
+    
+    success := HashMap.GetString(map, "hello", value);
+    Tests.ExpectedBool(TRUE, success, "Should still find 'hello' key after update", pass);
+    IF success THEN
+        intValue := value(IntegerItemPtr);
+        Tests.ExpectedInt(999, intValue.value, "'hello' should now map to 999", pass)
+    END;
+    
+    (* Count should still be 3 after update *)
+    Tests.ExpectedInt(3, HashMap.Count(map), "Count should still be 3 after update", pass);
+    
+    (* Test removal *)
+    success := HashMap.RemoveString(map, "world");
+    Tests.ExpectedBool(TRUE, success, "Should successfully remove 'world' key", pass);
+    Tests.ExpectedBool(FALSE, HashMap.ContainsString(map, "world"), "Should not contain 'world' key after removal", pass);
+    Tests.ExpectedInt(2, HashMap.Count(map), "Count should be 2 after removal", pass);
+    
+    (* Test removal of non-existent key *)
+    success := HashMap.RemoveString(map, "missing");
+    Tests.ExpectedBool(FALSE, success, "Should not successfully remove non-existent key", pass);
+    
+    HashMap.Free(map);
+    RETURN pass
+END TestStringKeys;
+
 BEGIN
     Tests.Init(ts, "HashMap Tests");
     Tests.Add(ts, TestNewAndFree);
@@ -359,5 +451,6 @@ BEGIN
     Tests.Add(ts, TestLoadFactor);
     Tests.Add(ts, TestForeach);
     Tests.Add(ts, TestCollisionHandling);
+    Tests.Add(ts, TestStringKeys);
     ASSERT(Tests.Run(ts));
 END TestHashMap.

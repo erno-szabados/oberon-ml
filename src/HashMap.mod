@@ -104,6 +104,17 @@ BEGIN
     RETURN result
 END New;
 
+(** Constructor: Allocate and initialize a new hashmap with string keys *)
+PROCEDURE NewStringMap*(): HashMap;
+VAR 
+    result: HashMap;
+    ops: CollectionKeys.KeyOps;
+BEGIN
+    CollectionKeys.StringKeyOps(ops);
+    result := NewWithSize(DefaultSize, ops);
+    RETURN result
+END NewStringMap;
+
 (** Destructor: Free the hashmap *)
 PROCEDURE Free*(VAR map: HashMap);
 VAR i: INTEGER;
@@ -146,6 +157,14 @@ BEGIN
     PutKey(map, intKey, value)
 END Put;
 
+(** Insert or update a key-value pair with string key *)
+PROCEDURE PutString*(map: HashMap; key: ARRAY OF CHAR; value: Collections.ItemPtr);
+VAR strKey: CollectionKeys.StringKeyPtr;
+BEGIN
+    strKey := CollectionKeys.NewStringKey(key);
+    PutKey(map, strKey, value)
+END PutString;
+
 (** Get a value by key *)
 PROCEDURE GetKey*(map: HashMap; key: CollectionKeys.KeyPtr; VAR value: Collections.ItemPtr): BOOLEAN;
 VAR 
@@ -179,6 +198,17 @@ BEGIN
     RETURN result
 END Get;
 
+(** Get a value by string key *)
+PROCEDURE GetString*(map: HashMap; key: ARRAY OF CHAR; VAR value: Collections.ItemPtr): BOOLEAN;
+VAR 
+    strKey: CollectionKeys.StringKeyPtr;
+    result: BOOLEAN;
+BEGIN
+    strKey := CollectionKeys.NewStringKey(key);
+    result := GetKey(map, strKey, value);
+    RETURN result
+END GetString;
+
 (** Check if a key exists in the hashmap *)
 PROCEDURE ContainsKey*(map: HashMap; key: CollectionKeys.KeyPtr): BOOLEAN;
 VAR 
@@ -203,6 +233,17 @@ BEGIN
     result := ContainsKey(map, intKey);
     RETURN result
 END Contains;
+
+(** Check if a string key exists in the hashmap *)
+PROCEDURE ContainsString*(map: HashMap; key: ARRAY OF CHAR): BOOLEAN;
+VAR 
+    strKey: CollectionKeys.StringKeyPtr;
+    result: BOOLEAN;
+BEGIN
+    strKey := CollectionKeys.NewStringKey(key);
+    result := ContainsKey(map, strKey);
+    RETURN result
+END ContainsString;
 
 (** Remove a key-value pair from the hashmap *)
 PROCEDURE RemoveKey*(map: HashMap; key: CollectionKeys.KeyPtr): BOOLEAN;
@@ -242,6 +283,17 @@ BEGIN
     result := RemoveKey(map, intKey);
     RETURN result
 END Remove;
+
+(** Remove a string key-value pair from the hashmap *)
+PROCEDURE RemoveString*(map: HashMap; key: ARRAY OF CHAR): BOOLEAN;
+VAR 
+    strKey: CollectionKeys.StringKeyPtr;
+    result: BOOLEAN;
+BEGIN
+    strKey := CollectionKeys.NewStringKey(key);
+    result := RemoveKey(map, strKey);
+    RETURN result
+END RemoveString;
 
 (** Get the number of key-value pairs in the hashmap *)
 PROCEDURE Count*(map: HashMap): INTEGER;
