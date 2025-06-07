@@ -12,27 +12,22 @@
 		<pre>
 DEFINITION <em>Deque</em>;
 
-IMPORT DoubleLinkedList, Collections;
+IMPORT Collections;
 
 TYPE
-    Item = RECORD (DoubleLinkedList.ListItem)        <span class='comment'>(* A base type for items in the deque. *)</span>
-        <span class='comment'>(* Extend this type to add more fields as needed. *)</span>
- END;
-    ItemPtr = POINTER TO Item;
-
     Deque = POINTER TO DequeDesc;
 
 PROCEDURE <em>New</em>(): Deque;
 
 PROCEDURE <em>Free</em>(VAR dq: Deque);
 
-PROCEDURE <em>Prepend</em>(dq: Deque; item: ItemPtr);
+PROCEDURE <em>Prepend</em>(dq: Deque; item: Collections.ItemPtr);
 
-PROCEDURE <em>Append</em>(dq: Deque; item: ItemPtr);
+PROCEDURE <em>Append</em>(dq: Deque; item: Collections.ItemPtr);
 
-PROCEDURE <em>RemoveFirst</em>(dq: Deque; VAR result: ItemPtr);
+PROCEDURE <em>RemoveFirst</em>(dq: Deque; VAR result: Collections.ItemPtr);
 
-PROCEDURE <em>RemoveLast</em>(dq: Deque; VAR result: ItemPtr);
+PROCEDURE <em>RemoveLast</em>(dq: Deque; VAR result: Collections.ItemPtr);
 
 PROCEDURE <em>Count</em>(dq: Deque): INTEGER;
 

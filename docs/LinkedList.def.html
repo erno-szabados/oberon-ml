@@ -10,7 +10,7 @@
 		<p><a href='index.html'>Index</a></p>
 
 		<pre>
-<span class='comment'>(* TestLinkedList.Mod - Tests for LinkedList.Mod.
+<span class='comment'>(* LinkedList.mod - A singly linked list implementation.
 
 Copyright (C) 2025
 
@@ -22,23 +22,27 @@ DEFINITION <em>LinkedList</em>;
 IMPORT Collections;
 
 TYPE
-    List = POINTER TO ListDesc;
-    <span class='comment'>(* This type defines a callback to iterate over elements of a linked list, with a user-supplied state. 
-       Iteration stops if the function procedure returns FALSE. *)</span>
-    VisitProc = PROCEDURE(item: Collections.ListItemPtr; VAR state: Collections.VisitorState): BOOLEAN;
+    <span class='comment'>(* Opaque pointer to a List *)</span>
+    List = POINTER TO ListDesc; 
 
+<span class='comment'>(* Constructor: Allocate and initialize a new list *)</span>
 PROCEDURE <em>New</em>(): List;
 
+<span class='comment'>(* Destructor: (optional, only if you want to clear memory) *)</span>
 PROCEDURE <em>Free</em>(VAR list: List);
 
 <span class='comment'>(* Append a new element. *)</span>
-PROCEDURE <em>Append</em>(list: List; item: Collections.ListItemPtr);
+PROCEDURE <em>Append</em>(list: List; item: Collections.ItemPtr);
 
 <span class='comment'>(* Remove and return the first list element. *)</span>
-PROCEDURE <em>RemoveFirst</em>(list: List; VAR result: Collections.ListItemPtr);
+PROCEDURE <em>RemoveFirst</em>(list: List; VAR result: Collections.ItemPtr);
 
-<span class='comment'>(* Insert a new element after a given node. *)</span>
-PROCEDURE <em>InsertAfter</em>(list: List; after: Collections.ListItemPtr; item: Collections.ListItemPtr);
+<span class='comment'>(* Insert a new element after a given position (0-based index). *)</span>
+PROCEDURE <em>InsertAt</em>(list: List; position: INTEGER; item: Collections.ItemPtr): BOOLEAN;
+
+    <span class='comment'>(* Insert at beginning if position is 0 *)</span>
+    <span class='comment'>(* Insert within valid range *)</span>
+        <span class='comment'>(* Find the node at position-1 *)</span>
 
 <span class='comment'>(* Return the number of elements in the list. *)</span>
 PROCEDURE <em>Count</em>(list: List): INTEGER;
@@ -48,7 +52,10 @@ PROCEDURE <em>IsEmpty</em>(list: List): BOOLEAN;
 
 <span class='comment'>(* Apply a procedure to each element in the list, passing a state variable. 
 If visit returns FALSE, iteration stops. *)</span>
-PROCEDURE <em>Foreach</em>(list: List; visit: VisitProc; VAR state: Collections.VisitorState);
+PROCEDURE <em>Foreach</em>(list: List; visit: Collections.VisitProc; VAR state: Collections.VisitorState);
+
+<span class='comment'>(* Get item at specified position (0-based index), returns TRUE if successful. *)</span>
+PROCEDURE <em>GetAt</em>(list: List; position: INTEGER; VAR result: Collections.ItemPtr): BOOLEAN;
 
 END LinkedList.
 </pre>

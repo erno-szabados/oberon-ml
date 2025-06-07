@@ -1,5 +1,5 @@
 (* 
-    DoubleLinkedList.Mod
+    DoubleLinkedList.mod - A doubly linked list implementation.
 
     Copyright (C) 2025
     Released under The 3-Clause BSD License.
@@ -9,27 +9,19 @@ DEFINITION DoubleLinkedList;
 IMPORT Collections;
 
 TYPE
-    ListItem = RECORD (Collections.Item)
-        next: POINTER TO ListItem;
-        prev: POINTER TO ListItem
-    END;
-    ListItemPtr = POINTER TO ListItem;
-
     List = POINTER TO ListDesc;
 
 PROCEDURE New(): List;
 
 PROCEDURE Free(VAR list: List);
 
-PROCEDURE Append(list: List; item: ListItemPtr);
+PROCEDURE Append(list: List; item: Collections.ItemPtr);
 
-PROCEDURE RemoveFirst(list: List; VAR result: ListItemPtr);
+PROCEDURE RemoveFirst(list: List; VAR result: Collections.ItemPtr);
 
-PROCEDURE RemoveLast(list: List; VAR result: ListItemPtr);
+PROCEDURE RemoveLast(list: List; VAR result: Collections.ItemPtr);
 
-PROCEDURE InsertAfter(list: List; after: ListItemPtr; item: ListItemPtr);
-
-PROCEDURE InsertBefore(list: List; before: ListItemPtr; item: ListItemPtr);
+PROCEDURE InsertAt(list: List; position: INTEGER; item: Collections.ItemPtr): BOOLEAN;
 
 PROCEDURE Count(list: List): INTEGER;
 
@@ -39,6 +31,11 @@ PROCEDURE IsEmpty(list: List): BOOLEAN;
 If visit returns FALSE, iteration stops. *)
 PROCEDURE Foreach(list: List; visit: Collections.VisitProc; VAR state: Collections.VisitorState);
 
-PROCEDURE Head(list: List): ListItemPtr;
+(* Get item at specified position (0-based index), returns TRUE if successful. *)
+PROCEDURE GetAt(list: List; position: INTEGER; VAR result: Collections.ItemPtr): BOOLEAN;
+
+PROCEDURE Head(list: List; VAR result: Collections.ItemPtr): BOOLEAN;
+
+PROCEDURE Tail(list: List; VAR result: Collections.ItemPtr): BOOLEAN;
 
 END DoubleLinkedList.

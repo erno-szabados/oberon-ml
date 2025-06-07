@@ -11,7 +11,7 @@
 
 		<pre>
 <span class='comment'>(* 
-    DoubleLinkedList.Mod
+    DoubleLinkedList.mod - A doubly linked list implementation.
 
     Copyright (C) 2025
     Released under The 3-Clause BSD License.
@@ -21,27 +21,19 @@ DEFINITION <em>DoubleLinkedList</em>;
 IMPORT Collections;
 
 TYPE
-    ListItem = RECORD (Collections.Item)
-        next: POINTER TO ListItem;
-        prev: POINTER TO ListItem
-    END;
-    ListItemPtr = POINTER TO ListItem;
-
     List = POINTER TO ListDesc;
 
 PROCEDURE <em>New</em>(): List;
 
 PROCEDURE <em>Free</em>(VAR list: List);
 
-PROCEDURE <em>Append</em>(list: List; item: ListItemPtr);
+PROCEDURE <em>Append</em>(list: List; item: Collections.ItemPtr);
 
-PROCEDURE <em>RemoveFirst</em>(list: List; VAR result: ListItemPtr);
+PROCEDURE <em>RemoveFirst</em>(list: List; VAR result: Collections.ItemPtr);
 
-PROCEDURE <em>RemoveLast</em>(list: List; VAR result: ListItemPtr);
+PROCEDURE <em>RemoveLast</em>(list: List; VAR result: Collections.ItemPtr);
 
-PROCEDURE <em>InsertAfter</em>(list: List; after: ListItemPtr; item: ListItemPtr);
-
-PROCEDURE <em>InsertBefore</em>(list: List; before: ListItemPtr; item: ListItemPtr);
+PROCEDURE <em>InsertAt</em>(list: List; position: INTEGER; item: Collections.ItemPtr): BOOLEAN;
 
 PROCEDURE <em>Count</em>(list: List): INTEGER;
 
@@ -51,7 +43,12 @@ PROCEDURE <em>IsEmpty</em>(list: List): BOOLEAN;
 If visit returns FALSE, iteration stops. *)</span>
 PROCEDURE <em>Foreach</em>(list: List; visit: Collections.VisitProc; VAR state: Collections.VisitorState);
 
-PROCEDURE <em>Head</em>(list: List): ListItemPtr;
+<span class='comment'>(* Get item at specified position (0-based index), returns TRUE if successful. *)</span>
+PROCEDURE <em>GetAt</em>(list: List; position: INTEGER; VAR result: Collections.ItemPtr): BOOLEAN;
+
+PROCEDURE <em>Head</em>(list: List; VAR result: Collections.ItemPtr): BOOLEAN;
+
+PROCEDURE <em>Tail</em>(list: List; VAR result: Collections.ItemPtr): BOOLEAN;
 
 END DoubleLinkedList.
 </pre>

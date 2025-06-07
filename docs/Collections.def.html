@@ -10,7 +10,7 @@
 		<p><a href='index.html'>Index</a></p>
 
 		<pre>
-<span class='comment'>(* TestLinkedList.Mod - Tests for LinkedList.Mod.
+<span class='comment'>(* Collections.mod - Base types for collection implementations.
 
 Copyright (C) 2025
 
@@ -28,12 +28,6 @@ DEFINITION <em>Collections</em>;
     Item = RECORD      <span class='comment'>(* Minimal universal base type *)</span>
  END;
     ItemPtr = POINTER TO Item;
-
-    ListItem = RECORD (Item)      <span class='comment'>(* A useful base type for collections with nodes having next elements.  *)</span>
-
-      next: POINTER TO ListItem
-    END;
-    ListItemPtr = POINTER TO ListItem;
 
     <span class='comment'>(* General visitor state, extend as needed. *)</span>
     VisitorState = RECORD END; 

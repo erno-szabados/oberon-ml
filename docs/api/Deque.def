@@ -1,26 +1,21 @@
 DEFINITION Deque;
 
-IMPORT DoubleLinkedList, Collections;
+IMPORT Collections;
 
 TYPE
-    Item = RECORD (DoubleLinkedList.ListItem)        (* A base type for items in the deque. *)
-        (* Extend this type to add more fields as needed. *)
- END;
-    ItemPtr = POINTER TO Item;
-
     Deque = POINTER TO DequeDesc;
 
 PROCEDURE New(): Deque;
 
 PROCEDURE Free(VAR dq: Deque);
 
-PROCEDURE Prepend(dq: Deque; item: ItemPtr);
+PROCEDURE Prepend(dq: Deque; item: Collections.ItemPtr);
 
-PROCEDURE Append(dq: Deque; item: ItemPtr);
+PROCEDURE Append(dq: Deque; item: Collections.ItemPtr);
 
-PROCEDURE RemoveFirst(dq: Deque; VAR result: ItemPtr);
+PROCEDURE RemoveFirst(dq: Deque; VAR result: Collections.ItemPtr);
 
-PROCEDURE RemoveLast(dq: Deque; VAR result: ItemPtr);
+PROCEDURE RemoveLast(dq: Deque; VAR result: Collections.ItemPtr);
 
 PROCEDURE Count(dq: Deque): INTEGER;
 
