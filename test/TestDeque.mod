@@ -8,7 +8,7 @@ MODULE TestDeque;
 IMPORT Deque, Collections, Tests;
 
 TYPE
-    TestItem = RECORD (Deque.Item)
+    TestItem = RECORD (Collections.Item)
         value: INTEGER
     END;
     TestItemPtr = POINTER TO TestItem;
@@ -24,8 +24,6 @@ VAR item: TestItemPtr;
 BEGIN
     NEW(item);
     item.value := val;
-    item.next := NIL;
-    item.prev := NIL;
     RETURN item
 END NewItem;
 
@@ -48,7 +46,7 @@ BEGIN
 END TestNewAndIsEmpty;
 
 PROCEDURE TestAppendAndRemove(): BOOLEAN;
-VAR dq: Deque.Deque; a, b, c: TestItemPtr; res: Deque.ItemPtr; pass: BOOLEAN;
+VAR dq: Deque.Deque; a, b, c: TestItemPtr; res: Collections.ItemPtr; pass: BOOLEAN;
 BEGIN
     pass := TRUE;
     dq := Deque.New();
@@ -70,7 +68,7 @@ BEGIN
 END TestAppendAndRemove;
 
 PROCEDURE TestPrependAndRemove(): BOOLEAN;
-VAR dq: Deque.Deque; a, b, c: TestItemPtr; res: Deque.ItemPtr; pass: BOOLEAN;
+VAR dq: Deque.Deque; a, b, c: TestItemPtr; res: Collections.ItemPtr; pass: BOOLEAN;
 BEGIN
     pass := TRUE;
     dq := Deque.New();

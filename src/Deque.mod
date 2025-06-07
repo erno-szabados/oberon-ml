@@ -9,12 +9,6 @@ MODULE Deque;
 IMPORT DoubleLinkedList, Collections;
 
 TYPE
-    Item* = RECORD (DoubleLinkedList.ListItem)
-        (** A base type for items in the deque. *)
-        (** Extend this type to add more fields as needed. *)
-    END;
-    ItemPtr* = POINTER TO Item;
-
     Deque* = POINTER TO DequeDesc;
     DequeDesc = RECORD
         list: DoubleLinkedList.List
@@ -40,37 +34,29 @@ BEGIN
 END Free;
 
 (* Add an item to the front of the deque. *)
-PROCEDURE Prepend*(dq: Deque; item: ItemPtr);
-VAR head: DoubleLinkedList.ListItemPtr;
+PROCEDURE Prepend*(dq: Deque; item: Collections.ItemPtr);
 BEGIN
-    IF DoubleLinkedList.IsEmpty(dq.list) THEN
-        DoubleLinkedList.Append(dq.list, item)
-    ELSE
-        head := DoubleLinkedList.Head(dq.list);
-        DoubleLinkedList.InsertBefore(dq.list, head, item)
+    IF ~DoubleLinkedList.InsertAt(dq.list, 0, item) THEN
+        (* Handle error - should not happen for valid deque *)
     END
 END Prepend;
 
 (* Add an item to the back of the deque. *)
-PROCEDURE Append*(dq: Deque; item: ItemPtr);
+PROCEDURE Append*(dq: Deque; item: Collections.ItemPtr);
 BEGIN
     DoubleLinkedList.Append(dq.list, item)
 END Append;
 
 (* Remove and return the first item. *)
-PROCEDURE RemoveFirst*(dq: Deque; VAR result: ItemPtr);
-VAR dllItem: DoubleLinkedList.ListItemPtr;
+PROCEDURE RemoveFirst*(dq: Deque; VAR result: Collections.ItemPtr);
 BEGIN
-    DoubleLinkedList.RemoveFirst(dq.list, dllItem);
-    result := dllItem(ItemPtr)
+    DoubleLinkedList.RemoveFirst(dq.list, result)
 END RemoveFirst;
 
 (* Remove and return the last item. *)
-PROCEDURE RemoveLast*(dq: Deque; VAR result: ItemPtr);
-VAR dllItem: DoubleLinkedList.ListItemPtr;
+PROCEDURE RemoveLast*(dq: Deque; VAR result: Collections.ItemPtr);
 BEGIN
-    DoubleLinkedList.RemoveLast(dq.list, dllItem);
-    result := dllItem(ItemPtr)
+    DoubleLinkedList.RemoveLast(dq.list, result)
 END RemoveLast;
 
 (* Return the number of items in the deque. *)

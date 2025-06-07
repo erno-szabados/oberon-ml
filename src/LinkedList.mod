@@ -1,4 +1,4 @@
-(** TestLinkedList.Mod - Tests for LinkedList.Mod.
+(** LinkedList.mod - A singly linked list implementation.
 
 Copyright (C) 2025
 
@@ -10,20 +10,22 @@ MODULE LinkedList;
 IMPORT Collections;
 
 TYPE
-    ListItem* = RECORD (Collections.Item)
-      (** Represents a LL item. *)
-      next*: POINTER TO ListItem
+    (* Internal implementation type, not exposed *)
+    Node = RECORD
+        item: Collections.ItemPtr;
+        next: POINTER TO Node
     END;
-    ListItemPtr* = POINTER TO ListItem;
+    NodePtr = POINTER TO Node;
 
-    List* = POINTER TO ListDesc;  (* Opaque pointer type *)
+    (** Opaque pointer to a List *)
+    List* = POINTER TO ListDesc; 
     ListDesc = RECORD
-        head: ListItemPtr;
-        tail: ListItemPtr;
+        head: NodePtr;
+        tail: NodePtr;
         size: INTEGER
     END;
    
-(* Constructor: Allocate and initialize a new list *)
+(** Constructor: Allocate and initialize a new list *)
 PROCEDURE New*(): List;
 VAR list: List;
 BEGIN
@@ -34,32 +36,38 @@ BEGIN
     RETURN list
 END New;
 
-(* Destructor: (optional, only if you want to clear memory) *)
+(** Destructor: (optional, only if you want to clear memory) *)
 PROCEDURE Free*(VAR list: List);
 BEGIN
     list := NIL
 END Free;
 
 (** Append a new element. *)
-PROCEDURE Append*(list: List; item: ListItemPtr);
+PROCEDURE Append*(list: List; item: Collections.ItemPtr);
+VAR node: NodePtr;
 BEGIN
-    item.next := NIL;
+    NEW(node);
+    node.item := item;
+    node.next := NIL;
+    
     IF list.head = NIL THEN
-        list.head := item;
-        list.tail := item
+        list.head := node;
+        list.tail := node
     ELSE
-        list.tail.next := item;
-        list.tail := item
+        list.tail.next := node;
+        list.tail := node
     END;
     INC(list.size)
 END Append;
 
 (** Remove and return the first list element. *)
-PROCEDURE RemoveFirst*(list: List; VAR result: ListItemPtr);
+PROCEDURE RemoveFirst*(list: List; VAR result: Collections.ItemPtr);
+VAR node: NodePtr;
 BEGIN
     IF list.head # NIL THEN
-        result := list.head;
-        list.head := list.head.next;
+        node := list.head;
+        result := node.item;
+        list.head := node.next;
         IF list.head = NIL THEN
             list.tail := NIL
         END;
@@ -69,18 +77,51 @@ BEGIN
     END
 END RemoveFirst;
 
-(** Insert a new element after a given node. *)
-PROCEDURE InsertAfter*(list: List; after: ListItemPtr; item: ListItemPtr);
+(** Insert a new element after a given position (0-based index). *)
+PROCEDURE InsertAt*(list: List; position: INTEGER; item: Collections.ItemPtr): BOOLEAN;
+VAR 
+    node, newNode: NodePtr;
+    i: INTEGER;
+    result: BOOLEAN;
 BEGIN
-    IF after # NIL THEN
-        item.next := after.next;
-        after.next := item;
-        IF list.tail = after THEN
-            list.tail := item
+    result := FALSE;
+    
+    (** Insert at beginning if position is 0 *)
+    IF position = 0 THEN
+        NEW(newNode);
+        newNode.item := item;
+        newNode.next := list.head;
+        list.head := newNode;
+        IF list.tail = NIL THEN
+            list.tail := newNode
         END;
-        INC(list.size)
-    END
-END InsertAfter;
+        INC(list.size);
+        result := TRUE
+    (** Insert within valid range *)
+    ELSIF (position > 0) & (position <= list.size) THEN
+        node := list.head;
+        i := 0;
+        (** Find the node at position-1 *)
+        WHILE (i < position-1) & (node # NIL) DO
+            node := node.next;
+            INC(i)
+        END;
+        
+        IF node # NIL THEN
+            NEW(newNode);
+            newNode.item := item;
+            newNode.next := node.next;
+            node.next := newNode;
+            IF list.tail = node THEN
+                list.tail := newNode
+            END;
+            INC(list.size);
+            result := TRUE
+        END
+    END;
+    
+    RETURN result
+END InsertAt;
 
 (** Return the number of elements in the list. *)
 PROCEDURE Count*(list: List): INTEGER;
@@ -97,14 +138,41 @@ END IsEmpty;
 (** Apply a procedure to each element in the list, passing a state variable. 
 If visit returns FALSE, iteration stops. *)
 PROCEDURE Foreach*(list: List; visit: Collections.VisitProc; VAR state: Collections.VisitorState);
-VAR current: ListItemPtr; cont: BOOLEAN;
+VAR current: NodePtr; cont: BOOLEAN;
 BEGIN
     current := list.head;
     cont := TRUE;
     WHILE (current # NIL) & cont DO
-        cont := visit(current, state);
+        cont := visit(current.item, state);
         current := current.next
     END
 END Foreach;
+
+(** Get item at specified position (0-based index), returns TRUE if successful. *)
+PROCEDURE GetAt*(list: List; position: INTEGER; VAR result: Collections.ItemPtr): BOOLEAN;
+VAR 
+    current: NodePtr;
+    i: INTEGER;
+    success: BOOLEAN;
+BEGIN
+    success := FALSE;
+    result := NIL;
+    
+    IF (position >= 0) & (position < list.size) THEN
+        current := list.head;
+        i := 0;
+        WHILE (i < position) & (current # NIL) DO
+            current := current.next;
+            INC(i)
+        END;
+        
+        IF current # NIL THEN
+            result := current.item;
+            success := TRUE
+        END
+    END;
+    
+    RETURN success
+END GetAt;
 
 END LinkedList.

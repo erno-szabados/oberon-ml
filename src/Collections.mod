@@ -1,4 +1,4 @@
-(** TestLinkedList.Mod - Tests for LinkedList.Mod.
+(** Collections.mod - Base types for collection implementations.
 
 Copyright (C) 2025
 

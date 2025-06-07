@@ -10,10 +10,10 @@ MODULE TestLinkedList;
 IMPORT LinkedList, Collections, Tests;
 
 TYPE
-  TestNode = RECORD (LinkedList.ListItem)
+  TestItem = RECORD (Collections.Item)
     value: INTEGER
   END;
-  TestNodePtr = POINTER TO TestNode;
+  TestItemPtr = POINTER TO TestItem;
 
   TestVisitorState = RECORD (Collections.VisitorState)
     sum, count: INTEGER
@@ -24,26 +24,25 @@ VAR
 
 PROCEDURE Visitor(item: Collections.ItemPtr; VAR state: Collections.VisitorState): BOOLEAN;
 BEGIN
-  state(TestVisitorState).sum := state(TestVisitorState).sum + item(TestNodePtr).value;
+  state(TestVisitorState).sum := state(TestVisitorState).sum + item(TestItemPtr).value;
   INC(state(TestVisitorState).count);
   RETURN TRUE
 END Visitor;
 
 PROCEDURE VisitorEarlyStop(item: Collections.ItemPtr; VAR state: Collections.VisitorState): BOOLEAN;
 BEGIN
-  state(TestVisitorState).sum := state(TestVisitorState).sum + item(TestNodePtr).value;
+  state(TestVisitorState).sum := state(TestVisitorState).sum + item(TestItemPtr).value;
   INC(state(TestVisitorState).count);
   RETURN state(TestVisitorState).count < 2
 END VisitorEarlyStop;
 
-PROCEDURE NewNode(val: INTEGER): TestNodePtr;
-VAR node: TestNodePtr;
+PROCEDURE NewItem(val: INTEGER): TestItemPtr;
+VAR item: TestItemPtr;
 BEGIN
-  NEW(node);
-  node.value := val;
-  node.next := NIL;
-  RETURN node
-END NewNode;
+  NEW(item);
+  item.value := val;
+  RETURN item
+END NewItem;
 
 PROCEDURE TestNewAndIsEmpty(): BOOLEAN;
 VAR list: LinkedList.List; pass: BOOLEAN;
@@ -59,13 +58,13 @@ END TestNewAndIsEmpty;
 PROCEDURE TestAppendAndRemove(): BOOLEAN;
 VAR 
     list: LinkedList.List; 
-    n1, n2, n3: TestNodePtr;
-    out: LinkedList.ListItemPtr;
+    n1, n2, n3: TestItemPtr;
+    out: Collections.ItemPtr;
     pass: BOOLEAN;
 BEGIN
   pass := TRUE;
   list := LinkedList.New();
-  n1 := NewNode(1); n2 := NewNode(2); n3 := NewNode(3);
+  n1 := NewItem(1); n2 := NewItem(2); n3 := NewItem(3);
 
   LinkedList.Append(list, n1);
   IF LinkedList.Count(list) # 1 THEN pass := FALSE END;
@@ -96,50 +95,58 @@ BEGIN
   RETURN pass
 END TestAppendAndRemove;
 
-PROCEDURE TestInsertAfter(): BOOLEAN;
+PROCEDURE TestInsertAt(): BOOLEAN;
 VAR
   list: LinkedList.List;
-  n1, n2, n3, n4, n5, n99: TestNodePtr;
+  n1, n2, n3, n4, n5: TestItemPtr;
+  result: Collections.ItemPtr;
+  success: BOOLEAN;
   pass: BOOLEAN;
 BEGIN
   pass := TRUE;
   list := LinkedList.New();
-  n1 := NewNode(1); n2 := NewNode(2); n3 := NewNode(3); n4 := NewNode(4);
+  n1 := NewItem(1); n2 := NewItem(2); n3 := NewItem(3); n4 := NewItem(4); n5 := NewItem(5);
 
   LinkedList.Append(list, n1);
   LinkedList.Append(list, n2);
   LinkedList.Append(list, n4); (* List: n1 -> n2 -> n4 *)
 
-  LinkedList.InsertAfter(list, n2, n3); (* Insert n3 after n2: n1 -> n2 -> n3 -> n4 *)
-
-  IF n2.next # n3 THEN pass := FALSE END;
-  IF n3.next # n4 THEN pass := FALSE END;
+  (* Insert n3 at position 2 (between n2 and n4): n1 -> n2 -> n3 -> n4 *)
+  success := LinkedList.InsertAt(list, 2, n3);
+  IF ~success THEN pass := FALSE END;
   IF LinkedList.Count(list) # 4 THEN pass := FALSE END;
+  
+  (* Verify insertion using GetAt *)
+  success := LinkedList.GetAt(list, 2, result);
+  IF ~success OR (result # n3) THEN pass := FALSE END;
 
-  (* Insert after tail, should update tail *)
-  n5 := NewNode(5);
-  LinkedList.InsertAfter(list, n4, n5);
+  (* Insert at the end of the list *)
+  success := LinkedList.InsertAt(list, 4, n5);
+  IF ~success THEN pass := FALSE END;
   IF LinkedList.Count(list) # 5 THEN pass := FALSE END;
+  
+  success := LinkedList.GetAt(list, 4, result);
+  IF ~success OR (result # n5) THEN pass := FALSE END;
 
-  (* Insert after NIL should do nothing *)
-  n99 := NewNode(99);
-  LinkedList.InsertAfter(list, NIL, n99);
+  (* Insert at invalid position *)
+  success := LinkedList.InsertAt(list, 10, NewItem(99));
+  IF success THEN pass := FALSE END;
   IF LinkedList.Count(list) # 5 THEN pass := FALSE END;
 
   LinkedList.Free(list);
   RETURN pass
-END TestInsertAfter;
+END TestInsertAt;
 
 PROCEDURE TestForeach(): BOOLEAN;
 VAR
   list: LinkedList.List;
-  n1, n2, n3: TestNodePtr;
+  n1, n2, n3: TestItemPtr;
   state: TestVisitorState;
   pass: BOOLEAN;
 BEGIN
   pass := TRUE;
   list := LinkedList.New();
-  n1 := NewNode(10); n2 := NewNode(20); n3 := NewNode(30);
+  n1 := NewItem(10); n2 := NewItem(20); n3 := NewItem(30);
   LinkedList.Append(list, n1);
   LinkedList.Append(list, n2);
   LinkedList.Append(list, n3);
@@ -156,11 +163,47 @@ BEGIN
   RETURN pass
 END TestForeach;
 
+PROCEDURE TestGetAt(): BOOLEAN;
+VAR
+  list: LinkedList.List;
+  n1, n2, n3: TestItemPtr;
+  result: Collections.ItemPtr;
+  success: BOOLEAN;
+  pass: BOOLEAN;
+BEGIN
+  pass := TRUE;
+  list := LinkedList.New();
+  n1 := NewItem(10); n2 := NewItem(20); n3 := NewItem(30);
+  LinkedList.Append(list, n1);
+  LinkedList.Append(list, n2);
+  LinkedList.Append(list, n3);
+
+  success := LinkedList.GetAt(list, 0, result);
+  IF ~success OR (result # n1) THEN pass := FALSE END;
+  
+  success := LinkedList.GetAt(list, 1, result);
+  IF ~success OR (result # n2) THEN pass := FALSE END;
+  
+  success := LinkedList.GetAt(list, 2, result);
+  IF ~success OR (result # n3) THEN pass := FALSE END;
+  
+  (* Test out of bounds access *)
+  success := LinkedList.GetAt(list, -1, result);
+  IF success THEN pass := FALSE END;
+  
+  success := LinkedList.GetAt(list, 3, result);
+  IF success THEN pass := FALSE END;
+
+  LinkedList.Free(list);
+  RETURN pass
+END TestGetAt;
+
 BEGIN
   Tests.Init(ts, "LinkedList Tests");
   Tests.Add(ts, TestNewAndIsEmpty);
   Tests.Add(ts, TestAppendAndRemove);
-  Tests.Add(ts, TestInsertAfter);
+  Tests.Add(ts, TestInsertAt);
   Tests.Add(ts, TestForeach);
+  Tests.Add(ts, TestGetAt);
   ASSERT(Tests.Run(ts));
 END TestLinkedList.
