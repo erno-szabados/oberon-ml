@@ -1,4 +1,4 @@
-(** 
+(**
     DoubleLinkedList.mod - A doubly linked list implementation.
 
     Copyright (C) 2025
@@ -17,14 +17,15 @@ TYPE
     END;
     NodePtr = POINTER TO Node;
 
-    List* = POINTER TO ListDesc;  (* Opaque pointer type *)
+    (** Opaque pointer type *)
+    List* = POINTER TO ListDesc; 
     ListDesc = RECORD
         head: NodePtr;
         tail: NodePtr;
         size: INTEGER
     END;
 
-(* Constructor: Allocate and initialize a new double linked list *)
+(** Constructor: Allocate and initialize a new double linked list *)
 PROCEDURE New*(): List;
 VAR list: List;
 BEGIN
@@ -35,13 +36,13 @@ BEGIN
     RETURN list
 END New;
 
-(* Destructor: (optional, only if you want to clear memory) *)
+(** Destructor: (optional, only if you want to clear memory) *)
 PROCEDURE Free*(VAR list: List);
 BEGIN
     list := NIL
 END Free;
 
-(* Append a new element. *)
+(** Append a new element. *)
 PROCEDURE Append*(list: List; item: Collections.ItemPtr);
 VAR node: NodePtr;
 BEGIN
@@ -60,7 +61,7 @@ BEGIN
     INC(list.size)
 END Append;
 
-(* Remove and return the first list element. *)
+(** Remove and return the first list element. *)
 PROCEDURE RemoveFirst*(list: List; VAR result: Collections.ItemPtr);
 VAR node: NodePtr;
 BEGIN
@@ -79,7 +80,7 @@ BEGIN
     END
 END RemoveFirst;
 
-(* Remove and return the last list element. *)
+(** Remove and return the last list element. *)
 PROCEDURE RemoveLast*(list: List; VAR result: Collections.ItemPtr);
 VAR node: NodePtr;
 BEGIN
@@ -98,7 +99,7 @@ BEGIN
     END
 END RemoveLast;
 
-(* Insert a new element at a given position (0-based index). *)
+(** Insert a new element at a given position (0-based index). *)
 PROCEDURE InsertAt*(list: List; position: INTEGER; item: Collections.ItemPtr): BOOLEAN;
 VAR 
     node, newNode: NodePtr;
@@ -150,13 +151,13 @@ BEGIN
     RETURN result
 END InsertAt;
 
-(* Return the number of elements in the list. *)
+(** Return the number of elements in the list. *)
 PROCEDURE Count*(list: List): INTEGER;
 BEGIN
     RETURN list.size
 END Count;
 
-(* Test if the list is empty. *)
+(** Test if the list is empty. *)
 PROCEDURE IsEmpty*(list: List): BOOLEAN;
 BEGIN
     RETURN list.head = NIL
@@ -202,6 +203,7 @@ BEGIN
     RETURN success
 END GetAt;
 
+(** Return the list head item. *)
 PROCEDURE Head*(list: List; VAR result: Collections.ItemPtr): BOOLEAN;
 VAR success: BOOLEAN;
 BEGIN
@@ -214,6 +216,7 @@ BEGIN
     RETURN success
 END Head;
 
+(** Return the list tail item. *)
 PROCEDURE Tail*(list: List; VAR result: Collections.ItemPtr): BOOLEAN;
 VAR success: BOOLEAN;
 BEGIN

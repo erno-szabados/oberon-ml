@@ -1,4 +1,4 @@
-(* 
+(*
     DoubleLinkedList.mod - A doubly linked list implementation.
 
     Copyright (C) 2025
@@ -9,22 +9,31 @@ DEFINITION DoubleLinkedList;
 IMPORT Collections;
 
 TYPE
-    List = POINTER TO ListDesc;
+    (* Opaque pointer type *)
+    List = POINTER TO ListDesc; 
 
+(* Constructor: Allocate and initialize a new double linked list *)
 PROCEDURE New(): List;
 
+(* Destructor: (optional, only if you want to clear memory) *)
 PROCEDURE Free(VAR list: List);
 
+(* Append a new element. *)
 PROCEDURE Append(list: List; item: Collections.ItemPtr);
 
+(* Remove and return the first list element. *)
 PROCEDURE RemoveFirst(list: List; VAR result: Collections.ItemPtr);
 
+(* Remove and return the last list element. *)
 PROCEDURE RemoveLast(list: List; VAR result: Collections.ItemPtr);
 
+(* Insert a new element at a given position (0-based index). *)
 PROCEDURE InsertAt(list: List; position: INTEGER; item: Collections.ItemPtr): BOOLEAN;
 
+(* Return the number of elements in the list. *)
 PROCEDURE Count(list: List): INTEGER;
 
+(* Test if the list is empty. *)
 PROCEDURE IsEmpty(list: List): BOOLEAN;
 
 (* Apply a procedure to each element in the list, passing a state variable. 
@@ -34,8 +43,10 @@ PROCEDURE Foreach(list: List; visit: Collections.VisitProc; VAR state: Collectio
 (* Get item at specified position (0-based index), returns TRUE if successful. *)
 PROCEDURE GetAt(list: List; position: INTEGER; VAR result: Collections.ItemPtr): BOOLEAN;
 
+(* Return the list head item. *)
 PROCEDURE Head(list: List; VAR result: Collections.ItemPtr): BOOLEAN;
 
+(* Return the list tail item. *)
 PROCEDURE Tail(list: List; VAR result: Collections.ItemPtr): BOOLEAN;
 
 END DoubleLinkedList.
