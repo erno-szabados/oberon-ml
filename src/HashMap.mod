@@ -1,0 +1,267 @@
+(** HashMap.mod - A hashmap implementation using separate chaining.
+
+Copyright (C) 2025
+
+Released under The 3-Clause BSD License.
+*)
+
+MODULE HashMap;
+
+IMPORT Collections, LinkedList, Bitwise;
+
+CONST
+    DefaultSize = 16;
+    MaxSize = 1024;
+
+TYPE
+    (** Key-Value pair for storage *)
+    KeyValuePair* = RECORD(Collections.Item)
+        key*: INTEGER;
+        value*: Collections.ItemPtr
+    END;
+    KeyValuePairPtr* = POINTER TO KeyValuePair;
+
+    (* BucketArray is hidden - clients don't need to know about buckets *)
+    BucketArray = ARRAY MaxSize OF LinkedList.List;
+
+    (** Opaque pointer to a HashMap *)
+    HashMap* = POINTER TO HashMapDesc;
+    (* HashMapDesc is private - clients can't access internal fields *)
+    HashMapDesc = RECORD
+        buckets: BucketArray;
+        size: INTEGER;
+        count: INTEGER
+    END;
+
+(** Create a new key-value pair *)
+PROCEDURE NewKeyValuePair*(key: INTEGER; value: Collections.ItemPtr): KeyValuePairPtr;
+VAR pair: KeyValuePairPtr;
+BEGIN
+    NEW(pair);
+    pair.key := key;
+    pair.value := value;
+    RETURN pair
+END NewKeyValuePair;
+
+(* Internal hash function *)
+PROCEDURE Hash(key: INTEGER; size: INTEGER): INTEGER;
+VAR hash: INTEGER;
+BEGIN
+    (* Simple hash function: multiply by a prime and take modulus *)
+    hash := Bitwise.Xor(key, Bitwise.ShiftRight(key, 16));
+    hash := hash * 73;
+    hash := Bitwise.Xor(hash, Bitwise.ShiftRight(hash, 13));
+    hash := hash * 37;
+    hash := Bitwise.Xor(hash, Bitwise.ShiftRight(hash, 9));
+    IF hash < 0 THEN hash := -hash END;
+    RETURN hash MOD size
+END Hash;
+
+(* Internal helper function *)
+PROCEDURE FindInBucket(list: LinkedList.List; key: INTEGER; VAR found: KeyValuePairPtr): BOOLEAN;
+VAR 
+    i: INTEGER;
+    item: Collections.ItemPtr;
+    pair: KeyValuePairPtr;
+    result: BOOLEAN;
+BEGIN
+    result := FALSE;
+    found := NIL;
+    
+    FOR i := 0 TO LinkedList.Count(list) - 1 DO
+        IF LinkedList.GetAt(list, i, item) THEN
+            pair := item(KeyValuePairPtr);
+            IF pair.key = key THEN
+                found := pair;
+                result := TRUE
+            END
+        END
+    END;
+    
+    RETURN result
+END FindInBucket;
+
+(** Constructor: Allocate and initialize a new hashmap with specified size *)
+PROCEDURE NewWithSize*(initialSize: INTEGER): HashMap;
+VAR 
+    map: HashMap;
+    i: INTEGER;
+BEGIN
+    NEW(map);
+    IF initialSize <= 0 THEN
+        initialSize := DefaultSize
+    END;
+    IF initialSize > MaxSize THEN
+        initialSize := MaxSize
+    END;
+    
+    map.size := initialSize;
+    map.count := 0;
+    
+    FOR i := 0 TO map.size - 1 DO
+        map.buckets[i] := LinkedList.New()
+    END;
+    
+    RETURN map
+END NewWithSize;
+
+(** Constructor: Allocate and initialize a new hashmap *)
+PROCEDURE New*(): HashMap;
+VAR result: HashMap;
+BEGIN
+    result := NewWithSize(DefaultSize);
+    RETURN result
+END New;
+
+(** Destructor: Free the hashmap *)
+PROCEDURE Free*(VAR map: HashMap);
+VAR i: INTEGER;
+BEGIN
+    IF map # NIL THEN
+        FOR i := 0 TO map.size - 1 DO
+            LinkedList.Free(map.buckets[i])
+        END;
+        map := NIL
+    END
+END Free;
+
+(** Insert or update a key-value pair *)
+PROCEDURE Put*(map: HashMap; key: INTEGER; value: Collections.ItemPtr);
+VAR 
+    index: INTEGER;
+    bucket: LinkedList.List;
+    existingPair: KeyValuePairPtr;
+    newPair: KeyValuePairPtr;
+BEGIN
+    index := Hash(key, map.size);
+    bucket := map.buckets[index];
+    
+    IF FindInBucket(bucket, key, existingPair) THEN
+        (* Update existing key *)
+        existingPair.value := value
+    ELSE
+        (* Insert new key-value pair *)
+        newPair := NewKeyValuePair(key, value);
+        LinkedList.Append(bucket, newPair);
+        INC(map.count)
+    END
+END Put;
+
+(** Get a value by key *)
+PROCEDURE Get*(map: HashMap; key: INTEGER; VAR value: Collections.ItemPtr): BOOLEAN;
+VAR 
+    index: INTEGER;
+    bucket: LinkedList.List;
+    pair: KeyValuePairPtr;
+    result: BOOLEAN;
+BEGIN
+    index := Hash(key, map.size);
+    bucket := map.buckets[index];
+    
+    IF FindInBucket(bucket, key, pair) THEN
+        value := pair.value;
+        result := TRUE
+    ELSE
+        value := NIL;
+        result := FALSE
+    END;
+    
+    RETURN result
+END Get;
+
+(** Check if a key exists in the hashmap *)
+PROCEDURE Contains*(map: HashMap; key: INTEGER): BOOLEAN;
+VAR 
+    index: INTEGER;
+    bucket: LinkedList.List;
+    pair: KeyValuePairPtr;
+    result: BOOLEAN;
+BEGIN
+    index := Hash(key, map.size);
+    bucket := map.buckets[index];
+    result := FindInBucket(bucket, key, pair);
+    RETURN result
+END Contains;
+
+(** Remove a key-value pair from the hashmap *)
+PROCEDURE Remove*(map: HashMap; key: INTEGER): BOOLEAN;
+VAR 
+    index, i: INTEGER;
+    bucket: LinkedList.List;
+    item: Collections.ItemPtr;
+    pair: KeyValuePairPtr;
+    result: BOOLEAN;
+BEGIN
+    result := FALSE;
+    index := Hash(key, map.size);
+    bucket := map.buckets[index];
+    
+    FOR i := 0 TO LinkedList.Count(bucket) - 1 DO
+        IF LinkedList.GetAt(bucket, i, item) THEN
+            pair := item(KeyValuePairPtr);
+            IF pair.key = key THEN
+                IF LinkedList.RemoveAt(bucket, i, item) THEN
+                    DEC(map.count);
+                    result := TRUE
+                END
+            END
+        END
+    END;
+    
+    RETURN result
+END Remove;
+
+(** Get the number of key-value pairs in the hashmap *)
+PROCEDURE Count*(map: HashMap): INTEGER;
+VAR result: INTEGER;
+BEGIN
+    result := map.count;
+    RETURN result
+END Count;
+
+(** Test if the hashmap is empty *)
+PROCEDURE IsEmpty*(map: HashMap): BOOLEAN;
+VAR result: BOOLEAN;
+BEGIN
+    result := map.count = 0;
+    RETURN result
+END IsEmpty;
+
+(** Get the current load factor as percentage *)
+PROCEDURE LoadFactor*(map: HashMap): INTEGER;
+VAR result: INTEGER;
+BEGIN
+    IF map.size = 0 THEN
+        result := 0
+    ELSE
+        result := (map.count * 100) DIV map.size
+    END;
+    RETURN result
+END LoadFactor;
+
+(** Apply a procedure to each key-value pair in the hashmap *)
+PROCEDURE Foreach*(map: HashMap; visit: Collections.VisitProc; VAR state: Collections.VisitorState);
+VAR 
+    i, j: INTEGER;
+    bucket: LinkedList.List;
+    item: Collections.ItemPtr;
+    pair: KeyValuePairPtr;
+    continue: BOOLEAN;
+BEGIN
+    continue := TRUE;
+    i := 0;
+    WHILE (i < map.size) & continue DO
+        bucket := map.buckets[i];
+        j := 0;
+        WHILE (j < LinkedList.Count(bucket)) & continue DO
+            IF LinkedList.GetAt(bucket, j, item) THEN
+                pair := item(KeyValuePairPtr);
+                continue := visit(pair, state)
+            END;
+            INC(j)
+        END;
+        INC(i)
+    END
+END Foreach;
+
+END HashMap.

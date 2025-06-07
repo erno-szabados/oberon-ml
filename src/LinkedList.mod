@@ -175,4 +175,47 @@ BEGIN
     RETURN success
 END GetAt;
 
+(** Remove item at specified position (0-based index), returns TRUE if successful. *)
+PROCEDURE RemoveAt*(list: List; position: INTEGER; VAR result: Collections.ItemPtr): BOOLEAN;
+VAR 
+    current, previous: NodePtr;
+    i: INTEGER;
+    success: BOOLEAN;
+BEGIN
+    success := FALSE;
+    result := NIL;
+    
+    IF (position >= 0) & (position < list.size) THEN
+        (* Remove head *)
+        IF position = 0 THEN
+            RemoveFirst(list, result);
+            success := TRUE
+        ELSE
+            (* Find the node at position-1 and position *)
+            previous := list.head;
+            i := 0;
+            WHILE (i < position - 1) & (previous # NIL) DO
+                previous := previous.next;
+                INC(i)
+            END;
+            
+            IF (previous # NIL) & (previous.next # NIL) THEN
+                current := previous.next;
+                result := current.item;
+                previous.next := current.next;
+                
+                (* Update tail if we removed the last node *)
+                IF current = list.tail THEN
+                    list.tail := previous
+                END;
+                
+                DEC(list.size);
+                success := TRUE
+            END
+        END
+    END;
+    
+    RETURN success
+END RemoveAt;
+
 END LinkedList.
