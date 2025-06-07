@@ -111,7 +111,7 @@ END.
 ### HashMap Example
 
 ```oberon
-IMPORT HashMap, Collections;
+IMPORT HashMap, Collections, CollectionKeys;
 
 TYPE
     MyItem = RECORD (Collections.Item)
@@ -124,10 +124,16 @@ VAR
     map: HashMap.HashMap;
     item: MyItemPtr;
     result: Collections.ItemPtr;
+    ops: CollectionKeys.KeyOps;
     success: BOOLEAN;
 
 BEGIN
-    map := HashMap.NewWithSize(32);
+    (* Create HashMap with integer keys *)
+    map := HashMap.New();
+    
+    (* Or create with custom size *)
+    CollectionKeys.IntegerKeyOps(ops);
+    map := HashMap.NewWithSize(32, ops);
     
     (* Create and store items *)
     NEW(item); 
@@ -147,7 +153,7 @@ BEGIN
     END;
     
     (* Remove items *)
-    success := HashMap.Remove(map, 123, result);
+    success := HashMap.Remove(map, 123);
     
     HashMap.Free(map);
 END.
@@ -164,12 +170,76 @@ The HashMap module provides a special `KeyValuePair` type that extends `Collecti
 ```oberon
 TYPE
     KeyValuePair* = RECORD(Collections.Item)
-        key*: INTEGER;
+        key*: CollectionKeys.KeyPtr;
         value*: Collections.ItemPtr
     END;
 ```
 
 This allows HashMap to work seamlessly with the visitor pattern used by `Foreach`, where the visitor receives `KeyValuePair` items containing both the key and the associated value.
+
+## CollectionKeys Module
+
+The `CollectionKeys` module provides extensible key support for key-value collections like HashMap. It defines base key types and operations that can be extended for different key types.
+
+### Key Types
+
+```oberon
+TYPE
+    (* Base key type - extend for specific key types *)
+    Key* = RECORD(Collections.Item) END;
+    KeyPtr* = POINTER TO Key;
+    
+    (* Integer key implementation *)
+    IntegerKey* = RECORD(Key)
+        value*: INTEGER
+    END;
+    IntegerKeyPtr* = POINTER TO IntegerKey;
+    
+    (* Key operations interface *)
+    KeyOps* = RECORD
+        hash*: PROCEDURE(key: KeyPtr; size: INTEGER): INTEGER;
+        equals*: PROCEDURE(key1, key2: KeyPtr): BOOLEAN
+    END;
+```
+
+### Usage
+
+```oberon
+(* Create integer key operations *)
+VAR ops: CollectionKeys.KeyOps;
+CollectionKeys.IntegerKeyOps(ops);
+
+(* Use with HashMap *)
+map := HashMap.NewWithSize(32, ops);
+
+(* Or use convenience constructor for integer keys *)
+map := HashMap.New();
+```
+
+### Extending with Custom Key Types
+
+Future key types can be added by extending the base `Key` type and providing appropriate hash and equality functions:
+
+```oberon
+(* Example: String key type *)
+TYPE
+    StringKey = RECORD(CollectionKeys.Key)
+        value: ARRAY 256 OF CHAR
+    END;
+    StringKeyPtr = POINTER TO StringKey;
+
+PROCEDURE HashString(key: CollectionKeys.KeyPtr; size: INTEGER): INTEGER;
+    (* Implementation for string hashing *)
+
+PROCEDURE EqualsString(key1, key2: CollectionKeys.KeyPtr): BOOLEAN;
+    (* Implementation for string comparison *)
+
+PROCEDURE StringKeyOps(VAR ops: CollectionKeys.KeyOps);
+BEGIN
+    ops.hash := HashString;
+    ops.equals := EqualsString
+END StringKeyOps;
+```
 
 ### Information Hiding
 

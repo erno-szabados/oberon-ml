@@ -7,7 +7,7 @@ Released under The 3-Clause BSD License.
 
 MODULE TestHashMap;
 
-IMPORT HashMap, Collections, Tests;
+IMPORT HashMap, Collections, CollectionKeys, Tests;
 
 TYPE
     (* Test item extending Collections.Item *)
@@ -71,12 +71,12 @@ END TestNewAndFree;
 PROCEDURE TestNewWithSize*(): BOOLEAN;
 VAR 
     map: HashMap.HashMap;
-    ops: HashMap.KeyOps;
+    ops: CollectionKeys.KeyOps;
     pass: BOOLEAN;
 BEGIN
     pass := TRUE;
     
-    HashMap.IntegerKeyOps(ops);
+    CollectionKeys.IntegerKeyOps(ops);
     map := HashMap.NewWithSize(32, ops);
     Tests.ExpectedBool(TRUE, map # NIL, "HashMap.NewWithSize should return non-nil", pass);
     Tests.ExpectedBool(TRUE, HashMap.IsEmpty(map), "New hashmap should be empty", pass);
@@ -234,11 +234,11 @@ VAR
     map: HashMap.HashMap;
     item1, item2: TestItemPtr;
     loadFactor: INTEGER;
-    ops: HashMap.KeyOps;
+    ops: CollectionKeys.KeyOps;
     pass: BOOLEAN;
 BEGIN
     pass := TRUE;
-    HashMap.IntegerKeyOps(ops);
+    CollectionKeys.IntegerKeyOps(ops);
     map := HashMap.NewWithSize(4, ops); (* Small size for testing *)
     
     Tests.ExpectedInt(0, HashMap.LoadFactor(map), "Empty map should have 0 load factor", pass);
@@ -297,11 +297,11 @@ VAR
     item1, item2, item3: TestItemPtr;
     value: Collections.ItemPtr;
     retrieved: TestItemPtr;
-    ops: HashMap.KeyOps;
+    ops: CollectionKeys.KeyOps;
     pass: BOOLEAN;
 BEGIN
     pass := TRUE;
-    HashMap.IntegerKeyOps(ops);
+    CollectionKeys.IntegerKeyOps(ops);
     map := HashMap.NewWithSize(2, ops); (* Very small size to force collisions *)
     
     item1 := NewTestItem(100);
