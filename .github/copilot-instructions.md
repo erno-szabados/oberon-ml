@@ -6,9 +6,13 @@
   - Only fixed-size arrays are allowed by the language. 
   - Open array parameters are allowed as procedure parameters only.
   - Return is only allowed as the last statement in a procedure. Use a `result` variable for returning values.
+  - No early returns are allowed.
+  - Forward declarations for procedures are not allowed (only for pointers).
+  - A situation requiring mutual recursion can be handled by using procedure types to make indirect calls.
   - The last statement before an `END` or and `ELSE` **must not end with a semicolon**.
   - For bitwise operations, use our own implementation from `Bitwise.mod`.
   - Use VAR in procedure parameters for mutable variables.
+  - The CASE statement does not have a default case.
   - SYSTEM.VAL() does not allow procedure parameters, use a local variable to convert types.
   - Language specification is available in `docs/md/Oberon.md`
   - Collections documentation is available in `docs/md/Collections.md`
